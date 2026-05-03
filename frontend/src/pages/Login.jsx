@@ -1,20 +1,32 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../services/api";
 import "../App.css";
-
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    console.log({
-      email,
-      password,
-    });
+    setError("");
 
-    // aqui depois vamos conectar com o backend
+    try {
+      const data = await login({ email, password });
+
+      // salva token
+      localStorage.setItem("token", data.access_token);
+
+      // redireciona
+      navigate("/dashboard");
+
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -39,6 +51,9 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          {/* erro */}
+          {error && <span className="error">{error}</span>}
 
           <button className="btn primary" type="submit">
             Entrar
