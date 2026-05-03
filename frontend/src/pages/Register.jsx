@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { register } from "../services/api";
+import { useNavigate, Link } from "react-router-dom";
 import "../App.css";
 
 function Register() {
@@ -9,26 +11,38 @@ function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const navigate = useNavigate();
+
   const handleRegister = async (e) => {
     e.preventDefault();
 
     setError("");
     setSuccess("");
 
-    // validação simples 
     if (password.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres");
       return;
     }
 
     try {
-      // 👉 depois vamos conectar com FastAPI
+      await register({
+        username,
+        email,
+        password,
+      });
+
       setSuccess("Conta criada com sucesso!");
-      
+
       // limpa campos
       setUsername("");
       setEmail("");
       setPassword("");
+
+      // redireciona pro login
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+
     } catch (err) {
       setError("Erro ao cadastrar");
     }
@@ -65,10 +79,7 @@ function Register() {
             required
           />
 
-          {/* ERRO */}
           {error && <span className="error">{error}</span>}
-
-          {/* SUCESSO */}
           {success && <span className="success">{success}</span>}
 
           <button className="btn primary" type="submit">
@@ -76,9 +87,8 @@ function Register() {
           </button>
         </form>
 
-        {/* link para login */}
         <p className="link">
-          Já tem conta? <a href="/login">Entrar</a>
+          Já tem conta? <Link to="/login">Entrar</Link>
         </p>
       </div>
     </div>
