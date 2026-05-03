@@ -9,11 +9,13 @@ export async function register(data) {
     body: JSON.stringify(data),
   });
 
+  const result = await response.json();
+
   if (!response.ok) {
-    throw new Error("Erro ao cadastrar");
+    throw new Error(result.detail || "Erro ao cadastrar");
   }
 
-  return response.json();
+  return result;
 }
 
 export async function login(data) {
@@ -28,9 +30,11 @@ export async function login(data) {
     }),
   });
 
+  const result = await response.json();
+
   if (!response.ok) {
-    throw new Error("E-mail ou senha inválidos");
+    throw new Error(result.detail || "E-mail ou senha inválidos");
   }
 
-  return response.json();
+  return result;
 } 

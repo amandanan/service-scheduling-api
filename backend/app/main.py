@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.database.base import Base
 from app.database.session import engine
 
@@ -12,6 +14,15 @@ from app.models.user import User
 from app.routes import client, service, appointment, auth
 
 app = FastAPI(title="Service Scheduling API")
+
+# ✅ CORS (ESSENCIAL para o frontend funcionar)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # front do Vite
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Registrar rotas
 app.include_router(client.router)
