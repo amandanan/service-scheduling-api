@@ -1,4 +1,18 @@
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import "../App.css";
+
 function Home() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   return (
     <div className="container">
       <div className="card">
@@ -8,8 +22,13 @@ function Home() {
         </p>
 
         <div className="buttons">
-          <button className="btn primary">Login</button>
-          <button className="btn outline">Cadastro</button>
+          <Link to="/login" className="btn primary">
+            Login
+          </Link>
+
+          <Link to="/register" className="btn outline">
+            Cadastro
+          </Link>
         </div>
       </div>
     </div>

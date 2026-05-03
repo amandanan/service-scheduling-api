@@ -67,6 +67,8 @@ html, body {
   cursor: pointer;
   font-weight: bold;
   transition: all 0.25s ease;
+  text-decoration: none;
+  display: inline-block;
 }
 
 /* Botão principal */
