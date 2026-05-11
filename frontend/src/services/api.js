@@ -1,40 +1,30 @@
+import axios from "axios";
+
 const API_URL = "http://127.0.0.1:8000";
 
+const api = axios.create({
+  baseURL: API_URL,
+});
+
 export async function register(data) {
-  const response = await fetch(`${API_URL}/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  const response = await api.post("/auth/register", data);
 
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.detail || "Erro ao cadastrar");
-  }
-
-  return result;
+  return response.data;
 }
 
 export async function login(data) {
-  const response = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
+  const body = new URLSearchParams({
+    username: data.email,
+    password: data.password,
+  });
+
+  const response = await api.post("/auth/login", body, {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: new URLSearchParams({
-      username: data.email,
-      password: data.password,
-    }),
   });
 
-  const result = await response.json();
+  return response.data;
+}
 
-  if (!response.ok) {
-    throw new Error(result.detail || "E-mail ou senha inválidos");
-  }
-
-  return result;
-} 
+export default api;
