@@ -27,4 +27,18 @@ export async function login(data) {
   return response.data;
 }
 
+export async function getClients() {
+  const response = await api.get("/clients");
+  return response.data;
+}
+
+export async function createClient(data) {
+  const response = await api.post("/clients", data);
+  return response.data;
+}
+
+export async function deleteClient(id) {
+  await api.delete(`/clients/${id}`);
+}
+
 export default api;
