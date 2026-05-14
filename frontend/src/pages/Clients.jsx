@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
 
+import {
+  FaUserPlus,
+  FaEdit,
+  FaTrash,
+  FaUsers,
+  FaEnvelope,
+  FaPhone,
+} from "react-icons/fa";
+
 export default function Clients() {
   const [clients, setClients] = useState([]);
 
@@ -34,15 +43,10 @@ export default function Clients() {
     };
 
     try {
-      // EDITAR
       if (editingId) {
         await api.put(`/clients/${editingId}`, clientData);
-
         setEditingId(null);
-      }
-
-      // CRIAR
-      else {
+      } else {
         await api.post("/clients", clientData);
       }
 
@@ -84,110 +88,308 @@ export default function Clients() {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f4f6fb",
+        padding: "30px",
+      }}
+    >
       <Navbar />
 
-      <h1>Clientes</h1>
-
-      <form
-        onSubmit={handleSubmit}
+      <div
         style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
+          maxWidth: "1200px",
+          margin: "0 auto",
         }}
       >
-        <input
-          type="text"
-          placeholder="Nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "30px",
+          }}
+        >
+          <FaUsers size={32} color="#6d28d9" />
 
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          type="text"
-          placeholder="Telefone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-        />
-
-        <button type="submit">
-          {editingId ? "Atualizar" : "Cadastrar"}
-        </button>
-
-        {editingId && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditingId(null);
-              clearForm();
+          <h1
+            style={{
+              fontSize: "32px",
+              color: "#1e1e2f",
+              margin: 0,
             }}
           >
-            Cancelar
-          </button>
-        )}
-      </form>
+            Gestão de Clientes
+          </h1>
+        </div>
 
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-        }}
-      >
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>E-mail</th>
-            <th>Telefone</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {clients.map((client) => (
-            <tr key={client.id}>
-              <td>{client.id}</td>
-
-              <td>{client.name}</td>
-
-              <td>{client.email}</td>
-
-              <td>{client.phone}</td>
-
-              <td
+        {/* FORM */}
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "25px",
+            borderRadius: "18px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            marginBottom: "30px",
+          }}
+        >
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "15px",
+            }}
+          >
+            <div>
+              <label
                 style={{
-                  display: "flex",
-                  gap: "10px",
+                  display: "block",
+                  marginBottom: "8px",
+                  fontWeight: "600",
                 }}
               >
-                <button onClick={() => handleEdit(client)}>
-                  Editar
-                </button>
+                Nome
+              </label>
 
+              <input
+                type="text"
+                placeholder="Digite o nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  fontWeight: "600",
+                }}
+              >
+                E-mail
+              </label>
+
+              <input
+                type="email"
+                placeholder="Digite o e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  fontWeight: "600",
+                }}
+              >
+                Telefone
+              </label>
+
+              <input
+                type="text"
+                placeholder="Digite o telefone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                style={inputStyle}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "end",
+                gap: "10px",
+              }}
+            >
+              <button type="submit" style={primaryButton}>
+                <FaUserPlus />
+                {editingId ? " Atualizar" : " Cadastrar"}
+              </button>
+
+              {editingId && (
                 <button
-                  onClick={() => handleDelete(client.id)}
+                  type="button"
+                  onClick={() => {
+                    setEditingId(null);
+                    clearForm();
+                  }}
+                  style={secondaryButton}
                 >
-                  Excluir
+                  Cancelar
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* TABELA */}
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "18px",
+            overflow: "hidden",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+          }}
+        >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead
+              style={{
+                backgroundColor: "#6d28d9",
+                color: "#fff",
+              }}
+            >
+              <tr>
+                <th style={thStyle}>ID</th>
+                <th style={thStyle}>Nome</th>
+                <th style={thStyle}>E-mail</th>
+                <th style={thStyle}>Telefone</th>
+                <th style={thStyle}>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {clients.map((client) => (
+                <tr
+                  key={client.id}
+                  style={{
+                    borderBottom: "1px solid #eee",
+                  }}
+                >
+                  <td style={tdStyle}>{client.id}</td>
+
+                  <td style={tdStyle}>{client.name}</td>
+
+                  <td style={tdStyle}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <FaEnvelope color="#6d28d9" />
+                      {client.email}
+                    </div>
+                  </td>
+
+                  <td style={tdStyle}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <FaPhone color="#6d28d9" />
+                      {client.phone}
+                    </div>
+                  </td>
+
+                  <td style={tdStyle}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleEdit(client)}
+                        style={editButton}
+                      >
+                        <FaEdit />
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(client.id)}
+                        style={deleteButton}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
+
+/* ESTILOS */
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px",
+  borderRadius: "10px",
+  border: "1px solid #d1d5db",
+  fontSize: "15px",
+  outline: "none",
+};
+
+const primaryButton = {
+  backgroundColor: "#6d28d9",
+  color: "#fff",
+  border: "none",
+  padding: "12px 18px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "600",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+};
+
+const secondaryButton = {
+  backgroundColor: "#e5e7eb",
+  color: "#111827",
+  border: "none",
+  padding: "12px 18px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "600",
+};
+
+const editButton = {
+  backgroundColor: "#2563eb",
+  color: "#fff",
+  border: "none",
+  padding: "10px",
+  borderRadius: "8px",
+  cursor: "pointer",
+};
+
+const deleteButton = {
+  backgroundColor: "#dc2626",
+  color: "#fff",
+  border: "none",
+  padding: "10px",
+  borderRadius: "8px",
+  cursor: "pointer",
+};
+
+const thStyle = {
+  padding: "16px",
+  textAlign: "left",
+};
+
+const tdStyle = {
+  padding: "16px",
+};
