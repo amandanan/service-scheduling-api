@@ -1,13 +1,23 @@
+/* RESET */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* GLOBAL */
+
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+}
+
 body {
-  background: #f5f7fb;
   font-family: Arial, Helvetica, sans-serif;
+  background: #f5f7fb;
   color: #111827;
+  overflow-x: hidden;
 }
 
 a {
@@ -17,8 +27,4 @@ a {
 button {
   cursor: pointer;
   transition: 0.2s;
-}
-
-button:hover {
-  opacity: 0.92;
 }

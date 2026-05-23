@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
-import "../App.css";
+
+import {
+  FaUsers,
+  FaTools,
+  FaCalendarAlt,
+} from "react-icons/fa";
+
+import "../styles/dashboard.css";
 
 export default function Dashboard() {
   const [clients, setClients] = useState(0);
@@ -19,6 +26,7 @@ export default function Dashboard() {
       setClients(c.data.length);
       setServices(s.data.length);
       setAppointments(a.data.length);
+
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
     }
@@ -29,49 +37,73 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="dashboard-page">
       <Navbar />
 
-      <h1 style={{ marginBottom: "20px" }}>Dashboard</h1>
+      <div className="dashboard-container">
 
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          flexWrap: "wrap",
-        }}
-      >
-        <Card title="Clientes" value={clients} />
-        <Card title="Serviços" value={services} />
-        <Card title="Agendamentos" value={appointments} />
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">
+            Dashboard
+          </h1>
+
+          <p className="dashboard-subtitle">
+            Visão geral do sistema
+          </p>
+        </div>
+
+        <div className="dashboard-grid">
+
+          <Card
+            title="Clientes"
+            value={clients}
+            icon={<FaUsers />}
+          />
+
+          <Card
+            title="Serviços"
+            value={services}
+            icon={<FaTools />}
+          />
+
+          <Card
+            title="Agendamentos"
+            value={appointments}
+            icon={<FaCalendarAlt />}
+          />
+
+        </div>
       </div>
     </div>
   );
 }
 
-function Card({ title, value }) {
+function Card({ title, value, icon }) {
   return (
-    <div
-      style={{
-        padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "10px",
-        minWidth: "180px",
-        backgroundColor: "#fff",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      }}
-    >
-      <h3>{title}</h3>
+    <div className="dashboard-card">
 
-      <p
-        style={{
-          fontSize: "28px",
-          fontWeight: "bold",
-          marginTop: "10px",
-        }}
-      >
-        {value}
-      </p>
+      <div className="dashboard-card-top">
+
+        <div>
+          <p className="dashboard-card-title">
+            {title}
+          </p>
+
+          <h2 className="dashboard-card-value">
+            {value}
+          </h2>
+        </div>
+
+        <div className="dashboard-icon">
+          {icon}
+        </div>
+
+      </div>
+
+      <div className="dashboard-card-footer">
+        Total cadastrados
+      </div>
+
     </div>
   );
 }

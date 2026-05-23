@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../services/api";
-import "../App.css";
+
+import "../styles/login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -16,12 +17,16 @@ function Login() {
     setError("");
 
     try {
-      const data = await login({ email, password });
+      const data = await login({
+        email,
+        password,
+      });
 
-      // salva token
-      localStorage.setItem("token", data.access_token);
+      localStorage.setItem(
+        "token",
+        data.access_token
+      );
 
-      // redireciona
       navigate("/dashboard");
 
     } catch (err) {
@@ -30,17 +35,29 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h1 className="title">Login</h1>
-        <p className="subtitle">Acesse sua conta</p>
+    <div className="login-container">
 
-        <form onSubmit={handleLogin} className="form">
+      <div className="login-card">
+
+        <h1 className="login-title">
+          Login
+        </h1>
+
+        <p className="login-subtitle">
+          Acesse sua conta
+        </p>
+
+        <form
+          onSubmit={handleLogin}
+          className="login-form"
+        >
           <input
             type="email"
             placeholder="Seu e-mail"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
             required
           />
 
@@ -48,17 +65,31 @@ function Login() {
             type="password"
             placeholder="Sua senha"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
             required
           />
 
-          {/* erro */}
-          {error && <span className="error">{error}</span>}
+          {error && (
+            <span className="login-error">
+              {error}
+            </span>
+          )}
 
-          <button className="btn primary" type="submit">
-            Entrar
+          <button className="login-btn" type="submit">
+           Entrar
           </button>
         </form>
+
+        <p className="login-link">
+          Não possui conta?
+
+          <Link to="/register">
+            Cadastrar
+          </Link>
+        </p>
+
       </div>
     </div>
   );

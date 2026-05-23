@@ -3,13 +3,15 @@ import api from "../services/api";
 import Navbar from "../components/Navbar";
 
 import {
-  FaUserPlus,
+  FaUsers,
   FaEdit,
   FaTrash,
-  FaUsers,
+  FaPlus,
   FaEnvelope,
   FaPhone,
 } from "react-icons/fa";
+
+import "../styles/clients.css";
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -88,308 +90,126 @@ export default function Clients() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f4f6fb",
-        padding: "30px",
-      }}
-    >
+    <div className="clients-page">
       <Navbar />
 
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "30px",
-          }}
-        >
-          <FaUsers size={32} color="#6d28d9" />
+      <div className="clients-container">
 
-          <h1
-            style={{
-              fontSize: "32px",
-              color: "#1e1e2f",
-              margin: 0,
-            }}
-          >
-            Gestão de Clientes
+        <div className="clients-card">
+
+          <h1 className="clients-title">
+            <FaUsers />
+            Clientes
           </h1>
-        </div>
 
-        {/* FORM */}
-        <div
-          style={{
-            backgroundColor: "#fff",
-            padding: "25px",
-            borderRadius: "18px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-            marginBottom: "30px",
-          }}
-        >
           <form
             onSubmit={handleSubmit}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "15px",
-            }}
+            className="clients-form"
           >
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "600",
-                }}
-              >
-                Nome
-              </label>
+            <input
+              type="text"
+              placeholder="Nome do cliente"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
 
-              <input
-                type="text"
-                placeholder="Digite o nome"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                style={inputStyle}
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "600",
-                }}
-              >
-                E-mail
-              </label>
+            <input
+              type="text"
+              placeholder="Telefone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
 
-              <input
-                type="email"
-                placeholder="Digite o e-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={inputStyle}
-              />
-            </div>
-
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "600",
-                }}
-              >
-                Telefone
-              </label>
-
-              <input
-                type="text"
-                placeholder="Digite o telefone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                style={inputStyle}
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "end",
-                gap: "10px",
-              }}
+            <button
+              type="submit"
+              className="primary-btn"
             >
-              <button type="submit" style={primaryButton}>
-                <FaUserPlus />
-                {editingId ? " Atualizar" : " Cadastrar"}
+              {editingId ? <FaEdit /> : <FaPlus />}
+              {editingId ? "Atualizar" : "Cadastrar"}
+            </button>
+
+            {editingId && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  setEditingId(null);
+                  clearForm();
+                }}
+              >
+                Cancelar
               </button>
-
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(null);
-                    clearForm();
-                  }}
-                  style={secondaryButton}
-                >
-                  Cancelar
-                </button>
-              )}
-            </div>
+            )}
           </form>
-        </div>
 
-        {/* TABELA */}
-        <div
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: "18px",
-            overflow: "hidden",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-          }}
-        >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-            }}
-          >
-            <thead
-              style={{
-                backgroundColor: "#6d28d9",
-                color: "#fff",
-              }}
-            >
+          <table className="clients-table">
+            <thead>
               <tr>
-                <th style={thStyle}>ID</th>
-                <th style={thStyle}>Nome</th>
-                <th style={thStyle}>E-mail</th>
-                <th style={thStyle}>Telefone</th>
-                <th style={thStyle}>Ações</th>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Telefone</th>
+                <th>Ações</th>
               </tr>
             </thead>
 
             <tbody>
               {clients.map((client) => (
-                <tr
-                  key={client.id}
-                  style={{
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  <td style={tdStyle}>{client.id}</td>
+                <tr key={client.id}>
+                  <td>{client.id}</td>
 
-                  <td style={tdStyle}>{client.name}</td>
+                  <td>{client.name}</td>
 
-                  <td style={tdStyle}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaEnvelope color="#6d28d9" />
+                  <td>
+                    <div className="info-cell">
+                      <FaEnvelope />
                       {client.email}
                     </div>
                   </td>
 
-                  <td style={tdStyle}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <FaPhone color="#6d28d9" />
+                  <td>
+                    <div className="info-cell">
+                      <FaPhone />
                       {client.phone}
                     </div>
                   </td>
 
-                  <td style={tdStyle}>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                      }}
-                    >
+                  <td>
+                    <div className="actions">
                       <button
+                        className="edit-btn"
                         onClick={() => handleEdit(client)}
-                        style={editButton}
                       >
                         <FaEdit />
+                        Editar
                       </button>
 
                       <button
+                        className="delete-btn"
                         onClick={() => handleDelete(client.id)}
-                        style={deleteButton}
                       >
                         <FaTrash />
+                        Excluir
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
+
           </table>
         </div>
       </div>
     </div>
   );
 }
-
-/* ESTILOS */
-
-const inputStyle = {
-  width: "100%",
-  padding: "12px",
-  borderRadius: "10px",
-  border: "1px solid #d1d5db",
-  fontSize: "15px",
-  outline: "none",
-};
-
-const primaryButton = {
-  backgroundColor: "#6d28d9",
-  color: "#fff",
-  border: "none",
-  padding: "12px 18px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontWeight: "600",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-};
-
-const secondaryButton = {
-  backgroundColor: "#e5e7eb",
-  color: "#111827",
-  border: "none",
-  padding: "12px 18px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontWeight: "600",
-};
-
-const editButton = {
-  backgroundColor: "#2563eb",
-  color: "#fff",
-  border: "none",
-  padding: "10px",
-  borderRadius: "8px",
-  cursor: "pointer",
-};
-
-const deleteButton = {
-  backgroundColor: "#dc2626",
-  color: "#fff",
-  border: "none",
-  padding: "10px",
-  borderRadius: "8px",
-  cursor: "pointer",
-};
-
-const thStyle = {
-  padding: "16px",
-  textAlign: "left",
-};
-
-const tdStyle = {
-  padding: "16px",
-};

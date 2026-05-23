@@ -1,0 +1,16 @@
+:root {
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+
+  --background: #f5f7fb;
+  --white: #ffffff;
+
+  --text: #111827;
+  --text-light: #6b7280;
+
+  --success: #4ade80;
+
+  --border: #e5e7eb;
+
+  --radius: 12px;
+}

@@ -10,6 +10,8 @@ import {
   FaDollarSign,
 } from "react-icons/fa";
 
+import "../styles/services.css";
+
 export default function Services() {
   const [services, setServices] = useState([]);
 
@@ -83,219 +85,110 @@ export default function Services() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-        padding: "30px",
-      }}
-    >
+    <div className="services-page">
       <Navbar />
 
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "30px",
-          borderRadius: "20px",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
-        }}
-      >
-        <h1
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            marginBottom: "25px",
-            fontSize: "32px",
-            color: "#4c1d95",
-          }}
-        >
-          <FaTools />
-          Serviços
-        </h1>
+      <div className="services-container">
 
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "flex",
-            gap: "15px",
-            marginBottom: "30px",
-            flexWrap: "wrap",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Nome do serviço"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            style={inputStyle}
-          />
+        <div className="services-card">
 
-          <input
-            type="number"
-            placeholder="Preço"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-            style={inputStyle}
-          />
+          <h1 className="services-title">
+            <FaTools />
+            Serviços
+          </h1>
 
-          <button type="submit" style={primaryButton}>
-            {editingId ? <FaEdit /> : <FaPlus />}
-            {editingId ? "Atualizar" : "Cadastrar"}
-          </button>
+          <form
+            onSubmit={handleSubmit}
+            className="services-form"
+          >
+            <input
+              type="text"
+              placeholder="Nome do serviço"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
 
-          {editingId && (
+            <input
+              type="number"
+              placeholder="Preço"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+            />
+
             <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                clearForm();
-              }}
-              style={secondaryButton}
+              type="submit"
+              className="primary-btn"
             >
-              Cancelar
+              {editingId ? <FaEdit /> : <FaPlus />}
+              {editingId ? "Atualizar" : "Cadastrar"}
             </button>
-          )}
-        </form>
 
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr
-              style={{
-                backgroundColor: "#ede9fe",
-              }}
-            >
-              <th style={thStyle}>ID</th>
-              <th style={thStyle}>Nome</th>
-              <th style={thStyle}>Preço</th>
-              <th style={thStyle}>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {services.map((service) => (
-              <tr
-                key={service.id}
-                style={{
-                  borderBottom: "1px solid #ddd",
+            {editingId && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  setEditingId(null);
+                  clearForm();
                 }}
               >
-                <td style={tdStyle}>{service.id}</td>
+                Cancelar
+              </button>
+            )}
+          </form>
 
-                <td style={tdStyle}>{service.name}</td>
-
-                <td style={tdStyle}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaDollarSign color="#16a34a" />
-                    R$ {service.price}
-                  </div>
-                </td>
-
-                <td style={tdStyle}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                    }}
-                  >
-                    <button
-                      onClick={() => handleEdit(service)}
-                      style={editButton}
-                    >
-                      <FaEdit />
-                      Editar
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(service.id)}
-                      style={deleteButton}
-                    >
-                      <FaTrash />
-                      Excluir
-                    </button>
-                  </div>
-                </td>
+          <table className="services-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th>Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {services.map((service) => (
+                <tr key={service.id}>
+                  <td>{service.id}</td>
+
+                  <td>{service.name}</td>
+
+                  <td>
+                    <div className="price-cell">
+                      <FaDollarSign />
+                      R$ {service.price}
+                    </div>
+                  </td>
+
+                  <td>
+                    <div className="actions">
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEdit(service)}
+                      >
+                        <FaEdit />
+                        Editar
+                      </button>
+
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(service.id)}
+                      >
+                        <FaTrash />
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
+        </div>
       </div>
     </div>
   );
 }
-
-const inputStyle = {
-  padding: "12px",
-  borderRadius: "10px",
-  border: "1px solid #ccc",
-  minWidth: "220px",
-};
-
-const primaryButton = {
-  backgroundColor: "#6d28d9",
-  color: "white",
-  border: "none",
-  padding: "12px 18px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  fontWeight: "bold",
-};
-
-const secondaryButton = {
-  backgroundColor: "#e5e7eb",
-  border: "none",
-  padding: "12px 18px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontWeight: "bold",
-};
-
-const editButton = {
-  backgroundColor: "#2563eb",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-};
-
-const deleteButton = {
-  backgroundColor: "#dc2626",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-};
-
-const thStyle = {
-  padding: "15px",
-  textAlign: "left",
-  color: "#4c1d95",
-};
-
-const tdStyle = {
-  padding: "15px",
-};
