@@ -1,17 +1,27 @@
 from pydantic import BaseModel, EmailStr
+from datetime import date
+
 
 class UserCreate(BaseModel):
-    username: str
+    full_name: str
+    birth_date: date
+    cpf: str
+    phone: str
     email: EmailStr
     password: str
 
+
 class UserResponse(BaseModel):
     id: int
-    username: str
+    full_name: str
+    birth_date: date
+    cpf: str
+    phone: str
     email: EmailStr
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
 
 class Token(BaseModel):
     access_token: str

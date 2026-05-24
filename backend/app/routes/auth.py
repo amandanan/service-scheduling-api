@@ -10,7 +10,7 @@ from app.core.security import create_access_token
 
 
 pwd_context = CryptContext(
-    schemes=["argon2"],  
+    schemes=["argon2"],
     deprecated="auto"
 )
 
@@ -37,17 +37,28 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 # REGISTER
 @router.post("/register", response_model=UserResponse)
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
 
-    
-    existing_user = db.query(User).filter(User.email == user.email).first()
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
+
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email já cadastrado")
+        raise HTTPException(
+            status_code=400,
+            detail="Email já cadastrado"
+        )
 
     hashed_password = hash_password(user.password)
 
     db_user = User(
-        username=user.username,
+        full_name=user.full_name,
+        birth_date=user.birth_date,
+        cpf=user.cpf,
+        phone=user.phone,
         email=user.email,
         hashed_password=hashed_password
     )
@@ -59,16 +70,32 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-#  LOGIN 
+# LOGIN
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
 
-    db_user = db.query(User).filter(User.email == form_data.username).first()
+    db_user = db.query(User).filter(
+        User.email == form_data.username
+    ).first()
 
-    if not db_user or not verify_password(form_data.password, db_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Credenciais inválidas")
+    if (
+        not db_user
+        or not verify_password(
+            form_data.password,
+            db_user.hashed_password
+        )
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Credenciais inválidas"
+        )
 
-    token = create_access_token({"sub": db_user.email})
+    token = create_access_token({
+        "sub": db_user.email
+    })
 
     return {
         "access_token": token,

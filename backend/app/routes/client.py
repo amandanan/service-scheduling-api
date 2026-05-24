@@ -21,9 +21,11 @@ def get_db():
 @router.post("/", response_model=ClientResponse)
 def create_client(client: ClientCreate, db: Session = Depends(get_db)):
     new_client = Client(
-        name=client.name,
-        email=client.email,
-        phone=client.phone
+    full_name=client.full_name,
+    birth_date=client.birth_date,
+    cpf=client.cpf,
+    phone=client.phone,
+    email=client.email
     )
 
     db.add(new_client)
@@ -67,9 +69,11 @@ def update_client(client_id: int, client_data: ClientCreate, db: Session = Depen
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
 
-    client.name = client_data.name
-    client.email = client_data.email
+    client.full_name = client_data.full_name
+    client.birth_date = client_data.birth_date
+    client.cpf = client_data.cpf
     client.phone = client_data.phone
+    client.email = client_data.email
 
     db.commit()
     db.refresh(client)

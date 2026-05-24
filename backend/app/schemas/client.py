@@ -1,27 +1,22 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from datetime import date
 
 
-# Dados que chegam para criar cliente
 class ClientCreate(BaseModel):
-    name: str
-    email: EmailStr
+    full_name: str
+    birth_date: date
+    cpf: str
     phone: str
+    email: EmailStr
 
 
-# Dados que chegam para atualizar cliente
-class ClientUpdate(BaseModel):
-    name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-
-
-# Dados que retornam da API
 class ClientResponse(BaseModel):
     id: int
-    name: str
-    email: EmailStr
+    full_name: str
+    birth_date: date
+    cpf: str
     phone: str
+    email: EmailStr
 
     class Config:
         from_attributes = True
