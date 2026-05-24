@@ -7,6 +7,22 @@ const api = axios.create({
 });
 
 /* =========================
+   INTERCEPTOR JWT
+========================= */
+
+api.interceptors.request.use((config) => {
+
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization =
+      `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+/* =========================
    REGISTER
 ========================= */
 
