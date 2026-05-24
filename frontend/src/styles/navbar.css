@@ -1,69 +1,135 @@
 .navbar {
-  width: 240px;
-  min-height: 100vh;
-  background: #7c3aed;
-  color: white;
-  padding: 30px 20px;
+  width: 100%;
+
+  background: white;
+
+  padding: 18px 28px;
+
+  border-radius: 20px;
+
+  margin-bottom: 30px;
 
   display: flex;
-  flex-direction: column;
-  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
 
-  position: sticky;
-  top: 0;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.08);
 }
+
+/* LOGO */
 
 .navbar-logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.navbar-links {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.navbar-link {
   display: flex;
   align-items: center;
   gap: 12px;
 
-  color: white;
-  padding: 12px 14px;
-  border-radius: 10px;
+  font-size: 22px;
+  font-weight: 700;
 
-  transition: 0.2s;
+  color: #4c1d95;
+}
+
+.navbar-logo svg {
+  font-size: 24px;
+}
+
+/* LINKS */
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  flex-wrap: wrap;
+}
+
+.navbar-link {
+  padding: 10px 16px;
+
+  border-radius: 12px;
+
+  text-decoration: none;
+
+  color: #4b5563;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .navbar-link:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #ede9fe;
+
+  color: #6d28d9;
 }
+
+/* LINK ATIVO */
 
 .navbar-link.active {
-  background: white;
-  color: #7c3aed;
-  font-weight: bold;
+  background: #6d28d9;
+
+  color: white;
 }
 
-@media (max-width: 900px) {
+/* LOGOUT */
+
+.logout-btn {
+  background: #dc2626;
+
+  color: white;
+
+  border: none;
+
+  padding: 10px 16px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #b91c1c;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 768px) {
+
   .navbar {
-    width: 100%;
-    min-height: auto;
+    flex-direction: column;
 
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
 
-    padding: 16px 20px;
+    gap: 18px;
+
+    padding: 22px;
   }
 
   .navbar-links {
-    flex-direction: row;
-    flex-wrap: wrap;
+    width: 100%;
+
+    flex-direction: column;
+
+    align-items: stretch;
   }
 
-  .navbar-link {
-    padding: 10px;
+  .navbar-link,
+  .logout-btn {
+    width: 100%;
+
+    justify-content: center;
   }
 }

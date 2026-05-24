@@ -6,38 +6,97 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
+/* =========================
+   REGISTER
+========================= */
+
 export async function register(data) {
-  const response = await api.post("/auth/register", data);
+
+  const response = await api.post(
+    "/auth/register",
+    {
+      full_name: data.full_name,
+      birth_date: data.birth_date,
+      cpf: data.cpf,
+      phone: data.phone,
+      email: data.email,
+      password: data.password,
+    }
+  );
 
   return response.data;
 }
 
+/* =========================
+   LOGIN
+========================= */
+
 export async function login(data) {
+
   const body = new URLSearchParams({
     username: data.email,
     password: data.password,
   });
 
-  const response = await api.post("/auth/login", body, {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
+  const response = await api.post(
+    "/auth/login",
+    body,
+    {
+      headers: {
+        "Content-Type":
+          "application/x-www-form-urlencoded",
+      },
+    }
+  );
 
   return response.data;
 }
 
+/* =========================
+   CLIENTS
+========================= */
+
 export async function getClients() {
+
   const response = await api.get("/clients");
+
   return response.data;
 }
 
 export async function createClient(data) {
-  const response = await api.post("/clients", data);
+
+  const response = await api.post(
+    "/clients",
+    {
+      full_name: data.full_name,
+      birth_date: data.birth_date,
+      cpf: data.cpf,
+      phone: data.phone,
+      email: data.email,
+    }
+  );
+
+  return response.data;
+}
+
+export async function updateClient(id, data) {
+
+  const response = await api.put(
+    `/clients/${id}`,
+    {
+      full_name: data.full_name,
+      birth_date: data.birth_date,
+      cpf: data.cpf,
+      phone: data.phone,
+      email: data.email,
+    }
+  );
+
   return response.data;
 }
 
 export async function deleteClient(id) {
+
   await api.delete(`/clients/${id}`);
 }
 

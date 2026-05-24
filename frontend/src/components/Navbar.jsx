@@ -1,8 +1,23 @@
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+
+import {
+  FaChartPie,
+  FaUsers,
+  FaTools,
+  FaCalendarAlt,
+  FaSignOutAlt,
+  FaLayerGroup,
+} from "react-icons/fa";
+
 import "../styles/navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   function logout() {
     localStorage.removeItem("token");
@@ -10,13 +25,72 @@ export default function Navbar() {
   }
 
   return (
-    <nav style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
-      <Link to="/dashboard">Dashboard</Link>
-      <Link to="/clients">Clientes</Link>
-      <Link to="/services">Serviços</Link>
-      <Link to="/appointments">Agendamentos</Link>
+    <nav className="navbar">
 
-      <button onClick={logout}>Sair</button>
+      <div className="navbar-logo">
+        <FaLayerGroup />
+        <span>Agendador</span>
+      </div>
+
+      <div className="navbar-links">
+
+        <Link
+          to="/dashboard"
+          className={
+            location.pathname === "/dashboard"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaChartPie />
+          Dashboard
+        </Link>
+
+        <Link
+          to="/clients"
+          className={
+            location.pathname === "/clients"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaUsers />
+          Clientes
+        </Link>
+
+        <Link
+          to="/services"
+          className={
+            location.pathname === "/services"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaTools />
+          Serviços
+        </Link>
+
+        <Link
+          to="/appointments"
+          className={
+            location.pathname === "/appointments"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaCalendarAlt />
+          Agendamentos
+        </Link>
+
+        <button
+          className="logout-btn"
+          onClick={logout}
+        >
+          <FaSignOutAlt />
+          Sair
+        </button>
+
+      </div>
     </nav>
   );
 }

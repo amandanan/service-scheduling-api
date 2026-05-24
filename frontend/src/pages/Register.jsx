@@ -5,7 +5,10 @@ import { useNavigate, Link } from "react-router-dom";
 import "../styles/register.css";
 
 function Register() {
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -14,7 +17,7 @@ function Register() {
 
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  async function handleRegister(e) {
     e.preventDefault();
 
     setError("");
@@ -27,29 +30,34 @@ function Register() {
 
     try {
       await register({
-        username,
+        full_name: fullName,
+        birth_date: birthDate,
+        cpf,
+        phone,
         email,
         password,
       });
 
       setSuccess("Conta criada com sucesso!");
 
-      setUsername("");
+      setFullName("");
+      setBirthDate("");
+      setCpf("");
+      setPhone("");
       setEmail("");
       setPassword("");
 
       setTimeout(() => {
         navigate("/login");
-      }, 1000);
+      }, 1200);
 
     } catch (err) {
-      setError("Erro ao cadastrar");
+      setError("Erro ao cadastrar usuário");
     }
-  };
+  }
 
   return (
     <div className="register-container">
-
       <div className="register-card">
 
         <h1 className="register-title">
@@ -57,19 +65,49 @@ function Register() {
         </h1>
 
         <p className="register-subtitle">
-          Preencha os dados abaixo
+          Preencha seus dados
         </p>
 
         <form
           className="register-form"
           onSubmit={handleRegister}
         >
+
           <input
             type="text"
-            placeholder="Usuário"
-            value={username}
+            placeholder="Nome completo"
+            value={fullName}
             onChange={(e) =>
-              setUsername(e.target.value)
+              setFullName(e.target.value)
+            }
+            required
+          />
+
+          <input
+            type="date"
+            value={birthDate}
+            onChange={(e) =>
+              setBirthDate(e.target.value)
+            }
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="CPF"
+            value={cpf}
+            onChange={(e) =>
+              setCpf(e.target.value)
+            }
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Telefone"
+            value={phone}
+            onChange={(e) =>
+              setPhone(e.target.value)
             }
             required
           />
@@ -95,25 +133,28 @@ function Register() {
           />
 
           {error && (
-            <span className="register-error">
+            <span className="error">
               {error}
             </span>
           )}
 
           {success && (
-            <span className="register-success">
+            <span className="success">
               {success}
             </span>
           )}
 
-          <button className="register-btn" type="submit">
+          <button
+            className="register-btn"
+            type="submit"
+          >
             Cadastrar
           </button>
+
         </form>
 
         <p className="register-link">
-          Já tem conta?
-
+          Já possui conta?{" "}
           <Link to="/login">
             Entrar
           </Link>
