@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../services/api";
+import { toast } from "react-toastify";
 
 import "../styles/login.css";
 
@@ -12,27 +13,35 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setError("");
+  setError("");
 
-    try {
+  try {
+
       const data = await login({
-        email,
-        password,
+       email,
+       password,
       });
 
       localStorage.setItem(
-        "token",
-        data.access_token
+       "token",
+       data.access_token
       );
+
+      toast.success("Login realizado com sucesso");
 
       navigate("/dashboard");
 
-    } catch (err) {
+     } 
+     
+    catch (err) {
+
+      toast.error("E-mail ou senha inválidos");
+
       setError(err.message);
     }
-  };
+};
 
   return (
     <div className="login-container">

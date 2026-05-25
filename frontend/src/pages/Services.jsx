@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
+import { toast } from "react-toastify";
 
 import {
   FaTools,
@@ -20,41 +21,76 @@ export default function Services() {
 
   const [editingId, setEditingId] = useState(null);
 
-  async function loadServices() {
-    try {
-      const response = await api.get("/services");
-      setServices(response.data);
-    } catch (error) {
-      console.error("Erro ao carregar serviços");
-    }
+ async function loadServices() {
+
+  try {
+
+    const response = await api.get("/services");
+
+    setServices(response.data);
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao carregar serviços"
+    );
   }
+}
 
   useEffect(() => {
     loadServices();
   }, []);
 
   async function handleSubmit(e) {
-    e.preventDefault();
 
-    const serviceData = {
-      name,
-      price: Number(price),
-    };
+  e.preventDefault();
 
-    try {
-      if (editingId) {
-        await api.put(`/services/${editingId}`, serviceData);
-        setEditingId(null);
-      } else {
-        await api.post("/services", serviceData);
-      }
+  const serviceData = {
+    name,
+    price: Number(price),
+  };
 
-      clearForm();
-      loadServices();
+  try {
 
-    } catch (error) {
-      console.error("Erro ao salvar serviço");
+    if (editingId) {
+
+      await api.put(
+        `/services/${editingId}`,
+        serviceData
+      );
+
+      toast.success(
+        "Serviço atualizado"
+      );
+
+      setEditingId(null);
+
+    } else {
+
+      await api.post(
+        "/services",
+        serviceData
+      );
+
+      toast.success(
+        "Serviço cadastrado"
+      );
     }
+
+    clearForm();
+
+    loadServices();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao salvar serviço"
+    );
+  }
   }
 
   function handleEdit(service) {
@@ -65,26 +101,41 @@ export default function Services() {
   }
 
   async function handleDelete(id) {
-    const confirmDelete = window.confirm(
-      "Deseja realmente excluir este serviço?"
+
+  const confirmDelete = window.confirm(
+    "Deseja realmente excluir este serviço?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await api.delete(
+      `/services/${id}`
     );
 
-    if (!confirmDelete) return;
+    toast.success(
+      "Serviço removido"
+    );
 
-    try {
-      await api.delete(`/services/${id}`);
-      loadServices();
-    } catch (error) {
-      console.error("Erro ao excluir serviço");
-    }
+    loadServices();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao excluir serviço"
+    );
   }
-
+  }
   function clearForm() {
     setName("");
     setPrice("");
   }
 
   return (
+
     <div className="services-page">
       <Navbar />
 

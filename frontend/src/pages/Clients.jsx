@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
-import Navbar from "../components/Navbar";
 
-import {
-  FaUsers,
-  FaEdit,
-  FaTrash,
-  FaPlus,
-  FaIdCard,
-  FaEnvelope,
-  FaBirthdayCake,
-  FaPhone,
-} from "react-icons/fa";
+import api from "../services/api";
+
+import Navbar from "../components/Navbar";
 
 import "../styles/clients.css";
 
+import {
+  FaUser,
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaPhone,
+  FaEnvelope,
+} from "react-icons/fa";
+
+import { toast } from "react-toastify";
+
 export default function Clients() {
+
   const [clients, setClients] = useState([]);
 
   const [fullName, setFullName] = useState("");
@@ -26,13 +29,20 @@ export default function Clients() {
 
   const [editingId, setEditingId] = useState(null);
 
+
   async function loadClients() {
+
     try {
+
       const response = await api.get("/clients");
+
       setClients(response.data);
 
     } catch (error) {
-      console.error("Erro ao carregar clientes");
+
+      console.error(error);
+
+      toast.error("Erro ao carregar clientes");
     }
   }
 
@@ -40,7 +50,9 @@ export default function Clients() {
     loadClients();
   }, []);
 
+
   async function handleSubmit(e) {
+
     e.preventDefault();
 
     const clientData = {
@@ -54,26 +66,41 @@ export default function Clients() {
     try {
 
       if (editingId) {
+
         await api.put(
           `/clients/${editingId}`,
           clientData
         );
 
+        toast.success("Cliente atualizado");
+
         setEditingId(null);
 
       } else {
-        await api.post("/clients", clientData);
+
+        await api.post(
+          "/clients",
+          clientData
+        );
+
+        toast.success("Cliente cadastrado");
       }
 
       clearForm();
+
       loadClients();
 
     } catch (error) {
-      console.error("Erro ao salvar cliente");
+
+      console.error(error);
+
+      toast.error("Erro ao salvar cliente");
     }
   }
 
+
   function handleEdit(client) {
+
     setEditingId(client.id);
 
     setFullName(client.full_name);
@@ -83,7 +110,9 @@ export default function Clients() {
     setEmail(client.email);
   }
 
+
   async function handleDelete(id) {
+
     const confirmDelete = window.confirm(
       "Deseja realmente excluir este cliente?"
     );
@@ -91,15 +120,24 @@ export default function Clients() {
     if (!confirmDelete) return;
 
     try {
+
       await api.delete(`/clients/${id}`);
+
+      toast.success("Cliente removido");
+
       loadClients();
 
     } catch (error) {
-      console.error("Erro ao excluir cliente");
+
+      console.error(error);
+
+      toast.error("Erro ao excluir cliente");
     }
   }
 
+
   function clearForm() {
+
     setFullName("");
     setBirthDate("");
     setCpf("");
@@ -107,8 +145,10 @@ export default function Clients() {
     setEmail("");
   }
 
+
   return (
     <div className="clients-page">
+
       <Navbar />
 
       <div className="clients-container">
@@ -116,7 +156,7 @@ export default function Clients() {
         <div className="clients-card">
 
           <h1 className="clients-title">
-            <FaUsers />
+            <FaUser />
             Clientes
           </h1>
 
@@ -178,17 +218,21 @@ export default function Clients() {
               type="submit"
               className="primary-btn"
             >
-              {editingId
-                ? <FaEdit />
-                : <FaPlus />
-              }
-
-              {editingId
-                ? "Atualizar"
-                : "Cadastrar"}
+              {editingId ? (
+                <>
+                  <FaEdit />
+                  Atualizar
+                </>
+              ) : (
+                <>
+                  <FaPlus />
+                  Cadastrar
+                </>
+              )}
             </button>
 
           </form>
+
 
           <table className="clients-table">
 
@@ -199,7 +243,6 @@ export default function Clients() {
                 <th>CPF</th>
                 <th>Telefone</th>
                 <th>E-mail</th>
-                <th>Nascimento</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -212,19 +255,9 @@ export default function Clients() {
 
                   <td>{client.id}</td>
 
-                  <td>
-                    <div className="info-cell">
-                      <FaUsers />
-                      {client.full_name}
-                    </div>
-                  </td>
+                  <td>{client.full_name}</td>
 
-                  <td>
-                    <div className="info-cell">
-                      <FaIdCard />
-                      {client.cpf}
-                    </div>
-                  </td>
+                  <td>{client.cpf}</td>
 
                   <td>
                     <div className="info-cell">
@@ -241,31 +274,24 @@ export default function Clients() {
                   </td>
 
                   <td>
-                    <div className="info-cell">
-                      <FaBirthdayCake />
-                      {client.birth_date}
-                    </div>
-                  </td>
-
-                  <td>
 
                     <div className="actions">
 
                       <button
-                        className="edit-btn"
                         onClick={() =>
                           handleEdit(client)
                         }
+                        className="edit-btn"
                       >
                         <FaEdit />
                         Editar
                       </button>
 
                       <button
-                        className="delete-btn"
                         onClick={() =>
                           handleDelete(client.id)
                         }
+                        className="delete-btn"
                       >
                         <FaTrash />
                         Excluir
@@ -284,7 +310,9 @@ export default function Clients() {
           </table>
 
         </div>
+
       </div>
+
     </div>
   );
 }

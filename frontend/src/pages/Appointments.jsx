@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
 import "../styles/appointments.css";
+import { toast } from "react-toastify";
 
 import {
   FaCalendarAlt,
@@ -21,12 +22,23 @@ export default function Appointments() {
   const [editingId, setEditingId] = useState(null);
 
   async function loadAppointments() {
-    try {
-      const response = await api.get("/appointments");
-      setAppointments(response.data);
-    } catch (error) {
-      console.error("Erro ao carregar agendamentos");
-    }
+
+  try {
+
+    const response = await api.get(
+      "/appointments"
+    );
+
+    setAppointments(response.data);
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao carregar agendamentos"
+    );
+  }
   }
 
   useEffect(() => {
@@ -34,28 +46,54 @@ export default function Appointments() {
   }, []);
 
   async function handleSubmit(e) {
-    e.preventDefault();
 
-    const appointmentData = {
-      client_id: Number(clientId),
-      service_id: Number(serviceId),
-      date,
-    };
+  e.preventDefault();
 
-    try {
-      if (editingId) {
-        await api.put(`/appointments/${editingId}`, appointmentData);
-        setEditingId(null);
-      } else {
-        await api.post("/appointments", appointmentData);
-      }
+  const appointmentData = {
+    client_id: Number(clientId),
+    service_id: Number(serviceId),
+    date,
+  };
 
-      clearForm();
-      loadAppointments();
+  try {
 
-    } catch (error) {
-      console.error("Erro ao salvar agendamento");
+    if (editingId) {
+
+      await api.put(
+        `/appointments/${editingId}`,
+        appointmentData
+      );
+
+      toast.success(
+        "Agendamento atualizado"
+      );
+
+      setEditingId(null);
+
+    } else {
+
+      await api.post(
+        "/appointments",
+        appointmentData
+      );
+
+      toast.success(
+        "Agendamento criado"
+      );
     }
+
+    clearForm();
+
+    loadAppointments();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao salvar agendamento"
+    );
+  }
   }
 
   function handleEdit(appointment) {
@@ -67,19 +105,34 @@ export default function Appointments() {
   }
 
   async function handleDelete(id) {
-    const confirmDelete = window.confirm(
-      "Deseja realmente excluir este agendamento?"
+
+  const confirmDelete = window.confirm(
+    "Deseja realmente excluir este agendamento?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await api.delete(
+      `/appointments/${id}`
     );
 
-    if (!confirmDelete) return;
+    toast.success(
+      "Agendamento removido"
+    );
 
-    try {
-      await api.delete(`/appointments/${id}`);
-      loadAppointments();
-    } catch (error) {
-      console.error("Erro ao excluir agendamento");
-    }
+    loadAppointments();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao excluir agendamento"
+    );
   }
+ }
 
   function clearForm() {
     setClientId("");

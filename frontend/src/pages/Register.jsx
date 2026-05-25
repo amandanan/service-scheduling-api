@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { register } from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import "../styles/register.css";
 
@@ -38,7 +39,7 @@ function Register() {
         password,
       });
 
-      setSuccess("Conta criada com sucesso!");
+      toast.success("Conta criada com sucesso!");
 
       setFullName("");
       setBirthDate("");
@@ -52,7 +53,7 @@ function Register() {
       }, 1200);
 
     } catch (err) {
-      setError("Erro ao cadastrar usuário");
+      toast.error("Erro ao cadastrar");
     }
   }
 
