@@ -10,7 +10,9 @@
 
 .clients-card {
   background: white;
+
   padding: 30px;
+
   border-radius: 20px;
 
   box-shadow:
@@ -25,6 +27,7 @@
   margin-bottom: 25px;
 
   font-size: 32px;
+
   color: #4c1d95;
 }
 
@@ -32,6 +35,7 @@
 
 .clients-form {
   display: flex;
+
   gap: 15px;
 
   margin-bottom: 30px;
@@ -39,10 +43,12 @@
   flex-wrap: wrap;
 }
 
-.clients-form input {
+.clients-form input,
+.clients-form select {
   padding: 12px;
 
   border-radius: 10px;
+
   border: 1px solid #ccc;
 
   min-width: 220px;
@@ -50,9 +56,47 @@
   outline: none;
 
   transition: 0.2s;
+
+  background: white;
+
+  color: #111827;
 }
 
-.clients-form input:focus {
+.clients-form input:focus,
+.clients-form select:focus {
+  border-color: #6d28d9;
+
+  box-shadow:
+    0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+/* INPUT MASK */
+
+.clients-form > span {
+  width: 100%;
+
+  max-width: 220px;
+}
+
+.clients-form > span input {
+  width: 100%;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
+  outline: none;
+
+  transition: 0.2s;
+
+  background: white;
+
+  color: #111827;
+}
+
+.clients-form > span input:focus {
   border-color: #6d28d9;
 
   box-shadow:
@@ -63,6 +107,7 @@
 
 .primary-btn {
   background: #6d28d9;
+
   color: white;
 
   border: none;
@@ -75,6 +120,8 @@
 
   display: flex;
   align-items: center;
+  justify-content: center;
+
   gap: 8px;
 
   font-weight: bold;
@@ -104,6 +151,7 @@
 
 .clients-table {
   width: 100%;
+
   border-collapse: collapse;
 }
 
@@ -130,9 +178,11 @@
 .info-cell {
   display: flex;
   align-items: center;
+
   gap: 8px;
 
   color: #4b5563;
+
   font-weight: 500;
 }
 
@@ -140,11 +190,13 @@
 
 .actions {
   display: flex;
+
   gap: 10px;
 }
 
 .edit-btn {
   background: #2563eb;
+
   color: white;
 
   border: none;
@@ -157,6 +209,7 @@
 
   display: flex;
   align-items: center;
+
   gap: 6px;
 
   transition: 0.2s;
@@ -168,6 +221,7 @@
 
 .delete-btn {
   background: #dc2626;
+
   color: white;
 
   border: none;
@@ -180,6 +234,7 @@
 
   display: flex;
   align-items: center;
+
   gap: 6px;
 
   transition: 0.2s;
@@ -210,17 +265,47 @@
   }
 
   .clients-form input,
+  .clients-form select,
+  .clients-form > span,
   .primary-btn,
   .secondary-btn {
     width: 100%;
+
+    max-width: 100%;
   }
 
   .clients-table {
     display: block;
+
     overflow-x: auto;
   }
 
   .actions {
     flex-direction: column;
   }
+}
+
+.masked-input {
+  padding: 12px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
+  min-width: 220px;
+
+  outline: none;
+
+  transition: 0.2s;
+
+  background: white;
+
+  color: #111827;
+}
+
+.masked-input:focus {
+  border-color: #6d28d9;
+
+  box-shadow:
+    0 0 0 3px rgba(109, 40, 217, 0.15);
 }

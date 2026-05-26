@@ -17,6 +17,8 @@ import {
 
 import { toast } from "react-toastify";
 
+import { IMaskInput } from "react-imask";
+
 export default function Clients() {
 
   const [clients, setClients] = useState([]);
@@ -46,6 +48,7 @@ export default function Clients() {
     }
   }
 
+
   useEffect(() => {
     loadClients();
   }, []);
@@ -74,8 +77,6 @@ export default function Clients() {
 
         toast.success("Cliente atualizado");
 
-        setEditingId(null);
-
       } else {
 
         await api.post(
@@ -88,7 +89,7 @@ export default function Clients() {
 
       clearForm();
 
-      loadClients();
+      await loadClients();
 
     } catch (error) {
 
@@ -125,7 +126,7 @@ export default function Clients() {
 
       toast.success("Cliente removido");
 
-      loadClients();
+      await loadClients();
 
     } catch (error) {
 
@@ -143,10 +144,12 @@ export default function Clients() {
     setCpf("");
     setPhone("");
     setEmail("");
+    setEditingId(null);
   }
 
 
   return (
+
     <div className="clients-page">
 
       <Navbar />
@@ -159,6 +162,7 @@ export default function Clients() {
             <FaUser />
             Clientes
           </h1>
+
 
           <form
             onSubmit={handleSubmit}
@@ -175,6 +179,7 @@ export default function Clients() {
               required
             />
 
+
             <input
               type="date"
               value={birthDate}
@@ -184,24 +189,24 @@ export default function Clients() {
               required
             />
 
-            <input
-              type="text"
-              placeholder="CPF"
+          <IMaskInput
+              mask="000.000.000-00"
               value={cpf}
-              onChange={(e) =>
-                setCpf(e.target.value)
+              onAccept={(value) =>
+                setCpf(value)
               }
-              required
+              placeholder="CPF"
+              className="masked-input"
             />
 
-            <input
-              type="text"
-              placeholder="Telefone"
+           <IMaskInput
+              mask="(00) 00000-0000"
               value={phone}
-              onChange={(e) =>
-                setPhone(e.target.value)
+              onAccept={(value) =>
+                setPhone(value)
               }
-              required
+              placeholder="Telefone"
+              className="masked-input"
             />
 
             <input
@@ -214,10 +219,12 @@ export default function Clients() {
               required
             />
 
+
             <button
               type="submit"
               className="primary-btn"
             >
+
               {editingId ? (
                 <>
                   <FaEdit />
@@ -229,6 +236,7 @@ export default function Clients() {
                   Cadastrar
                 </>
               )}
+
             </button>
 
           </form>
@@ -237,6 +245,7 @@ export default function Clients() {
           <table className="clients-table">
 
             <thead>
+
               <tr>
                 <th>ID</th>
                 <th>Nome</th>
@@ -245,7 +254,9 @@ export default function Clients() {
                 <th>E-mail</th>
                 <th>Ações</th>
               </tr>
+
             </thead>
+
 
             <tbody>
 
@@ -260,17 +271,21 @@ export default function Clients() {
                   <td>{client.cpf}</td>
 
                   <td>
+
                     <div className="info-cell">
                       <FaPhone />
                       {client.phone}
                     </div>
+
                   </td>
 
                   <td>
+
                     <div className="info-cell">
                       <FaEnvelope />
                       {client.email}
                     </div>
+
                   </td>
 
                   <td>
@@ -283,9 +298,12 @@ export default function Clients() {
                         }
                         className="edit-btn"
                       >
+
                         <FaEdit />
                         Editar
+
                       </button>
+
 
                       <button
                         onClick={() =>
@@ -293,8 +311,10 @@ export default function Clients() {
                         }
                         className="delete-btn"
                       >
+
                         <FaTrash />
                         Excluir
+
                       </button>
 
                     </div>

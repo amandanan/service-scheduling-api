@@ -98,21 +98,25 @@
 .register-form input {
   width: 100%;
 
-  padding: 14px;
+  padding: 14px 16px;
 
   border-radius: 14px;
 
   border: 1px solid rgba(255,255,255,0.15);
 
-  background: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.08);
 
-  color: #111827;
-
-  font-size: 15px;
+  color: white;
 
   outline: none;
 
-  transition: 0.2s ease;
+  transition: 0.25s ease;
+
+  backdrop-filter: blur(10px);
+}
+
+.register-form span {
+  width: 100%;
 }
 
 .register-form input::placeholder {
@@ -208,4 +212,66 @@
   .register-title {
     font-size: 30px;
   }
+}
+ 
+.register-form > span {
+  width: 100%;
+}
+
+.register-form > span input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  outline: none;
+
+  transition: 0.25s ease;
+
+  backdrop-filter: blur(10px);
+}
+
+.register-form > span input::placeholder {
+  color: rgba(255,255,255,0.65);
+}
+
+.register-form > span input:focus {
+  border-color: rgba(255,255,255,0.35);
+
+  background: rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 0 0 4px rgba(168,85,247,0.15);
+}
+
+.masked-input {
+  padding: 12px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
+  min-width: 220px;
+
+  outline: none;
+
+  transition: 0.2s;
+
+  background: white;
+
+  color: #111827;
+}
+
+.masked-input:focus {
+  border-color: #6d28d9;
+
+  box-shadow:
+    0 0 0 3px rgba(109, 40, 217, 0.15);
 }

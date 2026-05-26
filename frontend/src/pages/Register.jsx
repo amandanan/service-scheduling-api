@@ -2,6 +2,7 @@ import { useState } from "react";
 import { register } from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { IMaskInput } from "react-imask";
 
 import "../styles/register.css";
 
@@ -93,25 +94,25 @@ function Register() {
             required
           />
 
-          <input
-            type="text"
-            placeholder="CPF"
-            value={cpf}
-            onChange={(e) =>
-              setCpf(e.target.value)
-            }
-            required
-          />
+         <IMaskInput
+              mask="000.000.000-00"
+              value={cpf}
+              onAccept={(value) =>
+                setCpf(value)
+              }
+              placeholder="CPF"
+              className="masked-input"
+            />
 
-          <input
-            type="text"
-            placeholder="Telefone"
-            value={phone}
-            onChange={(e) =>
-              setPhone(e.target.value)
-            }
-            required
-          />
+         <IMaskInput
+              mask="(00) 00000-0000"
+              value={phone}
+              onAccept={(value) =>
+                setPhone(value)
+              }
+              placeholder="Telefone"
+              className="masked-input"
+            />
 
           <input
             type="email"
