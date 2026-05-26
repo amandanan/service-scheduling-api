@@ -1,73 +1,75 @@
 import { useEffect, useState } from "react";
 
+import {
+  Calendar,
+  momentLocalizer,
+} from "react-big-calendar";
+
+import moment from "moment";
+
+import "react-big-calendar/lib/css/react-big-calendar.css";
+
 import api from "../services/api";
+
 import Navbar from "../components/Navbar";
+
+import "../styles/appointments.css";
 
 import { toast } from "react-toastify";
 
 import {
   FaCalendarAlt,
-  FaEdit,
-  FaTrash,
   FaPlus,
-  FaClock,
 } from "react-icons/fa";
 
-import "../styles/appointments.css";
+const localizer = momentLocalizer(moment);
 
 export default function Appointments() {
 
   const [appointments, setAppointments] = useState([]);
 
-  const [clients, setClients] = useState([]);
-  const [services, setServices] = useState([]);
-
   const [clientId, setClientId] = useState("");
   const [serviceId, setServiceId] = useState("");
   const [date, setDate] = useState("");
 
-  const [editingId, setEditingId] = useState(null);
 
-
-  async function loadData() {
+  async function loadAppointments() {
 
     try {
 
-      const [
-        appointmentsResponse,
-        clientsResponse,
-        servicesResponse,
-      ] = await Promise.all([
-        api.get("/appointments"),
-        api.get("/clients"),
-        api.get("/services"),
-      ]);
-
-      setAppointments(
-        appointmentsResponse.data
+      const response = await api.get(
+        "/appointments"
       );
 
-      setClients(
-        clientsResponse.data
-      );
+      const formatted =
+        response.data.map((item) => ({
 
-      setServices(
-        servicesResponse.data
-      );
+          id: item.id,
+
+          title:
+            `Cliente ${item.client_id} • Serviço ${item.service_id}`,
+
+          start: new Date(item.date),
+
+          end: moment(item.date)
+            .add(1, "hour")
+            .toDate(),
+        }));
+
+      setAppointments(formatted);
 
     } catch (error) {
 
       console.error(error);
 
       toast.error(
-        "Erro ao carregar dados"
+        "Erro ao carregar agendamentos"
       );
     }
   }
 
-
   useEffect(() => {
-    loadData();
+    loadAppointments();
   }, []);
 
 
@@ -83,103 +85,33 @@ export default function Appointments() {
 
     try {
 
-      if (editingId) {
-
-        await api.put(
-          `/appointments/${editingId}`,
-          appointmentData
-        );
-
-        toast.success(
-          "Agendamento atualizado"
-        );
-
-        setEditingId(null);
-
-      } else {
-
-        await api.post(
-          "/appointments",
-          appointmentData
-        );
-
-        toast.success(
-          "Agendamento criado"
-        );
-      }
-
-      clearForm();
-
-      loadData();
-
-    } catch (error) {
-
-      console.error(error);
-
-      toast.error(
-        "Erro ao salvar agendamento"
-      );
-    }
-  }
-
-
-  function handleEdit(appointment) {
-
-    setEditingId(appointment.id);
-
-    setClientId(
-      appointment.client_id
-    );
-
-    setServiceId(
-      appointment.service_id
-    );
-
-    setDate(appointment.date);
-  }
-
-
-  async function handleDelete(id) {
-
-    const confirmDelete = window.confirm(
-      "Deseja realmente excluir este agendamento?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-
-      await api.delete(
-        `/appointments/${id}`
+      await api.post(
+        "/appointments",
+        appointmentData
       );
 
       toast.success(
-        "Agendamento excluído"
+        "Agendamento criado"
       );
 
-      loadData();
+      setClientId("");
+      setServiceId("");
+      setDate("");
+
+      loadAppointments();
 
     } catch (error) {
 
       console.error(error);
 
       toast.error(
-        "Erro ao excluir agendamento"
+        "Erro ao criar agendamento"
       );
     }
-  }
-
-
-  function clearForm() {
-
-    setClientId("");
-    setServiceId("");
-    setDate("");
   }
 
 
   return (
-
     <div className="appointments-page">
 
       <Navbar />
@@ -190,66 +122,33 @@ export default function Appointments() {
 
           <h1 className="appointments-title">
             <FaCalendarAlt />
-            Agendamentos
+            Agenda
           </h1>
-
 
           <form
             onSubmit={handleSubmit}
             className="appointments-form"
           >
 
-            <select
+            <input
+              type="number"
+              placeholder="ID Cliente"
               value={clientId}
               onChange={(e) =>
                 setClientId(e.target.value)
               }
               required
-            >
+            />
 
-              <option value="">
-                Selecione o cliente
-              </option>
-
-              {clients.map((client) => (
-
-                <option
-                  key={client.id}
-                  value={client.id}
-                >
-                  {client.full_name}
-                </option>
-
-              ))}
-
-            </select>
-
-
-            <select
+            <input
+              type="number"
+              placeholder="ID Serviço"
               value={serviceId}
               onChange={(e) =>
                 setServiceId(e.target.value)
               }
               required
-            >
-
-              <option value="">
-                Selecione o serviço
-              </option>
-
-              {services.map((service) => (
-
-                <option
-                  key={service.id}
-                  value={service.id}
-                >
-                  {service.name}
-                </option>
-
-              ))}
-
-            </select>
-
+            />
 
             <input
               type="datetime-local"
@@ -260,148 +159,41 @@ export default function Appointments() {
               required
             />
 
-
             <button
               type="submit"
               className="primary-btn"
             >
-
-              {editingId
-                ? <FaEdit />
-                : <FaPlus />
-              }
-
-              {editingId
-                ? "Atualizar"
-                : "Cadastrar"}
-
+              <FaPlus />
+              Agendar
             </button>
-
-
-            {editingId && (
-
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => {
-
-                  setEditingId(null);
-
-                  clearForm();
-                }}
-              >
-                Cancelar
-              </button>
-
-            )}
 
           </form>
 
+          <div className="calendar-wrapper">
 
-          <table className="appointments-table">
+            <Calendar
+              localizer={localizer}
+              events={appointments}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 650 }}
+              messages={{
+                next: "Próximo",
+                previous: "Anterior",
+                today: "Hoje",
+                month: "Mês",
+                week: "Semana",
+                day: "Dia",
+                agenda: "Agenda",
+              }}
+            />
 
-            <thead>
-
-              <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Serviço</th>
-                <th>Data</th>
-                <th>Ações</th>
-              </tr>
-
-            </thead>
-
-
-            <tbody>
-
-              {appointments.map((appointment) => {
-
-                const client = clients.find(
-                  (c) =>
-                    c.id === appointment.client_id
-                );
-
-                const service = services.find(
-                  (s) =>
-                    s.id === appointment.service_id
-                );
-
-                return (
-
-                  <tr key={appointment.id}>
-
-                    <td>
-                      {appointment.id}
-                    </td>
-
-                    <td>
-                      {client?.full_name}
-                    </td>
-
-                    <td>
-                      {service?.name}
-                    </td>
-
-                    <td>
-
-                      <div className="info-cell">
-
-                        <FaClock />
-
-                        {appointment.date}
-
-                      </div>
-
-                    </td>
-
-                    <td>
-
-                      <div className="actions">
-
-                        <button
-                          className="edit-btn"
-                          onClick={() =>
-                            handleEdit(
-                              appointment
-                            )
-                          }
-                        >
-
-                          <FaEdit />
-                          Editar
-
-                        </button>
-
-
-                        <button
-                          className="delete-btn"
-                          onClick={() =>
-                            handleDelete(
-                              appointment.id
-                            )
-                          }
-                        >
-
-                          <FaTrash />
-                          Excluir
-
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-                );
-              })}
-
-            </tbody>
-
-          </table>
+          </div>
 
         </div>
+
       </div>
+
     </div>
   );
 }

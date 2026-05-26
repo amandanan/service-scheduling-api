@@ -16,7 +16,7 @@
   border-radius: 20px;
 
   box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.08);
+    0 4px 15px rgba(0,0,0,0.08);
 }
 
 .appointments-title {
@@ -31,20 +31,17 @@
   color: #4c1d95;
 }
 
-/* FORM */
-
 .appointments-form {
   display: flex;
 
   gap: 15px;
 
-  margin-bottom: 30px;
-
   flex-wrap: wrap;
+
+  margin-bottom: 30px;
 }
 
-.appointments-form input,
-.appointments-form select {
+.appointments-form input {
   padding: 12px;
 
   border-radius: 10px;
@@ -55,20 +52,15 @@
 
   outline: none;
 
-  background: white;
-
   transition: 0.2s;
 }
 
-.appointments-form input:focus,
-.appointments-form select:focus {
+.appointments-form input:focus {
   border-color: #6d28d9;
 
   box-shadow:
-    0 0 0 3px rgba(109, 40, 217, 0.15);
+    0 0 0 3px rgba(109,40,217,0.15);
 }
-
-/* BOTÕES */
 
 .primary-btn {
   background: #6d28d9;
@@ -96,114 +88,31 @@
   background: #5b21b6;
 }
 
-.secondary-btn {
-  background: #e5e7eb;
+.calendar-wrapper {
+  background: white;
 
-  border: none;
+  border-radius: 15px;
 
-  padding: 12px 18px;
-
-  border-radius: 10px;
-
-  cursor: pointer;
-
-  font-weight: bold;
+  overflow: hidden;
 }
 
-/* TABELA */
-
-.appointments-table {
-  width: 100%;
-
-  border-collapse: collapse;
+.rbc-toolbar {
+  margin-bottom: 20px;
 }
 
-.appointments-table thead tr {
-  background: #ede9fe;
+.rbc-event {
+  background: #6d28d9 !important;
+
+  border: none !important;
+
+  border-radius: 8px !important;
+
+  padding: 4px !important;
 }
 
-.appointments-table th {
-  padding: 15px;
-
-  text-align: left;
-
-  color: #4c1d95;
+.rbc-today {
+  background: #f3e8ff !important;
 }
-
-.appointments-table td {
-  padding: 15px;
-
-  border-bottom: 1px solid #ddd;
-}
-
-/* INFO */
-
-.info-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  color: #4b5563;
-
-  font-weight: 500;
-}
-
-/* ACTIONS */
-
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-.edit-btn {
-  background: #2563eb;
-
-  color: white;
-
-  border: none;
-
-  padding: 8px 12px;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  transition: 0.2s;
-}
-
-.edit-btn:hover {
-  background: #1d4ed8;
-}
-
-.delete-btn {
-  background: #dc2626;
-
-  color: white;
-
-  border: none;
-
-  padding: 8px 12px;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  transition: 0.2s;
-}
-
-.delete-btn:hover {
-  background: #b91c1c;
-}
-
-/* RESPONSIVO */
 
 @media (max-width: 768px) {
 
@@ -215,27 +124,12 @@
     padding: 20px;
   }
 
-  .appointments-title {
-    font-size: 28px;
-  }
-
   .appointments-form {
     flex-direction: column;
   }
 
   .appointments-form input,
-  .appointments-form select,
-  .primary-btn,
-  .secondary-btn {
+  .primary-btn {
     width: 100%;
-  }
-
-  .appointments-table {
-    display: block;
-    overflow-x: auto;
-  }
-
-  .actions {
-    flex-direction: column;
   }
 }
