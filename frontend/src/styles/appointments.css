@@ -1,73 +1,241 @@
 .appointments-page {
-  display: flex;
-  width: 100%;
-}
-
-.appointments-content {
-  flex: 1;
+  min-height: 100vh;
+  background: #f5f5f5;
   padding: 30px;
 }
 
-.appointments-title {
-  font-size: 32px;
-  margin-bottom: 30px;
+.appointments-container {
+  width: 100%;
 }
+
+.appointments-card {
+  background: white;
+
+  padding: 30px;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.appointments-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 25px;
+
+  font-size: 32px;
+
+  color: #4c1d95;
+}
+
+/* FORM */
 
 .appointments-form {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+
+  gap: 15px;
 
   margin-bottom: 30px;
 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
 }
 
-.appointments-input {
-  flex: 1;
+.appointments-form input,
+.appointments-form select {
+  padding: 12px;
+
+  border-radius: 10px;
+
+  border: 1px solid #ccc;
+
   min-width: 220px;
 
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
+  outline: none;
+
+  background: white;
+
+  transition: 0.2s;
 }
+
+.appointments-form input:focus,
+.appointments-form select:focus {
+  border-color: #6d28d9;
+
+  box-shadow:
+    0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+/* BOTÕES */
+
+.primary-btn {
+  background: #6d28d9;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: bold;
+
+  transition: 0.2s;
+}
+
+.primary-btn:hover {
+  background: #5b21b6;
+}
+
+.secondary-btn {
+  background: #e5e7eb;
+
+  border: none;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-weight: bold;
+}
+
+/* TABELA */
 
 .appointments-table {
   width: 100%;
+
   border-collapse: collapse;
-
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.appointments-table th,
-.appointments-table td {
-  padding: 16px;
-  text-align: left;
+.appointments-table thead tr {
+  background: #ede9fe;
 }
 
 .appointments-table th {
-  background: #f3f4f6;
+  padding: 15px;
+
+  text-align: left;
+
+  color: #4c1d95;
 }
 
-@media (max-width: 900px) {
+.appointments-table td {
+  padding: 15px;
+
+  border-bottom: 1px solid #ddd;
+}
+
+/* INFO */
+
+.info-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: #4b5563;
+
+  font-weight: 500;
+}
+
+/* ACTIONS */
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-btn {
+  background: #2563eb;
+
+  color: white;
+
+  border: none;
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: 0.2s;
+}
+
+.edit-btn:hover {
+  background: #1d4ed8;
+}
+
+.delete-btn {
+  background: #dc2626;
+
+  color: white;
+
+  border: none;
+
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: 0.2s;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 768px) {
+
   .appointments-page {
-    flex-direction: column;
+    padding: 20px;
+  }
+
+  .appointments-card {
+    padding: 20px;
+  }
+
+  .appointments-title {
+    font-size: 28px;
   }
 
   .appointments-form {
     flex-direction: column;
   }
 
+  .appointments-form input,
+  .appointments-form select,
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+  }
+
   .appointments-table {
     display: block;
     overflow-x: auto;
+  }
+
+  .actions {
+    flex-direction: column;
   }
 }

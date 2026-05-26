@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy.orm import relationship
 
 from app.database.session import Base
 
@@ -8,12 +9,14 @@ class Client(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    full_name = Column(String, nullable=False)
+    full_name = Column(String)
+    birth_date = Column(Date)
+    cpf = Column(String, unique=True)
+    phone = Column(String)
+    email = Column(String, unique=True)
 
-    birth_date = Column(Date, nullable=False)
-
-    cpf = Column(String, unique=True, nullable=False)
-
-    phone = Column(String, nullable=False)
-
-    email = Column(String, unique=True, nullable=False)
+    
+    appointments = relationship(
+        "Appointment",
+        back_populates="client"
+    )
