@@ -36,7 +36,7 @@ export default function Clients() {
 
     try {
 
-      const response = await api.get("/clients");
+      const response = await api.get("/clients/");
 
       setClients(response.data);
 
@@ -80,7 +80,7 @@ export default function Clients() {
       } else {
 
         await api.post(
-          "/clients",
+          "/clients/",
           clientData
         );
 

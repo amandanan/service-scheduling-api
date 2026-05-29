@@ -1,4 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+)
+
 from sqlalchemy.orm import Session
 
 from app.database.session import SessionLocal
@@ -23,6 +28,7 @@ router = APIRouter(
 
 # DB
 def get_db():
+
     db = SessionLocal()
 
     try:
@@ -33,17 +39,25 @@ def get_db():
 
 
 # CREATE
-@router.post("/", response_model=AppointmentResponse)
+@router.post(
+    "/",
+    response_model=AppointmentResponse
+)
 def create_appointment(
     appointment: AppointmentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
 
     new_appointment = Appointment(
+
         client_id=appointment.client_id,
+
         service_id=appointment.service_id,
-        date=appointment.date
+
+        scheduled_at=appointment.scheduled_at
     )
 
     db.add(new_appointment)
@@ -56,30 +70,45 @@ def create_appointment(
 
 
 # LIST
-@router.get("/", response_model=list[AppointmentResponse])
+@router.get(
+    "/",
+    response_model=list[AppointmentResponse]
+)
 def list_appointments(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
 
-    appointments = db.query(Appointment).all()
+    appointments = db.query(
+        Appointment
+    ).all()
 
     return appointments
 
 
 # GET BY ID
-@router.get("/{appointment_id}", response_model=AppointmentResponse)
+@router.get(
+    "/{appointment_id}",
+    response_model=AppointmentResponse
+)
 def get_appointment(
     appointment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
 
-    appointment = db.query(Appointment).filter(
+    appointment = db.query(
+        Appointment
+    ).filter(
         Appointment.id == appointment_id
     ).first()
 
     if not appointment:
+
         raise HTTPException(
             status_code=404,
             detail="Appointment not found"
@@ -93,14 +122,19 @@ def get_appointment(
 def delete_appointment(
     appointment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
 
-    appointment = db.query(Appointment).filter(
+    appointment = db.query(
+        Appointment
+    ).filter(
         Appointment.id == appointment_id
     ).first()
 
     if not appointment:
+
         raise HTTPException(
             status_code=404,
             detail="Appointment not found"
@@ -111,32 +145,49 @@ def delete_appointment(
     db.commit()
 
     return {
-        "message": "Appointment deleted successfully"
+        "message":
+        "Appointment deleted successfully"
     }
 
 
 # UPDATE
-@router.put("/{appointment_id}", response_model=AppointmentResponse)
+@router.put(
+    "/{appointment_id}",
+    response_model=AppointmentResponse
+)
 def update_appointment(
     appointment_id: int,
     appointment_data: AppointmentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
 
-    appointment = db.query(Appointment).filter(
+    appointment = db.query(
+        Appointment
+    ).filter(
         Appointment.id == appointment_id
     ).first()
 
     if not appointment:
+
         raise HTTPException(
             status_code=404,
             detail="Appointment not found"
         )
 
-    appointment.client_id = appointment_data.client_id
-    appointment.service_id = appointment_data.service_id
-    appointment.date = appointment_data.date
+    appointment.client_id = (
+        appointment_data.client_id
+    )
+
+    appointment.service_id = (
+        appointment_data.service_id
+    )
+
+    appointment.scheduled_at = (
+        appointment_data.scheduled_at
+    )
 
     db.commit()
 

@@ -90,7 +90,7 @@ export async function login(data) {
 export async function getClients() {
 
   const response = await api.get(
-    "/clients"
+    "/clients/"
   );
 
   return response.data;
@@ -100,7 +100,7 @@ export async function getClients() {
 export async function createClient(data) {
 
   const response = await api.post(
-    "/clients",
+    "/clients/",
     data
   );
 
@@ -111,6 +111,52 @@ export async function createClient(data) {
 export async function deleteClient(id) {
 
   await api.delete(`/clients/${id}`);
+}
+
+
+// SERVICES
+
+export async function getServices() {
+
+  const response = await api.get(
+    "/services/"
+  );
+
+  return response.data;
+}
+
+
+export async function createService(data) {
+
+  const response = await api.post(
+    "/services/",
+    data
+  );
+
+  return response.data;
+}
+
+
+// APPOINTMENTS
+
+export async function getAppointments() {
+
+  const response = await api.get(
+    "/appointments/"
+  );
+
+  return response.data;
+}
+
+
+export async function createAppointment(data) {
+
+  const response = await api.post(
+    "/appointments/",
+    data
+  );
+
+  return response.data;
 }
 
 

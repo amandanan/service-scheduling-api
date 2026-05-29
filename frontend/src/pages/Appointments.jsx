@@ -26,11 +26,17 @@ const localizer = momentLocalizer(moment);
 
 export default function Appointments() {
 
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] =
+    useState([]);
 
-  const [clientId, setClientId] = useState("");
-  const [serviceId, setServiceId] = useState("");
-  const [date, setDate] = useState("");
+  const [clientId, setClientId] =
+    useState("");
+
+  const [serviceId, setServiceId] =
+    useState("");
+
+  const [date, setDate] =
+    useState("");
 
 
   async function loadAppointments() {
@@ -38,7 +44,7 @@ export default function Appointments() {
     try {
 
       const response = await api.get(
-        "/appointments"
+        "/appointments/"
       );
 
       const formatted =
@@ -49,9 +55,13 @@ export default function Appointments() {
           title:
             `Cliente ${item.client_id} • Serviço ${item.service_id}`,
 
-          start: new Date(item.date),
+          start: new Date(
+            item.scheduled_at
+          ),
 
-          end: moment(item.date)
+          end: moment(
+            item.scheduled_at
+          )
             .add(1, "hour")
             .toDate(),
         }));
@@ -68,6 +78,7 @@ export default function Appointments() {
     }
   }
 
+
   useEffect(() => {
     loadAppointments();
   }, []);
@@ -78,15 +89,18 @@ export default function Appointments() {
     e.preventDefault();
 
     const appointmentData = {
+
       client_id: Number(clientId),
+
       service_id: Number(serviceId),
-      date,
+
+      scheduled_at: date,
     };
 
     try {
 
       await api.post(
-        "/appointments",
+        "/appointments/",
         appointmentData
       );
 
@@ -104,6 +118,14 @@ export default function Appointments() {
 
       console.error(error);
 
+      console.log(
+        JSON.stringify(
+          error.response?.data,
+          null,
+          2
+        )
+      );
+
       toast.error(
         "Erro ao criar agendamento"
       );
@@ -112,6 +134,7 @@ export default function Appointments() {
 
 
   return (
+
     <div className="appointments-page">
 
       <Navbar />
@@ -124,6 +147,7 @@ export default function Appointments() {
             <FaCalendarAlt />
             Agenda
           </h1>
+
 
           <form
             onSubmit={handleSubmit}
@@ -163,11 +187,14 @@ export default function Appointments() {
               type="submit"
               className="primary-btn"
             >
+
               <FaPlus />
               Agendar
+
             </button>
 
           </form>
+
 
           <div className="calendar-wrapper">
 

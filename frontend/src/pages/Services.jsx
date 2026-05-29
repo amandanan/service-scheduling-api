@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+
 import api from "../services/api";
+
 import Navbar from "../components/Navbar";
+
 import { toast } from "react-toastify";
 
 import {
@@ -9,134 +12,160 @@ import {
   FaTrash,
   FaPlus,
   FaDollarSign,
+  FaClock,
 } from "react-icons/fa";
 
 import "../styles/services.css";
 
 export default function Services() {
+
   const [services, setServices] = useState([]);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [durationMinutes, setDurationMinutes] =
+    useState("");
 
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] =
+    useState(null);
 
- async function loadServices() {
+  async function loadServices() {
 
-  try {
+    try {
 
-    const response = await api.get("/services");
+      const response =
+        await api.get("/services/");
 
-    setServices(response.data);
+      setServices(response.data);
 
-  } catch (error) {
+    } catch (error) {
 
-    console.error(error);
+      console.error(error);
 
-    toast.error(
-      "Erro ao carregar serviços"
-    );
+      toast.error(
+        "Erro ao carregar serviços"
+      );
+    }
   }
-}
+
 
   useEffect(() => {
     loadServices();
   }, []);
 
+
   async function handleSubmit(e) {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const serviceData = {
-    name,
-    price: Number(price),
-  };
+    const serviceData = {
+      name,
+      price: parseFloat(price),
+      duration_minutes:
+        Number(durationMinutes),
+    };
 
-  try {
+    try {
 
-    if (editingId) {
+      if (editingId) {
 
-      await api.put(
-        `/services/${editingId}`,
-        serviceData
-      );
+        await api.put(
+          `/services/${editingId}`,
+          serviceData
+        );
 
-      toast.success(
-        "Serviço atualizado"
-      );
+        toast.success(
+          "Serviço atualizado"
+        );
 
-      setEditingId(null);
+        setEditingId(null);
 
-    } else {
+      } else {
 
-      await api.post(
-        "/services",
-        serviceData
-      );
+        await api.post(
+          "/services/",
+          serviceData
+        );
 
-      toast.success(
-        "Serviço cadastrado"
+        toast.success(
+          "Serviço cadastrado"
+        );
+      }
+
+      clearForm();
+
+      loadServices();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao salvar serviço"
       );
     }
-
-    clearForm();
-
-    loadServices();
-
-  } catch (error) {
-
-    console.error(error);
-
-    toast.error(
-      "Erro ao salvar serviço"
-    );
   }
-  }
+
 
   function handleEdit(service) {
+
     setEditingId(service.id);
 
     setName(service.name);
+
     setPrice(service.price);
+
+    setDurationMinutes(
+      service.duration_minutes
+    );
   }
+
 
   async function handleDelete(id) {
 
-  const confirmDelete = window.confirm(
-    "Deseja realmente excluir este serviço?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-
-    await api.delete(
-      `/services/${id}`
+    const confirmDelete = window.confirm(
+      "Deseja realmente excluir este serviço?"
     );
 
-    toast.success(
-      "Serviço removido"
-    );
+    if (!confirmDelete) return;
 
-    loadServices();
+    try {
 
-  } catch (error) {
+      await api.delete(
+        `/services/${id}`
+      );
 
-    console.error(error);
+      toast.success(
+        "Serviço removido"
+      );
 
-    toast.error(
-      "Erro ao excluir serviço"
-    );
+      loadServices();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao excluir serviço"
+      );
+    }
   }
-  }
+
+
   function clearForm() {
+
     setName("");
+
     setPrice("");
+
+    setDurationMinutes("");
   }
+
 
   return (
 
     <div className="services-page">
+
       <Navbar />
 
       <div className="services-container">
@@ -152,19 +181,38 @@ export default function Services() {
             onSubmit={handleSubmit}
             className="services-form"
           >
+
             <input
               type="text"
               placeholder="Nome do serviço"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
               required
             />
 
             <input
               type="number"
+              step="0.01"
+              min="0"
               placeholder="Preço"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) =>
+                setPrice(e.target.value)
+              }
+              required
+            />
+
+            <input
+              type="number"
+              placeholder="Duração (min)"
+              value={durationMinutes}
+              onChange={(e) =>
+                setDurationMinutes(
+                  e.target.value
+                )
+              }
               required
             />
 
@@ -172,53 +220,92 @@ export default function Services() {
               type="submit"
               className="primary-btn"
             >
-              {editingId ? <FaEdit /> : <FaPlus />}
-              {editingId ? "Atualizar" : "Cadastrar"}
+
+              {editingId ? (
+                <>
+                  <FaEdit />
+                  Atualizar
+                </>
+              ) : (
+                <>
+                  <FaPlus />
+                  Cadastrar
+                </>
+              )}
+
             </button>
 
             {editingId && (
+
               <button
                 type="button"
                 className="secondary-btn"
                 onClick={() => {
+
                   setEditingId(null);
+
                   clearForm();
                 }}
               >
                 Cancelar
               </button>
+
             )}
+
           </form>
 
+
           <table className="services-table">
+
             <thead>
+
               <tr>
                 <th>ID</th>
                 <th>Nome</th>
                 <th>Preço</th>
+                <th>Duração</th>
                 <th>Ações</th>
               </tr>
+
             </thead>
 
             <tbody>
+
               {services.map((service) => (
+
                 <tr key={service.id}>
+
                   <td>{service.id}</td>
 
                   <td>{service.name}</td>
 
                   <td>
+
                     <div className="price-cell">
                       <FaDollarSign />
                       R$ {service.price}
                     </div>
+
                   </td>
 
                   <td>
+
+                    <div className="duration-cell">
+                      <FaClock />
+                      {service.duration_minutes} min
+                    </div>
+
+                  </td>
+
+                  <td>
+
                     <div className="actions">
+
                       <button
                         className="edit-btn"
-                        onClick={() => handleEdit(service)}
+                        onClick={() =>
+                          handleEdit(service)
+                        }
                       >
                         <FaEdit />
                         Editar
@@ -226,20 +313,30 @@ export default function Services() {
 
                       <button
                         className="delete-btn"
-                        onClick={() => handleDelete(service.id)}
+                        onClick={() =>
+                          handleDelete(service.id)
+                        }
                       >
                         <FaTrash />
                         Excluir
                       </button>
+
                     </div>
+
                   </td>
+
                 </tr>
+
               ))}
+
             </tbody>
 
           </table>
+
         </div>
+
       </div>
+
     </div>
   );
 }

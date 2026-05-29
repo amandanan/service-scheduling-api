@@ -15,7 +15,9 @@ from app.routes import (
     appointment,
 )
 
-app = FastAPI()
+app = FastAPI(
+    redirect_slashes=False
+)
 
 app.add_middleware(
     CORSMiddleware,
