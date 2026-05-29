@@ -133,3 +133,31 @@
     width: 100%;
   }
 }
+
+.fc {
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.fc-toolbar-title {
+  font-size: 24px !important;
+  color: #4c1d95;
+  font-weight: bold;
+}
+
+.fc-button {
+  background: #6d28d9 !important;
+  border: none !important;
+}
+
+.fc-button:hover {
+  background: #5b21b6 !important;
+}
+
+.fc-event {
+  background: #6d28d9 !important;
+  border: none !important;
+  padding: 4px;
+  border-radius: 8px;
+}

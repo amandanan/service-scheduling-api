@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 
-import {
-  Calendar,
-  momentLocalizer,
-} from "react-big-calendar";
+import FullCalendar from "@fullcalendar/react";
 
-import moment from "moment";
+import dayGridPlugin from "@fullcalendar/daygrid";
 
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import timeGridPlugin from "@fullcalendar/timegrid";
+
+import interactionPlugin from "@fullcalendar/interaction";
 
 import api from "../services/api";
 
@@ -22,7 +21,6 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
-const localizer = momentLocalizer(moment);
 
 export default function Appointments() {
 
@@ -35,7 +33,7 @@ export default function Appointments() {
   const [serviceId, setServiceId] =
     useState("");
 
-  const [date, setDate] =
+  const [scheduledAt, setScheduledAt] =
     useState("");
 
 
@@ -43,9 +41,8 @@ export default function Appointments() {
 
     try {
 
-      const response = await api.get(
-        "/appointments/"
-      );
+      const response =
+        await api.get("/appointments/");
 
       const formatted =
         response.data.map((item) => ({
@@ -53,17 +50,9 @@ export default function Appointments() {
           id: item.id,
 
           title:
-            `Cliente ${item.client_id} • Serviço ${item.service_id}`,
+            `${item.client_id} • ${item.service_id}`,
 
-          start: new Date(
-            item.scheduled_at
-          ),
-
-          end: moment(
-            item.scheduled_at
-          )
-            .add(1, "hour")
-            .toDate(),
+          start: item.scheduled_at,
         }));
 
       setAppointments(formatted);
@@ -73,7 +62,7 @@ export default function Appointments() {
       console.error(error);
 
       toast.error(
-        "Erro ao carregar agendamentos"
+        "Erro ao carregar agenda"
       );
     }
   }
@@ -94,7 +83,7 @@ export default function Appointments() {
 
       service_id: Number(serviceId),
 
-      scheduled_at: date,
+      scheduled_at: scheduledAt,
     };
 
     try {
@@ -109,22 +98,16 @@ export default function Appointments() {
       );
 
       setClientId("");
+
       setServiceId("");
-      setDate("");
+
+      setScheduledAt("");
 
       loadAppointments();
 
     } catch (error) {
 
       console.error(error);
-
-      console.log(
-        JSON.stringify(
-          error.response?.data,
-          null,
-          2
-        )
-      );
 
       toast.error(
         "Erro ao criar agendamento"
@@ -144,8 +127,11 @@ export default function Appointments() {
         <div className="appointments-card">
 
           <h1 className="appointments-title">
+
             <FaCalendarAlt />
+
             Agenda
+
           </h1>
 
 
@@ -176,9 +162,11 @@ export default function Appointments() {
 
             <input
               type="datetime-local"
-              value={date}
+              value={scheduledAt}
               onChange={(e) =>
-                setDate(e.target.value)
+                setScheduledAt(
+                  e.target.value
+                )
               }
               required
             />
@@ -189,6 +177,7 @@ export default function Appointments() {
             >
 
               <FaPlus />
+
               Agendar
 
             </button>
@@ -198,21 +187,43 @@ export default function Appointments() {
 
           <div className="calendar-wrapper">
 
-            <Calendar
-              localizer={localizer}
-              events={appointments}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: 650 }}
-              messages={{
-                next: "Próximo",
-                previous: "Anterior",
+            <FullCalendar
+              plugins={[
+                dayGridPlugin,
+                timeGridPlugin,
+                interactionPlugin,
+              ]}
+
+              initialView="timeGridWeek"
+
+              locale="pt-br"
+
+              headerToolbar={{
+                left:
+                  "prev,next today",
+
+                center: "title",
+
+                right:
+                  "dayGridMonth,timeGridWeek,timeGridDay",
+              }}
+
+              buttonText={{
                 today: "Hoje",
                 month: "Mês",
                 week: "Semana",
                 day: "Dia",
-                agenda: "Agenda",
               }}
+
+              slotMinTime="08:00:00"
+
+              slotMaxTime="20:00:00"
+
+              allDaySlot={false}
+
+              height="auto"
+
+              events={appointments}
             />
 
           </div>
