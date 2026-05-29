@@ -6,9 +6,15 @@ from fastapi import (
 
 from sqlalchemy.orm import Session
 
+from datetime import (
+    datetime,
+    timedelta,
+)
+
 from app.database.session import SessionLocal
 
 from app.models.appointment import Appointment
+from app.models.service import Service
 from app.models.user import User
 
 from app.schemas.appointment import (
@@ -86,6 +92,109 @@ def list_appointments(
     ).all()
 
     return appointments
+
+
+# AVAILABLE SLOTS
+@router.get("/available-slots")
+def get_available_slots(
+    date: str,
+    service_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    )
+):
+
+    service = db.query(Service).filter(
+        Service.id == service_id
+    ).first()
+
+    if not service:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Service not found"
+        )
+
+    duration = (
+        service.duration_minutes or 60
+    )
+
+    day_start = datetime.strptime(
+        f"{date} 08:00",
+        "%Y-%m-%d %H:%M"
+    )
+
+    day_end = datetime.strptime(
+        f"{date} 20:00",
+        "%Y-%m-%d %H:%M"
+    )
+
+    appointments = db.query(
+        Appointment
+    ).all()
+
+    available_slots = []
+
+    current = day_start
+
+    while current < day_end:
+
+        current_end = (
+            current +
+            timedelta(minutes=duration)
+        )
+
+        has_conflict = False
+
+        for appointment in appointments:
+
+            appointment_service = db.query(
+                Service
+            ).filter(
+                Service.id ==
+                appointment.service_id
+            ).first()
+
+            appointment_duration = (
+                appointment_service.duration_minutes
+                if appointment_service
+                and appointment_service.duration_minutes
+                else 60
+            )
+
+            appointment_end = (
+                appointment.scheduled_at +
+                timedelta(
+                    minutes=appointment_duration
+                )
+            )
+
+            conflict = (
+
+                current < appointment_end
+
+                and
+
+                current_end >
+                appointment.scheduled_at
+            )
+
+            if conflict:
+
+                has_conflict = True
+
+                break
+
+        if not has_conflict:
+
+            available_slots.append(
+                current.strftime("%H:%M")
+            )
+
+        current += timedelta(minutes=30)
+
+    return available_slots
 
 
 # GET BY ID

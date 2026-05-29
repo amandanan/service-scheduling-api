@@ -23,7 +23,6 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
-
 export default function Appointments() {
 
   const [appointments, setAppointments] =
@@ -34,6 +33,15 @@ export default function Appointments() {
 
   const [services, setServices] =
     useState([]);
+
+  const [availableSlots, setAvailableSlots] =
+    useState([]);
+
+  const [showSlots, setShowSlots] =
+    useState(false);
+
+  const [selectedDate, setSelectedDate] =
+    useState("");
 
   const [clientId, setClientId] =
     useState("");
@@ -49,7 +57,6 @@ export default function Appointments() {
 
   const [selectedService, setSelectedService] =
     useState(null);
-
 
   async function loadData() {
 
@@ -68,11 +75,9 @@ export default function Appointments() {
         api.get("/services/"),
       ]);
 
-
       setClients(clientsRes.data);
 
       setServices(servicesRes.data);
-
 
       const formatted =
         appointmentsRes.data.map(
@@ -128,11 +133,44 @@ export default function Appointments() {
     }
   }
 
+  async function loadAvailableSlots(
+    date,
+    selectedServiceId
+  ) {
+
+    if (!date || !selectedServiceId)
+      return;
+
+    try {
+
+      const response = await api.get(
+        "/appointments/available-slots",
+        {
+          params: {
+            date,
+            service_id:
+              selectedServiceId,
+          },
+        }
+      );
+
+      setAvailableSlots(
+        response.data
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao carregar horários"
+      );
+    }
+  }
 
   useEffect(() => {
     loadData();
   }, []);
-
 
   async function handleSubmit(e) {
 
@@ -159,63 +197,11 @@ export default function Appointments() {
     if (!scheduledAt) {
 
       toast.error(
-        "Selecione data e horário"
+        "Selecione um horário"
       );
 
       return;
     }
-
-
-    // SERVIÇO SELECIONADO
-
-    const service =
-      services.find(
-        (s) =>
-          s.id === Number(serviceId)
-      );
-
-    const duration =
-      service?.duration_minutes || 60;
-
-
-    // NOVO HORÁRIO
-
-    const newStart =
-      new Date(scheduledAt);
-
-    const newEnd =
-      new Date(
-        newStart.getTime() +
-        duration * 60 * 1000
-      );
-
-
-    // BLOQUEIO DE CONFLITO
-
-    const hasConflict =
-      appointments.some((appointment) => {
-
-        const existingStart =
-          new Date(appointment.start);
-
-        const existingEnd =
-          new Date(appointment.end);
-
-        return (
-          newStart < existingEnd &&
-          newEnd > existingStart
-        );
-      });
-
-    if (hasConflict) {
-
-      toast.error(
-        "Já existe agendamento nesse horário"
-      );
-
-      return;
-    }
-
 
     const appointmentData = {
 
@@ -246,9 +232,15 @@ export default function Appointments() {
 
       setScheduledAt("");
 
+      setSelectedDate("");
+
       setSelectedClient(null);
 
       setSelectedService(null);
+
+      setAvailableSlots([]);
+
+      setShowSlots(false);
 
       loadData();
 
@@ -262,7 +254,6 @@ export default function Appointments() {
     }
   }
 
-
   function handleDateClick(info) {
 
     const formatted =
@@ -270,7 +261,6 @@ export default function Appointments() {
 
     setScheduledAt(formatted);
   }
-
 
   async function handleEventClick(info) {
 
@@ -302,7 +292,6 @@ export default function Appointments() {
     }
   }
 
-
   return (
 
     <div className="appointments-page">
@@ -320,7 +309,6 @@ export default function Appointments() {
             Agenda
 
           </h1>
-
 
           <form
             onSubmit={handleSubmit}
@@ -387,7 +375,6 @@ export default function Appointments() {
 
             </div>
 
-
             {/* SERVIÇO */}
 
             <div className="service-select-wrapper">
@@ -438,6 +425,14 @@ export default function Appointments() {
                   setSelectedService(
                     selected.service
                   );
+
+                  if (selectedDate) {
+
+                    loadAvailableSlots(
+                      selectedDate,
+                      selected.value
+                    );
+                  }
                 }}
 
                 className="react-select-container"
@@ -448,18 +443,120 @@ export default function Appointments() {
 
             </div>
 
+            {/* DATA */}
 
             <input
-              type="datetime-local"
-              value={scheduledAt}
-              onChange={(e) =>
-                setScheduledAt(
-                  e.target.value
-                )
-              }
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+
+                const date =
+                  e.target.value;
+
+                setSelectedDate(date);
+
+                loadAvailableSlots(
+                  date,
+                  serviceId
+                );
+              }}
               required
             />
 
+            {/* DROPDOWN HORÁRIOS */}
+
+            <div className="slots-dropdown">
+
+              <button
+                type="button"
+                className="slots-toggle-btn"
+                onClick={() =>
+                  setShowSlots(!showSlots)
+                }
+              >
+
+                Ver horários disponíveis
+
+              </button>
+
+              {showSlots &&
+                availableSlots.length > 0 && (
+
+                <div className="slots-content">
+
+                  <div className="slots-grid">
+
+                    {availableSlots.map((slot) => (
+
+                      <button
+                        key={slot}
+                        type="button"
+                        className={
+                          scheduledAt ===
+                          `${selectedDate}T${slot}`
+                            ? "slot-btn active"
+                            : "slot-btn"
+                        }
+                        onClick={() =>
+                          setScheduledAt(
+                            `${selectedDate}T${slot}`
+                          )
+                        }
+                      >
+
+                        {slot}
+
+                      </button>
+
+                    ))}
+
+                  </div>
+
+                  {/* HORÁRIO MANUAL */}
+
+                  <div className="manual-time-wrapper">
+
+                    <label>
+                      Ou escolha manualmente
+                    </label>
+
+                    <input
+                      type="time"
+                      onChange={(e) => {
+
+                        if (!selectedDate)
+                          return;
+
+                        setScheduledAt(
+                          `${selectedDate}T${e.target.value}`
+                        );
+                      }}
+                    />
+
+                  </div>
+
+                </div>
+
+              )}
+
+            </div>
+
+            {/* HORÁRIO ESCOLHIDO */}
+
+            {scheduledAt && (
+
+              <div className="selected-time-preview">
+
+                Horário selecionado:
+                {" "}
+
+                <strong>
+                  {scheduledAt}
+                </strong>
+
+              </div>
+
+            )}
 
             <button
               type="submit"
@@ -473,85 +570,6 @@ export default function Appointments() {
             </button>
 
           </form>
-
-
-          {/* CARD PACIENTE */}
-
-          {selectedClient && (
-
-            <div className="patient-card">
-
-              <h3>
-                Paciente selecionado
-              </h3>
-
-              <p>
-                <strong>Nome:</strong>
-                {" "}
-                {selectedClient.full_name}
-              </p>
-
-              <p>
-                <strong>CPF:</strong>
-                {" "}
-                {selectedClient.cpf}
-              </p>
-
-              <p>
-                <strong>Telefone:</strong>
-                {" "}
-                {selectedClient.phone}
-              </p>
-
-              <p>
-                <strong>Nascimento:</strong>
-                {" "}
-                {selectedClient.birth_date}
-              </p>
-
-            </div>
-
-          )}
-
-
-          {/* CARD SERVIÇO */}
-
-          {selectedService && (
-
-            <div className="service-card">
-
-              <h3>
-                Serviço selecionado
-              </h3>
-
-              <p>
-                <strong>Código:</strong>
-                {" "}
-                #{selectedService.id}
-              </p>
-
-              <p>
-                <strong>Nome:</strong>
-                {" "}
-                {selectedService.name}
-              </p>
-
-              <p>
-                <strong>Valor:</strong>
-                {" "}
-                R$ {selectedService.price}
-              </p>
-
-              <p>
-                <strong>Duração:</strong>
-                {" "}
-                {selectedService.duration_minutes} min
-              </p>
-
-            </div>
-
-          )}
-
 
           <div className="calendar-wrapper">
 
