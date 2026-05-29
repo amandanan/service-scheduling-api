@@ -23,6 +23,7 @@ router = APIRouter(
 
 # DB
 def get_db():
+
     db = SessionLocal()
 
     try:
@@ -33,7 +34,10 @@ def get_db():
 
 
 # CREATE
-@router.post("/", response_model=ServiceResponse)
+@router.post(
+    "/",
+    response_model=ServiceResponse
+)
 def create_service(
     service: ServiceCreate,
     db: Session = Depends(get_db),
@@ -41,8 +45,13 @@ def create_service(
 ):
 
     new_service = Service(
+
         name=service.name,
-        price=service.price
+
+        price=service.price,
+
+        duration_minutes=
+            service.duration_minutes
     )
 
     db.add(new_service)
@@ -55,7 +64,10 @@ def create_service(
 
 
 # LIST
-@router.get("/", response_model=list[ServiceResponse])
+@router.get(
+    "/",
+    response_model=list[ServiceResponse]
+)
 def list_services(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -67,7 +79,10 @@ def list_services(
 
 
 # GET BY ID
-@router.get("/{service_id}", response_model=ServiceResponse)
+@router.get(
+    "/{service_id}",
+    response_model=ServiceResponse
+)
 def get_service(
     service_id: int,
     db: Session = Depends(get_db),
@@ -79,6 +94,7 @@ def get_service(
     ).first()
 
     if not service:
+
         raise HTTPException(
             status_code=404,
             detail="Service not found"
@@ -100,6 +116,7 @@ def delete_service(
     ).first()
 
     if not service:
+
         raise HTTPException(
             status_code=404,
             detail="Service not found"
@@ -110,12 +127,16 @@ def delete_service(
     db.commit()
 
     return {
-        "message": "Service deleted successfully"
+        "message":
+            "Service deleted successfully"
     }
 
 
 # UPDATE
-@router.put("/{service_id}", response_model=ServiceResponse)
+@router.put(
+    "/{service_id}",
+    response_model=ServiceResponse
+)
 def update_service(
     service_id: int,
     service_data: ServiceCreate,
@@ -128,13 +149,19 @@ def update_service(
     ).first()
 
     if not service:
+
         raise HTTPException(
             status_code=404,
             detail="Service not found"
         )
 
     service.name = service_data.name
+
     service.price = service_data.price
+
+    service.duration_minutes = (
+        service_data.duration_minutes
+    )
 
     db.commit()
 

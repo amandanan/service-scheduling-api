@@ -22,12 +22,15 @@ export default function Services() {
   const [services, setServices] = useState([]);
 
   const [name, setName] = useState("");
+
   const [price, setPrice] = useState("");
+
   const [durationMinutes, setDurationMinutes] =
     useState("");
 
   const [editingId, setEditingId] =
     useState(null);
+
 
   async function loadServices() {
 
@@ -58,12 +61,47 @@ export default function Services() {
 
     e.preventDefault();
 
+    if (!name.trim()) {
+
+      toast.error(
+        "Informe o nome do serviço"
+      );
+
+      return;
+    }
+
+    if (!price || Number(price) <= 0) {
+
+      toast.error(
+        "Informe um preço válido"
+      );
+
+      return;
+    }
+
+    if (
+      !durationMinutes ||
+      Number(durationMinutes) <= 0
+    ) {
+
+      toast.error(
+        "Informe uma duração válida"
+      );
+
+      return;
+    }
+
+
     const serviceData = {
-      name,
-      price: parseFloat(price),
+
+      name: name.trim(),
+
+      price: Number(price),
+
       duration_minutes:
         Number(durationMinutes),
     };
+
 
     try {
 
@@ -78,8 +116,6 @@ export default function Services() {
           "Serviço atualizado"
         );
 
-        setEditingId(null);
-
       } else {
 
         await api.post(
@@ -91,6 +127,7 @@ export default function Services() {
           "Serviço cadastrado"
         );
       }
+
 
       clearForm();
 
@@ -129,6 +166,7 @@ export default function Services() {
 
     if (!confirmDelete) return;
 
+
     try {
 
       await api.delete(
@@ -154,6 +192,8 @@ export default function Services() {
 
   function clearForm() {
 
+    setEditingId(null);
+
     setName("");
 
     setPrice("");
@@ -173,9 +213,13 @@ export default function Services() {
         <div className="services-card">
 
           <h1 className="services-title">
+
             <FaTools />
+
             Serviços
+
           </h1>
+
 
           <form
             onSubmit={handleSubmit}
@@ -192,6 +236,7 @@ export default function Services() {
               required
             />
 
+
             <input
               type="number"
               step="0.01"
@@ -204,8 +249,10 @@ export default function Services() {
               required
             />
 
+
             <input
               type="number"
+              min="1"
               placeholder="Duração (min)"
               value={durationMinutes}
               onChange={(e) =>
@@ -215,6 +262,7 @@ export default function Services() {
               }
               required
             />
+
 
             <button
               type="submit"
@@ -235,19 +283,17 @@ export default function Services() {
 
             </button>
 
+
             {editingId && (
 
               <button
                 type="button"
                 className="secondary-btn"
-                onClick={() => {
-
-                  setEditingId(null);
-
-                  clearForm();
-                }}
+                onClick={clearForm}
               >
+
                 Cancelar
+
               </button>
 
             )}
@@ -260,74 +306,125 @@ export default function Services() {
             <thead>
 
               <tr>
+
                 <th>ID</th>
+
                 <th>Nome</th>
+
                 <th>Preço</th>
+
                 <th>Duração</th>
+
                 <th>Ações</th>
+
               </tr>
 
             </thead>
 
+
             <tbody>
 
-              {services.map((service) => (
+              {services.length > 0 ? (
 
-                <tr key={service.id}>
+                services.map((service) => (
 
-                  <td>{service.id}</td>
+                  <tr key={service.id}>
 
-                  <td>{service.name}</td>
+                    <td>
+                      {service.id}
+                    </td>
 
-                  <td>
+                    <td>
+                      {service.name}
+                    </td>
 
-                    <div className="price-cell">
-                      <FaDollarSign />
-                      R$ {service.price}
-                    </div>
+                    <td>
 
-                  </td>
+                      <div className="price-cell">
 
-                  <td>
+                        <FaDollarSign />
 
-                    <div className="duration-cell">
-                      <FaClock />
-                      {service.duration_minutes} min
-                    </div>
+                        R$ {" "}
+                        {Number(
+                          service.price
+                        ).toFixed(2)}
 
-                  </td>
+                      </div>
 
-                  <td>
+                    </td>
 
-                    <div className="actions">
+                    <td>
 
-                      <button
-                        className="edit-btn"
-                        onClick={() =>
-                          handleEdit(service)
-                        }
-                      >
-                        <FaEdit />
-                        Editar
-                      </button>
+                      <div className="duration-cell">
 
-                      <button
-                        className="delete-btn"
-                        onClick={() =>
-                          handleDelete(service.id)
-                        }
-                      >
-                        <FaTrash />
-                        Excluir
-                      </button>
+                        <FaClock />
 
-                    </div>
+                        {service.duration_minutes} min
+
+                      </div>
+
+                    </td>
+
+                    <td>
+
+                      <div className="actions">
+
+                        <button
+                          className="edit-btn"
+                          onClick={() =>
+                            handleEdit(service)
+                          }
+                        >
+
+                          <FaEdit />
+
+                          Editar
+
+                        </button>
+
+
+                        <button
+                          className="delete-btn"
+                          onClick={() =>
+                            handleDelete(
+                              service.id
+                            )
+                          }
+                        >
+
+                          <FaTrash />
+
+                          Excluir
+
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              ) : (
+
+                <tr>
+
+                  <td
+                    colSpan="5"
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                    }}
+                  >
+
+                    Nenhum serviço cadastrado
 
                   </td>
 
                 </tr>
 
-              ))}
+              )}
 
             </tbody>
 

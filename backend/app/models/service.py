@@ -11,6 +11,7 @@ from app.database.session import Base
 
 
 class Service(Base):
+
     __tablename__ = "services"
 
     id = Column(
@@ -25,11 +26,11 @@ class Service(Base):
 
     duration_minutes = Column(
         Integer,
-        default=60
+        default=60,
+        nullable=False
     )
 
     appointments = relationship(
         "Appointment",
         back_populates="service"
     )
-    

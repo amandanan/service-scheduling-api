@@ -90,6 +90,18 @@ export default function Appointments() {
                   s.id === item.service_id
               );
 
+            const startDate =
+              new Date(item.scheduled_at);
+
+            const duration =
+              service?.duration_minutes || 60;
+
+            const endDate =
+              new Date(
+                startDate.getTime() +
+                duration * 60 * 1000
+              );
+
             return {
 
               id: item.id,
@@ -97,11 +109,9 @@ export default function Appointments() {
               title:
                 `${client?.full_name || "Cliente"} • ${service?.name || "Serviço"}`,
 
-              start:
-                item.scheduled_at,
+              start: startDate,
 
-              end:
-                item.scheduled_at,
+              end: endDate,
             };
           }
         );
@@ -145,6 +155,70 @@ export default function Appointments() {
 
       return;
     }
+
+    if (!scheduledAt) {
+
+      toast.error(
+        "Selecione data e horário"
+      );
+
+      return;
+    }
+
+
+    // serviço selecionado
+    const service =
+      services.find(
+        (s) =>
+          s.id === Number(serviceId)
+      );
+
+    const duration =
+      service?.duration_minutes || 60;
+
+
+    // novo horário
+    const newStart =
+      new Date(scheduledAt);
+
+    const newEnd =
+      new Date(
+        newStart.getTime() +
+        duration * 60 * 1000
+      );
+
+
+    // bloqueio real
+    const alreadyExists =
+      appointments.some(
+        (appointment) => {
+
+          const existingStart =
+            new Date(
+              appointment.start
+            );
+
+          const existingEnd =
+            new Date(
+              appointment.end
+            );
+
+          return (
+            newStart < existingEnd &&
+            newEnd > existingStart
+          );
+        }
+      );
+
+    if (alreadyExists) {
+
+      toast.error(
+        "Já existe agendamento nesse horário"
+      );
+
+      return;
+    }
+
 
     const appointmentData = {
 
@@ -278,11 +352,11 @@ export default function Appointments() {
                 placeholder="Pesquisar paciente por nome ou CPF..."
 
                 value={
-                  clientId
+                  clientId && selectedClient
                     ? {
                         value: clientId,
                         label:
-                          `${selectedClient?.full_name} • CPF ${selectedClient?.cpf}`,
+                          `${selectedClient.full_name} • CPF ${selectedClient.cpf}`,
                       }
                     : null
                 }
@@ -339,11 +413,11 @@ export default function Appointments() {
                 placeholder="Pesquisar serviço por código ou nome..."
 
                 value={
-                  serviceId
+                  serviceId && selectedService
                     ? {
                         value: serviceId,
                         label:
-                          `${selectedService?.id} - ${selectedService?.name}`,
+                          `${selectedService.id} - ${selectedService.name}`,
                       }
                     : null
                 }
@@ -471,6 +545,12 @@ export default function Appointments() {
                 R$ {selectedService.price}
               </p>
 
+              <p>
+                <strong>Duração:</strong>
+                {" "}
+                {selectedService.duration_minutes} min
+              </p>
+
             </div>
 
           )}
@@ -521,6 +601,10 @@ export default function Appointments() {
               slotMinTime="08:00:00"
 
               slotMaxTime="20:00:00"
+
+              slotDuration="00:30:00"
+
+              nowIndicator={true}
 
               allDaySlot={false}
 
