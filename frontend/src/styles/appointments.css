@@ -208,3 +208,78 @@
 
   background: white;
 }
+
+.client-select-wrapper {
+  min-width: 320px;
+}
+
+.react-select-container {
+  width: 320px;
+}
+
+.react-select__control {
+  min-height: 48px !important;
+
+  border-radius: 12px !important;
+
+  border: 1px solid #d1d5db !important;
+
+  box-shadow: none !important;
+}
+
+.react-select__control:hover {
+  border-color: #6d28d9 !important;
+}
+
+.react-select__option--is-focused {
+  background: #ede9fe !important;
+
+  color: #4c1d95 !important;
+}
+
+.react-select__option--is-selected {
+  background: #6d28d9 !important;
+}
+
+.patient-card {
+
+  margin-top: 20px;
+
+  background: #f5f3ff;
+
+  border: 1px solid #ddd6fe;
+
+  padding: 20px;
+
+  border-radius: 16px;
+
+  color: #4c1d95;
+}
+
+.patient-card h3 {
+
+  margin-bottom: 12px;
+}
+
+.service-select-wrapper {
+  min-width: 320px;
+}
+
+.service-card {
+
+  margin-top: 16px;
+
+  background: #eff6ff;
+
+  border: 1px solid #bfdbfe;
+
+  padding: 20px;
+
+  border-radius: 16px;
+
+  color: #1e3a8a;
+}
+
+.service-card h3 {
+  margin-bottom: 12px;
+}

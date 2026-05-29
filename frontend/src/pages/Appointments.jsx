@@ -8,6 +8,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 
 import interactionPlugin from "@fullcalendar/interaction";
 
+import Select from "react-select";
+
 import api from "../services/api";
 
 import Navbar from "../components/Navbar";
@@ -41,6 +43,12 @@ export default function Appointments() {
 
   const [scheduledAt, setScheduledAt] =
     useState("");
+
+  const [selectedClient, setSelectedClient] =
+    useState(null);
+
+  const [selectedService, setSelectedService] =
+    useState(null);
 
 
   async function loadData() {
@@ -91,6 +99,9 @@ export default function Appointments() {
 
               start:
                 item.scheduled_at,
+
+              end:
+                item.scheduled_at,
             };
           }
         );
@@ -116,6 +127,24 @@ export default function Appointments() {
   async function handleSubmit(e) {
 
     e.preventDefault();
+
+    if (!clientId) {
+
+      toast.error(
+        "Selecione um paciente"
+      );
+
+      return;
+    }
+
+    if (!serviceId) {
+
+      toast.error(
+        "Selecione um serviço"
+      );
+
+      return;
+    }
 
     const appointmentData = {
 
@@ -146,6 +175,10 @@ export default function Appointments() {
 
       setScheduledAt("");
 
+      setSelectedClient(null);
+
+      setSelectedService(null);
+
       loadData();
 
     } catch (error) {
@@ -167,35 +200,36 @@ export default function Appointments() {
     setScheduledAt(formatted);
   }
 
+
   async function handleEventClick(info) {
 
-  const confirmDelete = window.confirm(
-    "Deseja excluir este agendamento?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-
-    await api.delete(
-      `/appointments/${info.event.id}`
+    const confirmDelete = window.confirm(
+      "Deseja excluir este agendamento?"
     );
 
-    toast.success(
-      "Agendamento removido"
-    );
+    if (!confirmDelete) return;
 
-    loadData();
+    try {
 
-  } catch (error) {
+      await api.delete(
+        `/appointments/${info.event.id}`
+      );
 
-    console.error(error);
+      toast.success(
+        "Agendamento removido"
+      );
 
-    toast.error(
-      "Erro ao excluir agendamento"
-    );
+      loadData();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Erro ao excluir agendamento"
+      );
+    }
   }
-}
 
 
   return (
@@ -222,64 +256,126 @@ export default function Appointments() {
             className="appointments-form"
           >
 
-            <select
-              value={clientId}
-              onChange={(e) =>
-                setClientId(
-                  e.target.value
-                )
-              }
-              required
-            >
+            {/* CLIENTE */}
 
-              <option value="">
-                Selecione cliente
-              </option>
+            <div className="client-select-wrapper">
 
-              {clients.map((client) => (
+              <Select
 
-                <option
-                  key={client.id}
-                  value={client.id}
-                >
+                options={clients.map((client) => ({
 
-                  {client.full_name}
+                  value: client.id,
 
-                </option>
+                  label:
+                    `${client.full_name} • CPF ${client.cpf}`,
 
-              ))}
+                  search:
+                    `${client.full_name} ${client.cpf}`,
 
-            </select>
+                  client,
+                }))}
+
+                placeholder="Pesquisar paciente por nome ou CPF..."
+
+                value={
+                  clientId
+                    ? {
+                        value: clientId,
+                        label:
+                          `${selectedClient?.full_name} • CPF ${selectedClient?.cpf}`,
+                      }
+                    : null
+                }
+
+                filterOption={(option, inputValue) => {
+
+                  const text =
+                    option.data.search.toLowerCase();
+
+                  return text.includes(
+                    inputValue.toLowerCase()
+                  );
+                }}
+
+                onChange={(selected) => {
+
+                  setClientId(
+                    selected.value
+                  );
+
+                  setSelectedClient(
+                    selected.client
+                  );
+                }}
+
+                className="react-select-container"
+
+                classNamePrefix="react-select"
+
+              />
+
+            </div>
 
 
-            <select
-              value={serviceId}
-              onChange={(e) =>
-                setServiceId(
-                  e.target.value
-                )
-              }
-              required
-            >
+            {/* SERVIÇO */}
 
-              <option value="">
-                Selecione serviço
-              </option>
+            <div className="service-select-wrapper">
 
-              {services.map((service) => (
+              <Select
 
-                <option
-                  key={service.id}
-                  value={service.id}
-                >
+                options={services.map((service) => ({
 
-                  {service.name}
+                  value: service.id,
 
-                </option>
+                  label:
+                    `${service.id} - ${service.name}`,
 
-              ))}
+                  search:
+                    `${service.id} ${service.name}`,
 
-            </select>
+                  service,
+                }))}
+
+                placeholder="Pesquisar serviço por código ou nome..."
+
+                value={
+                  serviceId
+                    ? {
+                        value: serviceId,
+                        label:
+                          `${selectedService?.id} - ${selectedService?.name}`,
+                      }
+                    : null
+                }
+
+                filterOption={(option, inputValue) => {
+
+                  const text =
+                    option.data.search.toLowerCase();
+
+                  return text.includes(
+                    inputValue.toLowerCase()
+                  );
+                }}
+
+                onChange={(selected) => {
+
+                  setServiceId(
+                    selected.value
+                  );
+
+                  setSelectedService(
+                    selected.service
+                  );
+                }}
+
+                className="react-select-container"
+
+                classNamePrefix="react-select"
+
+              />
+
+            </div>
 
 
             <input
@@ -308,6 +404,78 @@ export default function Appointments() {
           </form>
 
 
+          {/* CARD PACIENTE */}
+
+          {selectedClient && (
+
+            <div className="patient-card">
+
+              <h3>
+                Paciente selecionado
+              </h3>
+
+              <p>
+                <strong>Nome:</strong>
+                {" "}
+                {selectedClient.full_name}
+              </p>
+
+              <p>
+                <strong>CPF:</strong>
+                {" "}
+                {selectedClient.cpf}
+              </p>
+
+              <p>
+                <strong>Telefone:</strong>
+                {" "}
+                {selectedClient.phone}
+              </p>
+
+              <p>
+                <strong>Nascimento:</strong>
+                {" "}
+                {selectedClient.birth_date}
+              </p>
+
+            </div>
+
+          )}
+
+
+          {/* CARD SERVIÇO */}
+
+          {selectedService && (
+
+            <div className="service-card">
+
+              <h3>
+                Serviço selecionado
+              </h3>
+
+              <p>
+                <strong>Código:</strong>
+                {" "}
+                #{selectedService.id}
+              </p>
+
+              <p>
+                <strong>Nome:</strong>
+                {" "}
+                {selectedService.name}
+              </p>
+
+              <p>
+                <strong>Valor:</strong>
+                {" "}
+                R$ {selectedService.price}
+              </p>
+
+            </div>
+
+          )}
+
+
           <div className="calendar-wrapper">
 
             <FullCalendar
@@ -328,7 +496,9 @@ export default function Appointments() {
                 handleDateClick
               }
 
-              eventClick={handleEventClick}
+              eventClick={
+                handleEventClick
+              }
 
               headerToolbar={{
 
@@ -357,6 +527,7 @@ export default function Appointments() {
               height="auto"
 
               events={appointments}
+
             />
 
           </div>
