@@ -166,7 +166,8 @@ export default function Appointments() {
     }
 
 
-    // serviço selecionado
+    // SERVIÇO SELECIONADO
+
     const service =
       services.find(
         (s) =>
@@ -177,7 +178,8 @@ export default function Appointments() {
       service?.duration_minutes || 60;
 
 
-    // novo horário
+    // NOVO HORÁRIO
+
     const newStart =
       new Date(scheduledAt);
 
@@ -188,29 +190,24 @@ export default function Appointments() {
       );
 
 
-    // bloqueio real
-    const alreadyExists =
-      appointments.some(
-        (appointment) => {
+    // BLOQUEIO DE CONFLITO
 
-          const existingStart =
-            new Date(
-              appointment.start
-            );
+    const hasConflict =
+      appointments.some((appointment) => {
 
-          const existingEnd =
-            new Date(
-              appointment.end
-            );
+        const existingStart =
+          new Date(appointment.start);
 
-          return (
-            newStart < existingEnd &&
-            newEnd > existingStart
-          );
-        }
-      );
+        const existingEnd =
+          new Date(appointment.end);
 
-    if (alreadyExists) {
+        return (
+          newStart < existingEnd &&
+          newEnd > existingStart
+        );
+      });
+
+    if (hasConflict) {
 
       toast.error(
         "Já existe agendamento nesse horário"
