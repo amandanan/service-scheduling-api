@@ -1,64 +1,304 @@
 # 🚀 Service Scheduling App
 
-Full stack application built with **React** and **FastAPI**, featuring authentication with JWT and appointment management.
+Full stack application built with **React + Vite** and **FastAPI**, featuring JWT authentication, appointment scheduling, client/service management, and an interactive calendar interface.
 
 ---
 
-## 🧠 About the Project
+# 🧠 About the Project
 
-This project is a **service scheduling system**, where users can:
+This project is a complete **service scheduling system** designed to manage appointments in a practical and intuitive way.
 
-- Register and log in securely
-- Manage clients and services
-- Schedule appointments
-- Access protected routes using JWT authentication
+The application allows users to:
 
-It was developed to practice **full stack development**, integrating a modern frontend with a robust backend API.
+* Register and authenticate securely
+* Manage clients and services
+* Schedule appointments through an interactive calendar
+* Search clients by name or CPF
+* Search services by code or name
+* Prevent schedule conflicts automatically
+* View appointment durations dynamically
+* Delete appointments directly from the calendar
 
----
-
-## 🛠️ Tech Stack
-
-### 💻 Frontend
-- React (Vite)
-- CSS (custom modern UI)
-- Responsive design
-
-### ⚙️ Backend
-- FastAPI
-- SQLAlchemy
-- JWT Authentication
-- Passlib (password hashing)
+The goal of this project was to practice modern **full stack development**, integrating a responsive frontend with a robust API backend.
 
 ---
 
-## 🔐 Features
+# 🛠️ Tech Stack
 
-- ✅ User authentication (JWT)
-- ✅ Secure password hashing
-- ✅ Protected routes
-- ✅ Appointment scheduling
-- ✅ Responsive UI
-- ✅ Modern design (dark theme)
+## 💻 Frontend
 
----
-
-## 📸 Screenshots
-
-> (adicione prints aqui depois)
+* React
+* Vite
+* FullCalendar
+* React Select
+* Axios
+* React Toastify
+* React Icons
+* Custom CSS
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Backend
 
-### 🔧 Backend
+* FastAPI
+* SQLAlchemy
+* SQLite
+* JWT Authentication
+* Passlib (password hashing)
+* Pydantic
+
+---
+
+# 🔐 Features
+
+## ✅ Authentication
+
+* JWT login system
+* Protected routes
+* Secure password hashing
+
+---
+
+## 👥 Client Management
+
+* Create clients
+* Edit clients
+* Delete clients
+* Search patients by:
+
+  * Name
+  * CPF
+
+---
+
+## 🛠️ Service Management
+
+* Create services
+* Edit services
+* Delete services
+* Custom duration per service
+* Supports appointments shorter than 60 minutes
+
+Examples:
+
+* 30 min
+* 45 min
+* 90 min
+* 120 min
+
+---
+
+## 📅 Appointment System
+
+* Interactive weekly calendar
+* Monthly / weekly / daily view
+* Click calendar to select time
+* Dynamic appointment duration
+* Visual schedule organization
+* Delete appointments directly from calendar
+
+---
+
+## 🚫 Schedule Conflict Blocking
+
+The system automatically prevents overlapping appointments.
+
+Example:
+
+* Existing appointment:
+
+  * 09:00 → 10:00
+
+Blocked examples:
+
+* 09:30
+* 09:45
+* 09:50
+
+Allowed example:
+
+* 10:00
+
+---
+
+## 🔎 Smart Search
+
+### Patients
+
+Search using:
+
+* Patient name
+* CPF
+
+Example:
+
+* Maria
+* 12345678900
+
+---
+
+### Services
+
+Search using:
+
+* Service ID
+* Service name
+
+Example:
+
+* 1
+* Consultation
+
+---
+
+## 🎨 UI Features
+
+* Modern interface
+* Responsive layout
+* Interactive calendar
+* Visual confirmation cards
+* Toast notifications
+* Dark theme
+
+---
+
+# 📸 Screenshots
+
+> Add screenshots here later
+
+Examples:
+
+* Login screen
+* Dashboard
+* Services page
+* Appointments calendar
+* Patient/service selection cards
+
+---
+
+# 🚀 Getting Started
+
+## 🔧 Backend Setup
 
 ```bash
 cd backend
+
 python3 -m venv .venv
+
 source .venv/bin/activate
+```
 
-pip install fastapi uvicorn sqlalchemy python-jose[cryptography] passlib[bcrypt] pydantic[email]
+Install dependencies:
 
+```bash
+pip install fastapi uvicorn sqlalchemy python-jose[cryptography] passlib[bcrypt] python-multipart pydantic[email]
+```
+
+Run backend:
+
+```bash
 uvicorn app.main:app --reload
+```
+
+Backend runs at:
+
+```bash
+http://127.0.0.1:8000
+```
+
+---
+
+## 💻 Frontend Setup
+
+```bash
+cd frontend
+
+npm install
+```
+
+Install additional libraries:
+
+```bash
+npm install axios react-router-dom react-toastify react-icons react-select
+```
+
+Install calendar dependencies:
+
+```bash
+npm install @fullcalendar/react
+npm install @fullcalendar/daygrid
+npm install @fullcalendar/timegrid
+npm install @fullcalendar/interaction
+```
+
+Run frontend:
+
+```bash
+npm run dev
+```
+
+Frontend runs at:
+
+```bash
+http://localhost:5173
+```
+
+---
+
+# 🔑 Authentication
+
+The API uses JWT authentication.
+
+After login:
+
+* Token is generated
+* Stored on frontend
+* Automatically sent in protected requests
+
+---
+
+# 📂 Project Structure
+
+```bash
+service-scheduling-app/
+│
+├── backend/
+│   ├── app/
+│   │   ├── core/
+│   │   ├── database/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── schemas/
+│   │   └── main.py
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   └── App.jsx
+```
+
+---
+
+# 📌 Future Improvements
+
+* Edit appointments
+* Drag-and-drop scheduling
+* Professional dashboard analytics
+* Email reminders
+* WhatsApp notifications
+* User roles
+* Multi-user support
+* Working hours configuration
+* Holiday blocking
+* Recurring appointments
+
+---
+
+# 👨‍💻 Author
+
+Developed by Amanda Nanni as a full stack study project using React and FastAPI.
+
 
