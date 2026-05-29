@@ -161,3 +161,50 @@
   padding: 4px;
   border-radius: 8px;
 }
+
+.fc {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.fc-toolbar-title {
+  font-size: 26px !important;
+  color: #4c1d95;
+  font-weight: bold;
+}
+
+.fc-button {
+  background: #6d28d9 !important;
+  border: none !important;
+}
+
+.fc-button:hover {
+  background: #5b21b6 !important;
+}
+
+.fc-event {
+  background: #6d28d9 !important;
+  border: none !important;
+  padding: 6px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.fc-timegrid-slot {
+  height: 60px !important;
+}
+
+.appointments-form select {
+  padding: 12px;
+
+  border-radius: 10px;
+
+  border: 1px solid #d1d5db;
+
+  min-width: 240px;
+
+  outline: none;
+
+  background: white;
+}
