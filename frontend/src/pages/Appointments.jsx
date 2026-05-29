@@ -167,6 +167,36 @@ export default function Appointments() {
     setScheduledAt(formatted);
   }
 
+  async function handleEventClick(info) {
+
+  const confirmDelete = window.confirm(
+    "Deseja excluir este agendamento?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await api.delete(
+      `/appointments/${info.event.id}`
+    );
+
+    toast.success(
+      "Agendamento removido"
+    );
+
+    loadData();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Erro ao excluir agendamento"
+    );
+  }
+}
+
 
   return (
 
@@ -297,6 +327,8 @@ export default function Appointments() {
               dateClick={
                 handleDateClick
               }
+
+              eventClick={handleEventClick}
 
               headerToolbar={{
 
