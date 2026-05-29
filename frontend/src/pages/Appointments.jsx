@@ -21,6 +21,8 @@ import { toast } from "react-toastify";
 import {
   FaCalendarAlt,
   FaPlus,
+  FaTrash,
+  FaEdit,
 } from "react-icons/fa";
 
 export default function Appointments() {
@@ -56,6 +58,9 @@ export default function Appointments() {
     useState(null);
 
   const [selectedService, setSelectedService] =
+    useState(null);
+
+  const [editingId, setEditingId] =
     useState(null);
 
   async function loadData() {
@@ -110,6 +115,12 @@ export default function Appointments() {
             return {
 
               id: item.id,
+
+              client_id:
+                item.client_id,
+
+              service_id:
+                item.service_id,
 
               title:
                 `${client?.full_name || "Cliente"} • ${service?.name || "Serviço"}`,
@@ -172,6 +183,27 @@ export default function Appointments() {
     loadData();
   }, []);
 
+  function clearForm() {
+
+    setClientId("");
+
+    setServiceId("");
+
+    setScheduledAt("");
+
+    setSelectedDate("");
+
+    setSelectedClient(null);
+
+    setSelectedService(null);
+
+    setAvailableSlots([]);
+
+    setShowSlots(false);
+
+    setEditingId(null);
+  }
+
   async function handleSubmit(e) {
 
     e.preventDefault();
@@ -217,30 +249,30 @@ export default function Appointments() {
 
     try {
 
-      await api.post(
-        "/appointments/",
-        appointmentData
-      );
+      if (editingId) {
 
-      toast.success(
-        "Agendamento criado"
-      );
+        await api.put(
+          `/appointments/${editingId}`,
+          appointmentData
+        );
 
-      setClientId("");
+        toast.success(
+          "Agendamento atualizado"
+        );
 
-      setServiceId("");
+      } else {
 
-      setScheduledAt("");
+        await api.post(
+          "/appointments/",
+          appointmentData
+        );
 
-      setSelectedDate("");
+        toast.success(
+          "Agendamento criado"
+        );
+      }
 
-      setSelectedClient(null);
-
-      setSelectedService(null);
-
-      setAvailableSlots([]);
-
-      setShowSlots(false);
+      clearForm();
 
       loadData();
 
@@ -249,7 +281,7 @@ export default function Appointments() {
       console.error(error);
 
       toast.error(
-        "Erro ao criar agendamento"
+        "Erro ao salvar agendamento"
       );
     }
   }
@@ -262,7 +294,76 @@ export default function Appointments() {
     setScheduledAt(formatted);
   }
 
-  async function handleEventClick(info) {
+  function handleEdit(info) {
+
+    const appointment =
+      appointments.find(
+        (item) =>
+          item.id === Number(info.event.id)
+      );
+
+    if (!appointment) return;
+
+    const client =
+      clients.find(
+        (c) =>
+          c.id === appointment.client_id
+      );
+
+    const service =
+      services.find(
+        (s) =>
+          s.id === appointment.service_id
+      );
+
+    const dateFormatted =
+      appointment.start
+        .toISOString()
+        .split("T")[0];
+
+    const datetimeFormatted =
+      appointment.start
+        .toISOString()
+        .slice(0, 16);
+
+    setEditingId(appointment.id);
+
+    setClientId(
+      appointment.client_id
+    );
+
+    setServiceId(
+      appointment.service_id
+    );
+
+    setSelectedClient(client);
+
+    setSelectedService(service);
+
+    setSelectedDate(
+      dateFormatted
+    );
+
+    setScheduledAt(
+      datetimeFormatted
+    );
+
+    loadAvailableSlots(
+      dateFormatted,
+      appointment.service_id
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    toast.info(
+      "Modo edição ativado"
+    );
+  }
+
+  async function handleDelete(id) {
 
     const confirmDelete = window.confirm(
       "Deseja excluir este agendamento?"
@@ -273,7 +374,7 @@ export default function Appointments() {
     try {
 
       await api.delete(
-        `/appointments/${info.event.id}`
+        `/appointments/${id}`
       );
 
       toast.success(
@@ -463,7 +564,7 @@ export default function Appointments() {
               required
             />
 
-            {/* DROPDOWN HORÁRIOS */}
+            {/* HORÁRIOS */}
 
             <div className="slots-dropdown">
 
@@ -512,7 +613,7 @@ export default function Appointments() {
 
                   </div>
 
-                  {/* HORÁRIO MANUAL */}
+                  {/* MANUAL */}
 
                   <div className="manual-time-wrapper">
 
@@ -558,16 +659,46 @@ export default function Appointments() {
 
             )}
 
-            <button
-              type="submit"
-              className="primary-btn"
-            >
+            {/* BOTÕES */}
 
-              <FaPlus />
+            <div className="appointment-actions">
 
-              Agendar
+              <button
+                type="submit"
+                className="primary-btn"
+              >
 
-            </button>
+                {editingId ? (
+                  <>
+                    <FaEdit />
+                    Atualizar
+                  </>
+                ) : (
+                  <>
+                    <FaPlus />
+                    Agendar
+                  </>
+                )}
+
+              </button>
+
+              {editingId && (
+
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={clearForm}
+                >
+
+                  <FaTrash />
+
+                  Cancelar edição
+
+                </button>
+
+              )}
+
+            </div>
 
           </form>
 
@@ -591,9 +722,26 @@ export default function Appointments() {
                 handleDateClick
               }
 
-              eventClick={
-                handleEventClick
-              }
+              eventClick={(info) => {
+
+                const action =
+                  window.prompt(
+                    "Digite:\n1 para editar\n2 para excluir"
+                  );
+
+                if (action === "1") {
+
+                  handleEdit(info);
+
+                } else if (
+                  action === "2"
+                ) {
+
+                  handleDelete(
+                    info.event.id
+                  );
+                }
+              }}
 
               headerToolbar={{
 
