@@ -53,6 +53,9 @@ export default function Dashboard() {
   const [birthdayClients, setBirthdayClients] =
     useState([]);
 
+  const [forecastRevenue, setForecastRevenue] =
+    useState(0);
+
   async function loadData() {
 
     try {
@@ -173,6 +176,37 @@ export default function Dashboard() {
         setMonthlyRevenue(
           monthRevenue
         );
+
+        // faturamento previsto
+
+      let forecast = 0;
+
+        appointmentsData.forEach(
+          (appointment) => {
+
+            const appointmentDate =
+              new Date(
+                appointment.scheduled_at
+              );
+
+            if (
+              appointmentDate >= new Date()
+            ) {
+
+              const service =
+                servicesData.find(
+                  (s) =>
+                    s.id === appointment.service_id
+                );
+
+              forecast += Number(
+                service?.price || 0
+              );
+            }
+          }
+        );
+
+        setForecastRevenue(forecast);
 
         // servicos mais realizados
 
@@ -510,8 +544,42 @@ export default function Dashboard() {
           <div className="dashboard-card-footer">
             Faturamento mensal
           </div>
-
         </div>
+
+        {/* FATURAMENTO PREVISTO */}
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Previsto
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  R$ {forecastRevenue.toFixed(2)}
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaMoneyBillWave />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Receita futura agendada
+            </div>
+
+          </div>
+
+
+        
 
         {/* GRÁFICOS */}
 
