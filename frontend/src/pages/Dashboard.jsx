@@ -45,7 +45,13 @@ export default function Dashboard() {
     useState([]);
 
   const [monthlyRevenue, setMonthlyRevenue] =
-  useState(0);
+    useState(0);
+
+  const [topServices, setTopServices] =
+    useState([]);
+
+  const [birthdayClients, setBirthdayClients] =
+    useState([]);
 
   async function loadData() {
 
@@ -98,6 +104,9 @@ export default function Dashboard() {
         .toISOString()
         .split("T")[0];
 
+    const currentMonth =
+      new Date().getMonth();
+
     let revenue = 0;
 
     const todayList =
@@ -127,9 +136,6 @@ export default function Dashboard() {
     setTodayRevenue(revenue);
 
     // FATURAMENTO DO MÊS
-
-        const currentMonth =
-          new Date().getMonth();
 
         const currentYear =
           new Date().getFullYear();
@@ -168,6 +174,69 @@ export default function Dashboard() {
           monthRevenue
         );
 
+        // servicos mais realizados
+
+      const serviceCount = {};
+
+        appointmentsData.forEach(
+          (appointment) => {
+
+            serviceCount[
+              appointment.service_id
+            ] =
+              (serviceCount[
+                appointment.service_id
+              ] || 0) + 1;
+          }
+        );
+
+        const ranking =
+          Object.entries(serviceCount)
+            .map(([id, total]) => {
+
+              const service =
+                servicesData.find(
+                  (s) =>
+                    s.id === Number(id)
+                );
+
+              return {
+
+                name:
+                  service?.name ||
+                  "Serviço",
+
+                total,
+              };
+            })
+            .sort(
+              (a, b) =>
+                b.total - a.total
+            )
+            .slice(0, 5);
+
+        setTopServices(ranking);
+
+    // aniversariante
+
+      const birthdays =
+        clientsData.filter((client) => {
+
+          if (!client.birth_date)
+            return false;
+
+          const month =
+            Number(
+              client.birth_date.split("-")[1]
+            );
+
+          return month === currentMonth;
+        });
+
+      setBirthdayClients(
+        birthdays.slice(0, 5)
+      );
+          
     const formattedTodayAppointments =
       todayList.map((appointment) => {
 
@@ -542,6 +611,85 @@ export default function Dashboard() {
 
         </div>
 
+      <div className="dashboard-charts-grid">
+
+        {/* SERVICOS MAIS USADOS */}
+
+          <div className="dashboard-chart-card">
+
+            <h3 className="dashboard-chart-title">
+              Serviços Mais Realizados
+            </h3>
+
+            {topServices.map((service) => (
+
+              <div
+                key={service.name}
+                className="appointment-item"
+              >
+
+                <div className="appointment-info">
+
+                  <strong>
+                    {service.name}
+                  </strong>
+
+                  <span>
+                    {service.total} atendimentos
+                  </span>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+      {/* ANIVERSARIANTES */}
+
+        <div className="dashboard-chart-card">
+
+            <h3 className="dashboard-chart-title">
+              Aniversariantes do Mês
+            </h3>
+
+            {birthdayClients.length === 0 ? (
+
+              <div className="empty-state">
+                Nenhum aniversariante este mês
+              </div>
+
+            ) : (
+
+              birthdayClients.map(
+                (client) => (
+
+                  <div
+                    key={client.id}
+                    className="appointment-item"
+                  >
+
+                    <div className="appointment-info">
+
+                      <strong>
+                        {client.full_name}
+                      </strong>
+
+                      <span>
+                        {client.birth_date}
+                      </span>
+
+                    </div>
+
+                  </div>
+                )
+              )
+
+            )}
+
+         </div>
+         </div> 
       </div>
 
     </div>
