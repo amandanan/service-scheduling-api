@@ -59,6 +59,9 @@ export default function Dashboard() {
   const [forecastRevenue, setForecastRevenue] =
     useState(0);
 
+  const [occupancyRate, setOccupancyRate] =
+    useState(0);
+
   async function loadData() {
 
     try {
@@ -126,6 +129,23 @@ export default function Dashboard() {
           return appointmentDate === today;
         }
       );
+    
+    const appointmentsToday =
+      todayList.length;
+
+    const dailyCapacity = 20;
+
+    const occupancy =
+      Math.round(
+        (appointmentsToday /
+          dailyCapacity) * 100
+      );
+
+    setOccupancyRate(
+      occupancy > 100
+        ? 100
+        : occupancy
+    );
 
     todayList.forEach((appointment) => {
 
@@ -524,10 +544,9 @@ export default function Dashboard() {
             <div className="dashboard-card-footer">
               Agendamentos do dia
             </div>
-
+          
+          {/* OCUPACAO */}
           </div>
-
-          {/* FATURAMENTO */}
 
           <div className="dashboard-card">
 
@@ -536,7 +555,42 @@ export default function Dashboard() {
               <div>
 
                 <p className="dashboard-card-title">
-                  Faturamento
+                  Ocupação
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  {occupancyRate}%
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaCalendarCheck />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Agenda ocupada hoje
+            </div>
+
+          </div>
+        
+
+        </div>
+
+         {/* FATURAMENTO */}
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Hoje
                 </p>
 
                 <h2 className="dashboard-card-value">
@@ -559,7 +613,6 @@ export default function Dashboard() {
 
           </div>
 
-        </div>
 
         <div className="dashboard-card">
 
@@ -586,7 +639,7 @@ export default function Dashboard() {
           </div>
 
           <div className="dashboard-card-footer">
-            Faturamento mensal
+            Receita mensal
           </div>
         </div>
 
