@@ -44,6 +44,9 @@ export default function Dashboard() {
   const [todayAppointments, setTodayAppointments] =
     useState([]);
 
+  const [nextAppointments, setNextAppointments] =
+  useState([]);
+
   const [monthlyRevenue, setMonthlyRevenue] =
     useState(0);
 
@@ -177,7 +180,7 @@ export default function Dashboard() {
           monthRevenue
         );
 
-        // faturamento previsto
+    // FATURAMENTO PREVISTO
 
       let forecast = 0;
 
@@ -208,7 +211,48 @@ export default function Dashboard() {
 
         setForecastRevenue(forecast);
 
-        // servicos mais realizados
+    // PROXIMOS AGENDAMENTOS 
+
+      const upcoming =
+        appointmentsData
+          .filter(
+            appointment =>
+              new Date(
+                appointment.scheduled_at
+              ) > new Date()
+          )
+          .sort(
+            (a, b) =>
+              new Date(a.scheduled_at) -
+              new Date(b.scheduled_at)
+          )
+          .slice(0, 5)
+          .map((appointment) => {
+
+            const client =
+              clientsData.find(
+                c =>
+                  c.id === appointment.client_id
+              );
+
+            const service =
+              servicesData.find(
+                s =>
+                  s.id === appointment.service_id
+              );
+
+            return {
+              id: appointment.id,
+              client: client?.full_name,
+              service: service?.name,
+              date: appointment.scheduled_at,
+            };
+          });
+
+      setNextAppointments(upcoming);
+
+
+    // SERVICOS MAIS REALIZADOS
 
       const serviceCount = {};
 
@@ -251,7 +295,7 @@ export default function Dashboard() {
 
         setTopServices(ranking);
 
-    // aniversariante
+    // ANIVERSARIANTE
 
       const birthdays =
         clientsData.filter((client) => {
@@ -577,9 +621,6 @@ export default function Dashboard() {
             </div>
 
           </div>
-
-
-        
 
         {/* GRÁFICOS */}
 

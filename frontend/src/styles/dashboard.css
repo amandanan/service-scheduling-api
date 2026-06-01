@@ -450,3 +450,70 @@
     grid-template-columns: 1fr;
   }
 }
+
+.dashboard-next-card {
+
+  margin-top: 24px;
+
+  background: white;
+
+  border-radius: 20px;
+
+  padding: 28px;
+
+  box-shadow:
+    0 4px 15px rgba(0,0,0,0.08);
+}
+
+.next-appointment-content {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+.next-appointment-time {
+
+  min-width: 90px;
+
+  height: 90px;
+
+  border-radius: 16px;
+
+  background: #ede9fe;
+
+  color: #6d28d9;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 24px;
+
+  font-weight: bold;
+}
+
+.next-appointment-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.next-appointment-info strong {
+
+  font-size: 18px;
+
+  color: #111827;
+}
+
+.next-appointment-info span {
+
+  color: #6b7280;
+}
