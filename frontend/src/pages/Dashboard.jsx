@@ -62,6 +62,12 @@ export default function Dashboard() {
   const [occupancyRate, setOccupancyRate] =
     useState(0);
 
+  const [monthlyGoal] =
+    useState(10000);
+
+  const [goalProgress, setGoalProgress] =
+    useState(0);
+
   async function loadData() {
 
     try {
@@ -199,6 +205,16 @@ export default function Dashboard() {
         setMonthlyRevenue(
           monthRevenue
         );
+
+    // META MENSAL
+
+    const progress =
+      Math.min(
+        (monthRevenue / monthlyGoal) * 100,
+        100
+      );
+
+    setGoalProgress(progress);
 
     // FATURAMENTO PREVISTO
 
@@ -643,6 +659,53 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* META MENSAL*/}
+
+        <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Meta Mensal
+              </p>
+
+              <h2 className="dashboard-card-value">
+                {goalProgress.toFixed(0)}%
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaMoneyBillWave />
+
+            </div>
+
+          </div>
+
+          <div className="goal-progress-bar">
+
+            <div
+              className="goal-progress-fill"
+              style={{
+                width: `${goalProgress}%`,
+              }}
+            />
+
+          </div>
+
+          <div className="dashboard-card-footer">
+
+            R$ {monthlyRevenue.toFixed(2)}
+            {" / "}
+            R$ {monthlyGoal.toFixed(2)}
+
+          </div>
+
+        </div>
+
         {/* FATURAMENTO PREVISTO */}
 
           <div className="dashboard-card">
@@ -783,28 +846,49 @@ export default function Dashboard() {
               Serviços Mais Realizados
             </h3>
 
-            {topServices.map((service) => (
+            {topServices.map((service) => {
 
-              <div
-                key={service.name}
-                className="appointment-item"
-              >
+              const maxValue =
+                topServices[0]?.total || 1;
 
-                <div className="appointment-info">
+              const percentage =
+                (service.total / maxValue) * 100;
 
-                  <strong>
-                    {service.name}
-                  </strong>
+              return (
 
-                  <span>
-                    {service.total} atendimentos
-                  </span>
+                <div
+                  key={service.name}
+                  className="service-ranking-item"
+                >
+
+                  <div className="service-ranking-header">
+
+                    <strong>
+                      {service.name}
+                    </strong>
+
+                    <span>
+                      {service.total}
+                    </span>
+
+                  </div>
+
+                  <div className="service-ranking-bar">
+
+                    <div
+                      className="service-ranking-fill"
+                      style={{
+                        width: `${percentage}%`
+                      }}
+                    />
+
+                  </div>
 
                 </div>
 
-              </div>
+                  );
 
-            ))}
+                })}
 
           </div>
 
