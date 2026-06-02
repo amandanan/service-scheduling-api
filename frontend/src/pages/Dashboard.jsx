@@ -77,6 +77,9 @@ export default function Dashboard() {
   const [newPatientsMonth, setNewPatientsMonth] =
     useState(0);
 
+  const [monthlyGrowth, setMonthlyGrowth] =
+    useState(0);
+
   async function loadData() {
 
     try {
@@ -225,6 +228,67 @@ export default function Dashboard() {
         setMonthlyRevenue(
           monthRevenue
         );
+
+    //CRESCIMENTO MENSAL
+
+      let previousMonthRevenue = 0;
+        
+      const growth =
+
+          previousMonthRevenue > 0
+
+            ? (
+                (
+                  monthRevenue -
+                  previousMonthRevenue
+                ) /
+                previousMonthRevenue
+              ) * 100
+
+            : 100;
+
+        setMonthlyGrowth(growth);
+
+      appointmentsData.forEach(
+        (appointment) => {
+
+          const appointmentDate =
+            new Date(
+              appointment.scheduled_at
+            );
+
+          const month =
+            appointmentDate.getMonth();
+
+          const year =
+            appointmentDate.getFullYear();
+
+          const isPreviousMonth =
+
+            currentMonth === 0
+
+              ? month === 11 &&
+                year === currentYear - 1
+
+              : month ===
+                  currentMonth - 1 &&
+                year === currentYear;
+
+          if (isPreviousMonth) {
+
+            const service =
+              servicesData.find(
+                (s) =>
+                  s.id === appointment.service_id
+              );
+
+            previousMonthRevenue +=
+              Number(
+                service?.price || 0
+              );
+          }
+        }
+      );
 
     // PACIENTES NOVOS DO MES
 
@@ -878,6 +942,50 @@ export default function Dashboard() {
             R$ {monthlyRevenue.toFixed(2)}
             {" / "}
             R$ {monthlyGoal.toFixed(2)}
+
+          </div>
+
+        </div>
+
+        {/*CRESCIMENTO MENSAL*/}
+
+        <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Crescimento
+              </p>
+
+              <h2 className="dashboard-card-value">
+
+                {monthlyGrowth > 0
+                  ? "↑"
+                  : "↓"}
+
+                {" "}
+
+                {Math.abs(
+                  monthlyGrowth
+                ).toFixed(1)}%
+
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaCalendarCheck />
+
+            </div>
+
+          </div>
+
+          <div className="dashboard-card-footer">
+
+            Comparado ao mês anterior
 
           </div>
 
