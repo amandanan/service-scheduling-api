@@ -71,6 +71,9 @@ export default function Dashboard() {
   const [tomorrowAppointments, setTomorrowAppointments] =
     useState([]);
 
+  const [averageTicket, setAverageTicket] =
+    useState(0);
+
   async function loadData() {
 
     try {
@@ -169,6 +172,17 @@ export default function Dashboard() {
     });
 
     setTodayRevenue(revenue);
+
+    //TICKET MEDIO
+
+      const ticket =
+
+        todayList.length > 0
+          ? revenue /
+            todayList.length
+          : 0;
+
+      setAverageTicket(ticket);
 
     // FATURAMENTO DO MÊS
 
@@ -658,6 +672,44 @@ export default function Dashboard() {
             </div>
 
           </div>
+
+          {/*TICKET MEDIO*/}
+
+          <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Ticket Médio
+              </p>
+
+              <h2 className="dashboard-card-value">
+
+                R$
+                {" "}
+                {averageTicket.toFixed(2)}
+
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaMoneyBillWave />
+
+            </div>
+
+          </div>
+
+          <div className="dashboard-card-footer">
+
+            Receita média por atendimento
+
+          </div>
+
+        </div>
         
 
         </div>
