@@ -74,6 +74,9 @@ export default function Dashboard() {
   const [averageTicket, setAverageTicket] =
     useState(0);
 
+  const [newPatientsMonth, setNewPatientsMonth] =
+    useState(0);
+
   async function loadData() {
 
     try {
@@ -127,6 +130,9 @@ export default function Dashboard() {
 
     const currentMonth =
       new Date().getMonth();
+
+    const currentYear =
+      new Date().getFullYear();
 
     let revenue = 0;
 
@@ -186,9 +192,6 @@ export default function Dashboard() {
 
     // FATURAMENTO DO MÊS
 
-        const currentYear =
-          new Date().getFullYear();
-
         let monthRevenue = 0;
 
         appointmentsData.forEach(
@@ -222,6 +225,31 @@ export default function Dashboard() {
         setMonthlyRevenue(
           monthRevenue
         );
+
+    // PACIENTES NOVOS DO MES
+
+    const newPatients =
+      clientsData.filter(
+        (client) => {
+
+          if (!client.created_at)
+            return false;
+
+          const created =
+            new Date(
+              client.created_at
+            );
+
+          return (
+            created.getMonth() === currentMonth &&
+            created.getFullYear() === currentYear
+          );
+        }
+      );
+
+    setNewPatientsMonth(
+      newPatients.length
+    );
 
     // META MENSAL
 
@@ -572,6 +600,38 @@ export default function Dashboard() {
 
             <div className="dashboard-card-footer">
               Total de pacientes cadastrados
+            </div>
+
+          </div>
+
+          {/*PACIENTES NOVO DO MES*/}
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Novos Pacientes
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  {newPatientsMonth}
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaUsers />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Cadastros realizados este mês
             </div>
 
           </div>
