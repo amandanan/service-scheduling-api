@@ -67,6 +67,9 @@ export default function Dashboard() {
 
   const [goalProgress, setGoalProgress] =
     useState(0);
+  
+  const [tomorrowAppointments, setTomorrowAppointments] =
+    useState([]);
 
   async function loadData() {
 
@@ -388,6 +391,68 @@ export default function Dashboard() {
     setTodayAppointments(
       formattedTodayAppointments
     );
+
+    // AGENDA DE AMANHA
+
+    const tomorrow = new Date();
+
+      tomorrow.setDate(
+        tomorrow.getDate() + 1
+      );
+
+      const tomorrowDate =
+        tomorrow
+          .toISOString()
+          .split("T")[0];
+
+      const tomorrowList =
+        appointmentsData
+          .filter((appointment) => {
+
+            const date =
+              appointment.scheduled_at
+                .split("T")[0];
+
+            return (
+              date === tomorrowDate
+            );
+          })
+          .map((appointment) => {
+
+            const client =
+              clientsData.find(
+                (c) =>
+                  c.id === appointment.client_id
+              );
+
+            const service =
+              servicesData.find(
+                (s) =>
+                  s.id === appointment.service_id
+              );
+
+            return {
+
+              id: appointment.id,
+
+              client:
+                client?.full_name ||
+                "Cliente",
+
+              service:
+                service?.name ||
+                "Serviço",
+
+              time:
+                appointment.scheduled_at
+                  .split("T")[1]
+                  ?.slice(0, 5),
+            };
+          });
+
+      setTomorrowAppointments(
+        tomorrowList
+      );
 
     const weekMap = {
 
@@ -833,6 +898,60 @@ export default function Dashboard() {
             )}
 
           </div>
+
+      {/*AGENDAMENTOS DE AMANHA*/}
+
+          <div className="dashboard-chart-card">
+
+              <h3 className="dashboard-chart-title">
+                Agenda de Amanhã
+              </h3>
+
+              {tomorrowAppointments.length === 0 ? (
+
+                <div className="empty-state">
+
+                  Nenhum agendamento amanhã
+
+                </div>
+
+              ) : (
+
+                tomorrowAppointments.map(
+                  (appointment) => (
+
+                    <div
+                      key={appointment.id}
+                      className="appointment-item"
+                    >
+
+                      <div className="appointment-time">
+
+                        <FaClock />
+
+                        {appointment.time}
+
+                      </div>
+
+                      <div className="appointment-info">
+
+                        <strong>
+                          {appointment.client}
+                        </strong>
+
+                        <span>
+                          {appointment.service}
+                        </span>
+
+                      </div>
+
+                    </div>
+                  )
+                )
+
+              )}
+
+            </div>      
 
         </div>
 
