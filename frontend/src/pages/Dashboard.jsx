@@ -636,7 +636,303 @@ export default function Dashboard() {
 
         <div className="dashboard-grid">
 
-          {/* PACIENTES */}
+            {/* RECEITA MES*/}
+
+            <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Mês
+              </p>
+
+              <h2 className="dashboard-card-value">
+                R$ {monthlyRevenue}
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaMoneyBillWave />
+
+            </div>
+
+          </div>
+
+          <div className="dashboard-card-footer">
+            Receita mensal
+          </div>
+          </div>
+
+                {/* META MENSAL*/}
+
+         <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Meta Mensal
+              </p>
+
+              <h2 className="dashboard-card-value">
+                {goalProgress.toFixed(0)}%
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaMoneyBillWave />
+
+            </div>
+
+          </div>
+
+          <div className="goal-progress-bar">
+
+            <div
+              className="goal-progress-fill"
+              style={{
+                width: `${goalProgress}%`,
+              }}
+            />
+
+          </div>
+
+          <div className="dashboard-card-footer">
+
+            R$ {monthlyRevenue.toFixed(2)}
+            {" / "}
+            R$ {monthlyGoal.toFixed(2)}
+
+          </div>
+
+         </div>
+
+         {/*CRESCIMENTO MENSAL*/}
+
+         <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Crescimento
+              </p>
+
+              <h2 className="dashboard-card-value">
+
+                {monthlyGrowth > 0
+                  ? "↑"
+                  : "↓"}
+
+                {" "}
+
+                {Math.abs(
+                  monthlyGrowth
+                ).toFixed(1)}%
+
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaCalendarCheck />
+
+            </div>
+
+          </div>
+
+          <div className="dashboard-card-footer">
+
+            Comparado ao mês anterior
+
+          </div>
+
+         </div>
+
+         {/* FATURAMENTO PREVISTO */}
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Previsto
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  R$ {forecastRevenue.toFixed(2)}
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaMoneyBillWave />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Receita futura agendada
+            </div> 
+          
+        </div> 
+
+        {/* AGENDAMENTOS */}
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Hoje
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  {
+                    todayAppointments.length
+                  }
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaCalendarCheck />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Agendamentos do dia
+            </div>
+
+          
+          {/* OCUPACAO */}
+          </div>
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Ocupação
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  {occupancyRate}%
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaCalendarCheck />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Agenda ocupada hoje
+            </div>
+
+          </div>
+
+          {/*TICKET MEDIO*/}
+
+          <div className="dashboard-card">
+
+          <div className="dashboard-card-top">
+
+            <div>
+
+              <p className="dashboard-card-title">
+                Ticket Médio
+              </p>
+
+              <h2 className="dashboard-card-value">
+
+                R$
+                {" "}
+                {averageTicket.toFixed(2)}
+
+              </h2>
+
+            </div>
+
+            <div className="dashboard-icon">
+
+              <FaMoneyBillWave />
+
+            </div>
+
+          </div>
+
+          <div className="dashboard-card-footer">
+
+            Receita média por atendimento
+
+          </div>
+
+        
+
+        </div>
+
+         {/* FATURAMENTO */}
+
+          <div className="dashboard-card">
+
+            <div className="dashboard-card-top">
+
+              <div>
+
+                <p className="dashboard-card-title">
+                  Hoje
+                </p>
+
+                <h2 className="dashboard-card-value">
+                  R$ {todayRevenue}
+                </h2>
+
+              </div>
+
+              <div className="dashboard-icon">
+
+                <FaMoneyBillWave />
+
+              </div>
+
+            </div>
+
+            <div className="dashboard-card-footer">
+              Receita de hoje
+            </div>
+
+          </div>
+
+          </div>
+
+       <div className="dashboard-grid">
+
+         {/* PACIENTES */}
 
           <div className="dashboard-card">
 
@@ -731,297 +1027,7 @@ export default function Dashboard() {
             </div>
 
           </div>
-
-          {/* AGENDAMENTOS */}
-
-          <div className="dashboard-card">
-
-            <div className="dashboard-card-top">
-
-              <div>
-
-                <p className="dashboard-card-title">
-                  Hoje
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {
-                    todayAppointments.length
-                  }
-                </h2>
-
-              </div>
-
-              <div className="dashboard-icon">
-
-                <FaCalendarCheck />
-
-              </div>
-
-            </div>
-
-            <div className="dashboard-card-footer">
-              Agendamentos do dia
-            </div>
-          
-          {/* OCUPACAO */}
-          </div>
-
-          <div className="dashboard-card">
-
-            <div className="dashboard-card-top">
-
-              <div>
-
-                <p className="dashboard-card-title">
-                  Ocupação
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {occupancyRate}%
-                </h2>
-
-              </div>
-
-              <div className="dashboard-icon">
-
-                <FaCalendarCheck />
-
-              </div>
-
-            </div>
-
-            <div className="dashboard-card-footer">
-              Agenda ocupada hoje
-            </div>
-
-          </div>
-
-          {/*TICKET MEDIO*/}
-
-          <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Ticket Médio
-              </p>
-
-              <h2 className="dashboard-card-value">
-
-                R$
-                {" "}
-                {averageTicket.toFixed(2)}
-
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaMoneyBillWave />
-
-            </div>
-
-          </div>
-
-          <div className="dashboard-card-footer">
-
-            Receita média por atendimento
-
-          </div>
-
-        </div>
-        
-
-        </div>
-
-         {/* FATURAMENTO */}
-
-          <div className="dashboard-card">
-
-            <div className="dashboard-card-top">
-
-              <div>
-
-                <p className="dashboard-card-title">
-                  Hoje
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  R$ {todayRevenue}
-                </h2>
-
-              </div>
-
-              <div className="dashboard-icon">
-
-                <FaMoneyBillWave />
-
-              </div>
-
-            </div>
-
-            <div className="dashboard-card-footer">
-              Receita de hoje
-            </div>
-
-          </div>
-
-
-        <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Mês
-              </p>
-
-              <h2 className="dashboard-card-value">
-                R$ {monthlyRevenue}
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaMoneyBillWave />
-
-            </div>
-
-          </div>
-
-          <div className="dashboard-card-footer">
-            Receita mensal
-          </div>
-        </div>
-
-        {/* META MENSAL*/}
-
-        <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Meta Mensal
-              </p>
-
-              <h2 className="dashboard-card-value">
-                {goalProgress.toFixed(0)}%
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaMoneyBillWave />
-
-            </div>
-
-          </div>
-
-          <div className="goal-progress-bar">
-
-            <div
-              className="goal-progress-fill"
-              style={{
-                width: `${goalProgress}%`,
-              }}
-            />
-
-          </div>
-
-          <div className="dashboard-card-footer">
-
-            R$ {monthlyRevenue.toFixed(2)}
-            {" / "}
-            R$ {monthlyGoal.toFixed(2)}
-
-          </div>
-
-        </div>
-
-        {/*CRESCIMENTO MENSAL*/}
-
-        <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Crescimento
-              </p>
-
-              <h2 className="dashboard-card-value">
-
-                {monthlyGrowth > 0
-                  ? "↑"
-                  : "↓"}
-
-                {" "}
-
-                {Math.abs(
-                  monthlyGrowth
-                ).toFixed(1)}%
-
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaCalendarCheck />
-
-            </div>
-
-          </div>
-
-          <div className="dashboard-card-footer">
-
-            Comparado ao mês anterior
-
-          </div>
-
-        </div>
-
-        {/* FATURAMENTO PREVISTO */}
-
-          <div className="dashboard-card">
-
-            <div className="dashboard-card-top">
-
-              <div>
-
-                <p className="dashboard-card-title">
-                  Previsto
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  R$ {forecastRevenue.toFixed(2)}
-                </h2>
-
-              </div>
-
-              <div className="dashboard-icon">
-
-                <FaMoneyBillWave />
-
-              </div>
-
-            </div>
-
-            <div className="dashboard-card-footer">
-              Receita futura agendada
-            </div>
-
-          </div>
+        </div> 
 
         {/* GRÁFICOS */}
 
@@ -1064,8 +1070,13 @@ export default function Dashboard() {
             </ResponsiveContainer>
 
           </div>
+     
 
-          {/* PRÓXIMOS */}
+        </div>
+
+        <div className="dashboard-charts-grid">
+
+         {/* PRÓXIMOS */}
 
           <div className="dashboard-chart-card">
 
@@ -1119,7 +1130,7 @@ export default function Dashboard() {
 
           </div>
 
-      {/*AGENDAMENTOS DE AMANHA*/}
+         {/*AGENDAMENTOS DE AMANHA*/}
 
           <div className="dashboard-chart-card">
 
@@ -1171,9 +1182,9 @@ export default function Dashboard() {
 
               )}
 
-            </div>      
+            </div> 
 
-        </div>
+      </div>
 
       <div className="dashboard-charts-grid">
 
