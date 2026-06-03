@@ -83,6 +83,9 @@ export default function Dashboard() {
   const [topPatients, setTopPatients] =
     useState([]);
 
+  const [inactivePatients, setInactivePatients] =
+    useState([]);
+
   async function loadData() {
 
     try {
@@ -489,6 +492,107 @@ export default function Dashboard() {
         setTopPatients(
           rankingPatients
         );
+
+    // PACIENTES SEM RETORNO
+        const lastAppointments = {};
+
+          appointmentsData.forEach(
+            (appointment) => {
+
+              const currentDate =
+                new Date(
+                  appointment.scheduled_at
+                );
+
+              const previousDate =
+                lastAppointments[
+                  appointment.client_id
+                ];
+
+              if (
+                !previousDate ||
+                currentDate > previousDate
+              ) {
+
+                lastAppointments[
+                  appointment.client_id
+                ] = currentDate;
+              }
+            }
+          );
+          const todayDate =
+              new Date();
+
+            const inactive =
+              Object.entries(
+                lastAppointments
+              )
+                .filter(
+                  ([, lastDate]) => {
+
+                    const diffDays =
+                      Math.floor(
+                        (
+                          todayDate -
+                          lastDate
+                        ) /
+                        (
+                          1000 *
+                          60 *
+                          60 *
+                          24
+                        )
+                      );
+
+                    return diffDays > 90;
+                  }
+                )
+                .map(
+                  ([clientId, lastDate]) => {
+
+                    const client =
+                      clientsData.find(
+                        (c) =>
+                          c.id ===
+                          Number(clientId)
+                      );
+
+                    const diffDays =
+                      Math.floor(
+                        (
+                          todayDate -
+                          lastDate
+                        ) /
+                        (
+                          1000 *
+                          60 *
+                          60 *
+                          24
+                        )
+                      );
+
+                    return {
+
+                      id: clientId,
+
+                      name:
+                        client?.full_name ||
+                        "Paciente",
+
+                      days:
+                        diffDays,
+                    };
+                  }
+                )
+                .sort(
+                  (a, b) =>
+                    b.days - a.days
+                )
+                .slice(0, 5);
+
+            setInactivePatients(
+              inactive
+            );
 
     // ANIVERSARIANTE
 
@@ -1323,6 +1427,56 @@ export default function Dashboard() {
 
                     <span>
                       {patient.total} atendimentos
+                    </span>
+
+                  </div>
+
+                </div>
+              )
+            )
+
+          )}
+
+        </div>
+
+      {/* PACIENTES SEM RETORNO*/}
+
+       <div className="dashboard-chart-card">
+
+          <h3 className="dashboard-chart-title">
+            Pacientes Sem Retorno
+          </h3>
+
+          {inactivePatients.length === 0 ? (
+
+            <div className="empty-state">
+
+              Nenhum paciente sem retorno
+
+            </div>
+
+          ) : (
+
+            inactivePatients.map(
+              (patient) => (
+
+                <div
+                  key={patient.id}
+                  className="appointment-item"
+                >
+
+                  <div className="appointment-info">
+
+                    <strong>
+                      {patient.name}
+                    </strong>
+
+                    <span>
+
+                      {patient.days}
+                      {" "}
+                      dias sem atendimento
+
                     </span>
 
                   </div>
