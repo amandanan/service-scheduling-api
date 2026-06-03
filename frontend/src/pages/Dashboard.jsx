@@ -86,6 +86,9 @@ export default function Dashboard() {
   const [inactivePatients, setInactivePatients] =
     useState([]);
 
+  const [alerts, setAlerts] =
+    useState([]);
+
   async function loadData() {
 
     try {
@@ -758,6 +761,84 @@ export default function Dashboard() {
       );
 
     setWeeklyData(chartData);
+
+    const dashboardAlerts = [];
+
+          const goalPercent =
+        (monthRevenue /
+          monthlyGoal) * 100;
+
+      dashboardAlerts.push({
+
+        type:
+          goalPercent >= 100
+            ? "success"
+            : "warning",
+
+        text:
+          `Meta atingida em ${goalPercent.toFixed(0)}%`,
+      });
+
+      dashboardAlerts.push({
+
+          type:
+            growth >= 0
+              ? "success"
+              : "danger",
+
+          text:
+
+            growth >= 0
+
+              ? `Crescimento de ${growth.toFixed(1)}%`
+
+              : `Queda de ${Math.abs(
+                  growth
+                ).toFixed(1)}%`,
+        });
+
+        if (
+            ranking.length > 0
+          ) {
+
+            dashboardAlerts.push({
+
+              type: "info",
+
+              text:
+                `Serviço líder: ${ranking[0].name}`,
+            });
+          }
+
+          if (
+              birthdays.length > 0
+            ) {
+
+              dashboardAlerts.push({
+
+                type: "info",
+
+                text:
+                  `${birthdays.length} aniversariantes este mês`,
+              });
+            }
+
+            if (
+                  tomorrowAppointments.length < 3
+                ) {
+
+                  dashboardAlerts.push({
+
+                    type: "warning",
+
+                    text:
+                      "Poucos agendamentos amanhã",
+                  });
+                }
+
+                setAlerts(
+                      dashboardAlerts
+                    );
   }
 
   useEffect(() => {
@@ -1533,8 +1614,51 @@ export default function Dashboard() {
 
          </div>
          </div> 
-      </div>
+      
+        </div>  
 
+        <div className="dashboard-charts-grid">
+
+          {/*ALERTAS*/}
+
+        <div className="dashboard-chart-card">
+
+              <h3 className="dashboard-chart-title">
+
+                Alertas Inteligentes
+
+              </h3>
+
+              {alerts.length === 0 ? (
+
+                <div className="empty-state">
+
+                  Nenhum alerta
+
+                </div>
+
+              ) : (
+
+                alerts.map(
+                  (alert, index) => (
+
+                    <div
+                      key={index}
+                      className={`alert-item ${alert.type}`}
+                    >
+
+                      {alert.text}
+
+                    </div>
+                  )
+                )
+
+              )}
+
+            </div>
+      </div>          
     </div>
+
+    
   );
 }
