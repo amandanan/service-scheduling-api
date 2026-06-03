@@ -80,6 +80,9 @@ export default function Dashboard() {
   const [monthlyGrowth, setMonthlyGrowth] =
     useState(0);
 
+  const [topPatients, setTopPatients] =
+    useState([]);
+
   async function loadData() {
 
     try {
@@ -439,6 +442,53 @@ export default function Dashboard() {
             .slice(0, 5);
 
         setTopServices(ranking);
+
+    // TOP PACIENTES
+
+      const patientCount = {};
+
+        appointmentsData.forEach(
+          (appointment) => {
+
+            patientCount[
+              appointment.client_id
+            ] =
+              (patientCount[
+                appointment.client_id
+              ] || 0) + 1;
+          }
+        );
+
+        const rankingPatients =
+          Object.entries(patientCount)
+            .map(([id, total]) => {
+
+              const client =
+                clientsData.find(
+                  (c) =>
+                    c.id === Number(id)
+                );
+
+              return {
+
+                id,
+
+                name:
+                  client?.full_name ||
+                  "Paciente",
+
+                total,
+              };
+            })
+            .sort(
+              (a, b) =>
+                b.total - a.total
+            )
+            .slice(0, 5);
+
+        setTopPatients(
+          rankingPatients
+        );
 
     // ANIVERSARIANTE
 
@@ -1241,6 +1291,49 @@ export default function Dashboard() {
                 })}
 
           </div>
+
+      {/* TOP PACIENTES*/}
+        <div className="dashboard-chart-card">
+
+          <h3 className="dashboard-chart-title">
+            Top Pacientes
+          </h3>
+
+          {topPatients.length === 0 ? (
+
+            <div className="empty-state">
+              Nenhum paciente
+            </div>
+
+          ) : (
+
+            topPatients.map(
+              (patient, index) => (
+
+                <div
+                  key={patient.id}
+                  className="appointment-item"
+                >
+
+                  <div className="appointment-info">
+
+                    <strong>
+                      #{index + 1} {patient.name}
+                    </strong>
+
+                    <span>
+                      {patient.total} atendimentos
+                    </span>
+
+                  </div>
+
+                </div>
+              )
+            )
+
+          )}
+
+        </div>
 
       {/* ANIVERSARIANTES */}
 
