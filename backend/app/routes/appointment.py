@@ -14,6 +14,7 @@ from datetime import (
 from app.database.session import SessionLocal
 
 from app.models.appointment import Appointment
+from app.models.client import Client
 from app.models.service import Service
 from app.models.user import User
 
@@ -57,13 +58,37 @@ def create_appointment(
     )
 ):
 
+    client = db.query(Client).filter(
+        Client.id == appointment.client_id,
+        Client.owner_id == current_user.id
+    ).first()
+
+    if not client:
+        raise HTTPException(
+            status_code=404,
+            detail="Client not found"
+        )
+
+    service = db.query(Service).filter(
+        Service.id == appointment.service_id,
+        Service.owner_id == current_user.id
+    ).first()
+
+    if not service:
+        raise HTTPException(
+            status_code=404,
+            detail="Service not found"
+        )
+
     new_appointment = Appointment(
 
         client_id=appointment.client_id,
 
         service_id=appointment.service_id,
 
-        scheduled_at=appointment.scheduled_at
+        scheduled_at=appointment.scheduled_at,
+
+        owner_id=current_user.id
     )
 
     db.add(new_appointment)
@@ -89,6 +114,8 @@ def list_appointments(
 
     appointments = db.query(
         Appointment
+    ).filter(
+        Appointment.owner_id == current_user.id
     ).all()
 
     return appointments
@@ -106,7 +133,8 @@ def get_available_slots(
 ):
 
     service = db.query(Service).filter(
-        Service.id == service_id
+        Service.id == service_id,
+        Service.owner_id == current_user.id
     ).first()
 
     if not service:
@@ -132,7 +160,16 @@ def get_available_slots(
 
     appointments = db.query(
         Appointment
+    ).filter(
+        Appointment.owner_id == current_user.id
     ).all()
+
+    services_by_id = {
+        s.id: s
+        for s in db.query(Service).filter(
+            Service.owner_id == current_user.id
+        ).all()
+    }
 
     available_slots = []
 
@@ -149,12 +186,9 @@ def get_available_slots(
 
         for appointment in appointments:
 
-            appointment_service = db.query(
-                Service
-            ).filter(
-                Service.id ==
+            appointment_service = services_by_id.get(
                 appointment.service_id
-            ).first()
+            )
 
             appointment_duration = (
                 appointment_service.duration_minutes
@@ -213,7 +247,8 @@ def get_appointment(
     appointment = db.query(
         Appointment
     ).filter(
-        Appointment.id == appointment_id
+        Appointment.id == appointment_id,
+        Appointment.owner_id == current_user.id
     ).first()
 
     if not appointment:
@@ -239,7 +274,8 @@ def delete_appointment(
     appointment = db.query(
         Appointment
     ).filter(
-        Appointment.id == appointment_id
+        Appointment.id == appointment_id,
+        Appointment.owner_id == current_user.id
     ).first()
 
     if not appointment:
@@ -276,7 +312,8 @@ def update_appointment(
     appointment = db.query(
         Appointment
     ).filter(
-        Appointment.id == appointment_id
+        Appointment.id == appointment_id,
+        Appointment.owner_id == current_user.id
     ).first()
 
     if not appointment:
@@ -284,6 +321,28 @@ def update_appointment(
         raise HTTPException(
             status_code=404,
             detail="Appointment not found"
+        )
+
+    client = db.query(Client).filter(
+        Client.id == appointment_data.client_id,
+        Client.owner_id == current_user.id
+    ).first()
+
+    if not client:
+        raise HTTPException(
+            status_code=404,
+            detail="Client not found"
+        )
+
+    service = db.query(Service).filter(
+        Service.id == appointment_data.service_id,
+        Service.owner_id == current_user.id
+    ).first()
+
+    if not service:
+        raise HTTPException(
+            status_code=404,
+            detail="Service not found"
         )
 
     appointment.client_id = (

@@ -45,7 +45,8 @@ def create_client(
         birth_date=client.birth_date,
         cpf=client.cpf,
         phone=client.phone,
-        email=client.email
+        email=client.email,
+        owner_id=current_user.id
     )
 
     db.add(new_client)
@@ -64,7 +65,9 @@ def list_clients(
     current_user: User = Depends(get_current_user)
 ):
 
-    clients = db.query(Client).all()
+    clients = db.query(Client).filter(
+        Client.owner_id == current_user.id
+    ).all()
 
     return clients
 
@@ -78,7 +81,8 @@ def get_client(
 ):
 
     client = db.query(Client).filter(
-        Client.id == client_id
+        Client.id == client_id,
+        Client.owner_id == current_user.id
     ).first()
 
     if not client:
@@ -99,7 +103,8 @@ def delete_client(
 ):
 
     client = db.query(Client).filter(
-        Client.id == client_id
+        Client.id == client_id,
+        Client.owner_id == current_user.id
     ).first()
 
     if not client:
@@ -127,7 +132,8 @@ def update_client(
 ):
 
     client = db.query(Client).filter(
-        Client.id == client_id
+        Client.id == client_id,
+        Client.owner_id == current_user.id
     ).first()
 
     if not client:

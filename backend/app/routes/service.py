@@ -51,7 +51,9 @@ def create_service(
         price=service.price,
 
         duration_minutes=
-            service.duration_minutes
+            service.duration_minutes,
+
+        owner_id=current_user.id
     )
 
     db.add(new_service)
@@ -73,7 +75,9 @@ def list_services(
     current_user: User = Depends(get_current_user)
 ):
 
-    services = db.query(Service).all()
+    services = db.query(Service).filter(
+        Service.owner_id == current_user.id
+    ).all()
 
     return services
 
@@ -90,7 +94,8 @@ def get_service(
 ):
 
     service = db.query(Service).filter(
-        Service.id == service_id
+        Service.id == service_id,
+        Service.owner_id == current_user.id
     ).first()
 
     if not service:
@@ -112,7 +117,8 @@ def delete_service(
 ):
 
     service = db.query(Service).filter(
-        Service.id == service_id
+        Service.id == service_id,
+        Service.owner_id == current_user.id
     ).first()
 
     if not service:
@@ -145,7 +151,8 @@ def update_service(
 ):
 
     service = db.query(Service).filter(
-        Service.id == service_id
+        Service.id == service_id,
+        Service.owner_id == current_user.id
     ).first()
 
     if not service:

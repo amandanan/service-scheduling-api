@@ -30,6 +30,12 @@ class Appointment(Base):
         ForeignKey("services.id")
     )
 
+    owner_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False
+    )
+
     scheduled_at = Column(DateTime)
 
 

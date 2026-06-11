@@ -3,6 +3,7 @@ from sqlalchemy import (
     Integer,
     String,
     Float,
+    ForeignKey,
 )
 
 from sqlalchemy.orm import relationship
@@ -27,6 +28,12 @@ class Service(Base):
     duration_minutes = Column(
         Integer,
         default=60,
+        nullable=False
+    )
+
+    owner_id = Column(
+        Integer,
+        ForeignKey("users.id"),
         nullable=False
     )
 
