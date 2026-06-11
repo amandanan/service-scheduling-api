@@ -2,7 +2,7 @@ def _register_business(client):
     response = client.post("/auth/register", json={
         "full_name": "Salao Da Amanda",
         "birth_date": "1990-01-01",
-        "cpf": "11111111111",
+        "cpf": "11144477735",
         "phone": "11999999999",
         "email": "salao@test.com",
         "password": "senha123",
@@ -28,7 +28,7 @@ def test_register_generates_unique_booking_slug(client):
     response = client.post("/auth/register", json={
         "full_name": "Salao Da Amanda",
         "birth_date": "1990-01-01",
-        "cpf": "22222222222",
+        "cpf": "39053344705",
         "phone": "11988888888",
         "email": "salao2@test.com",
         "password": "senha123",
@@ -114,7 +114,7 @@ def test_create_public_booking(client):
     booking_payload = {
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
-        "cpf": "33333333333",
+        "cpf": "16899555468",
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
@@ -130,7 +130,7 @@ def test_create_public_booking(client):
     clients = clients_response.json()
 
     assert len(clients) == 1
-    assert clients[0]["cpf"] == "33333333333"
+    assert clients[0]["cpf"] == "16899555468"
 
     appointments_response = client.get("/appointments/", headers=headers)
     assert len(appointments_response.json()) == 1
@@ -152,7 +152,7 @@ def test_public_booking_rejects_unavailable_slot(client):
     booking_payload = {
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
-        "cpf": "33333333333",
+        "cpf": "16899555468",
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
@@ -164,7 +164,7 @@ def test_public_booking_rejects_unavailable_slot(client):
 
     second = client.post(f"/public/{slug}/appointments", json={
         **booking_payload,
-        "cpf": "44444444444",
+        "cpf": "47362510853",
         "email": "outro@test.com",
     })
 
@@ -193,6 +193,32 @@ def test_public_available_slots_excludes_past_date(client):
     assert response.json() == []
 
 
+def test_public_booking_rejects_invalid_cpf(client):
+    user = _register_business(client)
+    headers = _login(client)
+
+    service_response = client.post("/services/", json={
+        "name": "Corte",
+        "price": 50.0,
+        "duration_minutes": 60,
+    }, headers=headers)
+
+    service_id = service_response.json()["id"]
+    slug = user["booking_slug"]
+
+    response = client.post(f"/public/{slug}/appointments", json={
+        "full_name": "Cliente Publico",
+        "birth_date": "1995-05-05",
+        "cpf": "12345678900",
+        "phone": "11977777777",
+        "email": "clientepublico@test.com",
+        "service_id": service_id,
+        "scheduled_at": "2026-06-15T09:00:00",
+    })
+
+    assert response.status_code == 422
+
+
 def test_public_booking_rejects_past_date(client):
     user = _register_business(client)
     headers = _login(client)
@@ -209,7 +235,7 @@ def test_public_booking_rejects_past_date(client):
     response = client.post(f"/public/{slug}/appointments", json={
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
-        "cpf": "33333333333",
+        "cpf": "16899555468",
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
@@ -237,7 +263,7 @@ def test_public_booking_is_rate_limited(client):
     payload = {
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
-        "cpf": "33333333333",
+        "cpf": "16899555468",
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
@@ -270,7 +296,7 @@ def test_public_booking_reuses_existing_client_by_cpf(client):
     booking_payload = {
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
-        "cpf": "33333333333",
+        "cpf": "16899555468",
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,

@@ -1,5 +1,7 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
 from datetime import date
+
+from app.core.cpf import validate_and_normalize_cpf
 
 
 class ClientCreate(BaseModel):
@@ -8,6 +10,11 @@ class ClientCreate(BaseModel):
     cpf: str
     phone: str
     email: EmailStr
+
+    @field_validator("cpf")
+    @classmethod
+    def _validate_cpf(cls, value: str) -> str:
+        return validate_and_normalize_cpf(value)
 
 
 class ClientResponse(BaseModel):

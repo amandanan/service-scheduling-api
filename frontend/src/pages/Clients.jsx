@@ -4,6 +4,8 @@ import api from "../services/api";
 
 import Navbar from "../components/Navbar";
 
+import { formatCpf } from "../utils/format";
+
 import "../styles/clients.css";
 
 import {
@@ -95,7 +97,17 @@ export default function Clients() {
 
       console.error(error);
 
-      toast.error("Erro ao salvar cliente");
+      const status = error.response?.status;
+
+      if (status === 422) {
+        toast.error("CPF inválido");
+      } else if (status === 400) {
+        toast.error(
+          error.response?.data?.detail || "Não foi possível salvar o cliente"
+        );
+      } else {
+        toast.error("Erro ao salvar cliente");
+      }
     }
   }
 
@@ -268,7 +280,7 @@ export default function Clients() {
 
                   <td>{client.full_name}</td>
 
-                  <td>{client.cpf}</td>
+                  <td>{formatCpf(client.cpf)}</td>
 
                   <td>
 

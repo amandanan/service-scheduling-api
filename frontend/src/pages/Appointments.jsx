@@ -14,6 +14,8 @@ import api from "../services/api";
 
 import Navbar from "../components/Navbar";
 
+import { formatCpf } from "../utils/format";
+
 import "../styles/appointments.css";
 
 import { toast } from "react-toastify";
@@ -427,10 +429,10 @@ export default function Appointments() {
                   value: client.id,
 
                   label:
-                    `${client.full_name} • CPF ${client.cpf}`,
+                    `${client.full_name} • CPF ${formatCpf(client.cpf)}`,
 
                   search:
-                    `${client.full_name} ${client.cpf}`,
+                    `${client.full_name} ${client.cpf} ${formatCpf(client.cpf)}`,
 
                   client,
                 }))}
@@ -442,7 +444,7 @@ export default function Appointments() {
                     ? {
                         value: clientId,
                         label:
-                          `${selectedClient.full_name} • CPF ${selectedClient.cpf}`,
+                          `${selectedClient.full_name} • CPF ${formatCpf(selectedClient.cpf)}`,
                       }
                     : null
                 }

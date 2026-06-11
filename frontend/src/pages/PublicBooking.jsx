@@ -138,6 +138,8 @@ export default function PublicBooking() {
         toast.error("Esse horário acabou de ficar indisponível. Escolha outro.");
         loadAvailableSlots(selectedDate, selectedService.id);
         setSelectedSlot("");
+      } else if (error.response?.status === 422) {
+        toast.error("CPF inválido");
       } else if (error.response?.status === 429) {
         toast.error("Muitas tentativas. Aguarde um momento e tente novamente.");
       } else {

@@ -27,7 +27,7 @@ def client():
 
 @pytest.fixture
 def auth_headers(client):
-    def _create_user(email="user@test.com", password="senha123", cpf="00000000000"):
+    def _create_user(email="user@test.com", password="senha123", cpf="52998224725"):
         client.post("/auth/register", json={
             "full_name": "Test User",
             "birth_date": "1990-01-01",

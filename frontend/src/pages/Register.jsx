@@ -54,7 +54,15 @@ function Register() {
       }, 1200);
 
     } catch (err) {
-      toast.error("Erro ao cadastrar");
+      const status = err.response?.status;
+
+      if (status === 422) {
+        toast.error("CPF inválido");
+      } else if (status === 400) {
+        toast.error(err.response?.data?.detail || "Erro ao cadastrar");
+      } else {
+        toast.error("Erro ao cadastrar");
+      }
     }
   }
 

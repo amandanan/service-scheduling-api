@@ -2,7 +2,7 @@ def _create_client_and_service(api, headers):
     client_response = api.post("/clients/", json={
         "full_name": "Cliente A",
         "birth_date": "1990-01-01",
-        "cpf": "22222222222",
+        "cpf": "39053344705",
         "phone": "11988888888",
         "email": "cliente@test.com",
     }, headers=headers)
@@ -54,8 +54,8 @@ def test_overlapping_appointment_is_not_offered_as_available_slot(client, auth_h
 
 
 def test_cannot_create_appointment_with_other_users_client(client, auth_headers):
-    headers_a = auth_headers(email="a@test.com", cpf="11111111111")
-    headers_b = auth_headers(email="b@test.com", cpf="33333333333")
+    headers_a = auth_headers(email="a@test.com", cpf="11144477735")
+    headers_b = auth_headers(email="b@test.com", cpf="16899555468")
 
     client_id, service_id = _create_client_and_service(client, headers_a)
 
@@ -82,8 +82,8 @@ def test_cannot_create_appointment_in_the_past(client, auth_headers):
 
 
 def test_appointments_are_isolated_per_user(client, auth_headers):
-    headers_a = auth_headers(email="a@test.com", cpf="11111111111")
-    headers_b = auth_headers(email="b@test.com", cpf="33333333333")
+    headers_a = auth_headers(email="a@test.com", cpf="11144477735")
+    headers_b = auth_headers(email="b@test.com", cpf="16899555468")
 
     client_id, service_id = _create_client_and_service(client, headers_a)
 

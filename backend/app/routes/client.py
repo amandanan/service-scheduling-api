@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.database.session import SessionLocal
@@ -39,6 +40,20 @@ def create_client(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    existing = db.query(Client).filter(
+        Client.owner_id == current_user.id,
+        or_(
+            Client.cpf == client.cpf,
+            Client.email == client.email,
+        ),
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Cliente já cadastrado com este CPF ou e-mail"
+        )
 
     new_client = Client(
         full_name=client.full_name,
@@ -140,6 +155,21 @@ def update_client(
         raise HTTPException(
             status_code=404,
             detail="Client not found"
+        )
+
+    duplicate = db.query(Client).filter(
+        Client.owner_id == current_user.id,
+        Client.id != client_id,
+        or_(
+            Client.cpf == client_data.cpf,
+            Client.email == client_data.email,
+        ),
+    ).first()
+
+    if duplicate:
+        raise HTTPException(
+            status_code=400,
+            detail="Cliente já cadastrado com este CPF ou e-mail"
         )
 
     client.full_name = client_data.full_name
