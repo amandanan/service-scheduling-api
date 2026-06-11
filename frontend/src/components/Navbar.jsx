@@ -14,6 +14,7 @@ import {
   FaSignOutAlt,
   FaLayerGroup,
   FaBoxOpen,
+  FaStar,
 } from "react-icons/fa";
 
 import "../styles/navbar.css";
@@ -107,6 +108,18 @@ export default function Navbar() {
         >
           <FaBoxOpen />
           Pacotes
+        </Link>
+
+        <Link
+          to="/reviews"
+          className={
+            location.pathname === "/reviews"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaStar />
+          Avaliações
         </Link>
 
         <Link

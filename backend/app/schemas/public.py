@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
 from datetime import date, datetime
 
 from app.core.cpf import validate_and_normalize_cpf
+from app.schemas.review import ReviewResponse
 
 
 class BusinessInfo(BaseModel):
@@ -60,6 +61,8 @@ class ManageAppointmentResponse(BaseModel):
     professional_name: str
     scheduled_at: datetime
     status: str
+    can_review: bool
+    review: ReviewResponse | None = None
 
 
 class RescheduleRequest(BaseModel):

@@ -7,9 +7,13 @@ import {
   getManageAvailableSlots,
   cancelManagedAppointment,
   rescheduleManagedAppointment,
+  submitReview,
 } from "../services/api";
 
+import StarRating from "../components/StarRating";
+
 import "../styles/public-booking.css";
+import "../styles/reviews.css";
 
 export default function ManageAppointment() {
 
@@ -24,6 +28,10 @@ export default function ManageAppointment() {
   const [selectedSlot, setSelectedSlot] = useState("");
 
   const [loadingAction, setLoadingAction] = useState(false);
+
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
 
 
   useEffect(() => {
@@ -156,6 +164,35 @@ export default function ManageAppointment() {
 
     } finally {
       setLoadingAction(false);
+    }
+  }
+
+
+  async function handleSubmitReview() {
+
+    if (!reviewRating) {
+      toast.error("Selecione uma nota de 1 a 5");
+      return;
+    }
+
+    setSubmittingReview(true);
+
+    try {
+
+      const data = await submitReview(token, reviewRating, reviewComment.trim() || null);
+
+      setAppointment(data);
+
+      toast.success("Avaliação enviada. Obrigado!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Erro ao enviar avaliação");
+
+    } finally {
+      setSubmittingReview(false);
     }
   }
 
@@ -297,6 +334,44 @@ export default function ManageAppointment() {
               </button>
             </div>
           </>
+        )}
+
+        {appointment.review && (
+          <div className="public-booking-step review-form">
+            <label>Sua avaliação</label>
+
+            <StarRating value={appointment.review.rating} readOnly />
+
+            {appointment.review.comment && (
+              <p className="review-card-comment" style={{ marginTop: "10px" }}>
+                {appointment.review.comment}
+              </p>
+            )}
+          </div>
+        )}
+
+        {appointment.can_review && (
+          <div className="public-booking-step review-form">
+            <label>Avalie o atendimento</label>
+
+            <StarRating value={reviewRating} onChange={setReviewRating} />
+
+            <textarea
+              placeholder="Conte como foi sua experiência (opcional)"
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              style={{ marginTop: "14px" }}
+            />
+
+            <button
+              type="button"
+              className="public-booking-btn"
+              onClick={handleSubmitReview}
+              disabled={submittingReview}
+            >
+              {submittingReview ? "Enviando..." : "Enviar avaliação"}
+            </button>
+          </div>
         )}
 
       </div>

@@ -8,6 +8,7 @@ from app.models.client import Client
 from app.models.service import Service
 from app.models.professional import Professional
 from app.models.appointment import Appointment
+from app.models.review import Review
 
 from app.schemas.public import (
     BusinessInfo,
@@ -16,6 +17,7 @@ from app.schemas.public import (
     PublicBookingCreate,
     PublicBookingResponse,
 )
+from app.schemas.review import ReviewSummary
 
 from app.core.scheduling import compute_available_slots
 from app.core.rate_limit import limiter
@@ -89,6 +91,34 @@ def list_public_professionals(
         Professional.owner_id == business.id,
         Professional.is_active == True,
     ).all()
+
+
+# REVIEWS
+@router.get("/reviews", response_model=ReviewSummary)
+def get_public_reviews(
+    slug: str,
+    db: Session = Depends(get_db)
+):
+
+    business = get_business_or_404(slug, db)
+
+    reviews = db.query(Review).filter(
+        Review.owner_id == business.id
+    ).order_by(Review.created_at.desc()).all()
+
+    total_reviews = len(reviews)
+
+    average_rating = (
+        round(sum(r.rating for r in reviews) / total_reviews, 1)
+        if total_reviews
+        else None
+    )
+
+    return {
+        "average_rating": average_rating,
+        "total_reviews": total_reviews,
+        "reviews": reviews[:10],
+    }
 
 
 # AVAILABLE SLOTS

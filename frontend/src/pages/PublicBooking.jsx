@@ -9,9 +9,13 @@ import {
   getPublicProfessionals,
   getPublicAvailableSlots,
   createPublicBooking,
+  getPublicReviews,
 } from "../services/api";
 
+import StarRating from "../components/StarRating";
+
 import "../styles/public-booking.css";
+import "../styles/reviews.css";
 
 export default function PublicBooking() {
 
@@ -40,6 +44,8 @@ export default function PublicBooking() {
   const [success, setSuccess] = useState(false);
   const [manageToken, setManageToken] = useState("");
 
+  const [reviews, setReviews] = useState(null);
+
 
   useEffect(() => {
 
@@ -50,10 +56,12 @@ export default function PublicBooking() {
         const businessData = await getPublicBusiness(slug);
         const servicesData = await getPublicServices(slug);
         const professionalsData = await getPublicProfessionals(slug);
+        const reviewsData = await getPublicReviews(slug);
 
         setBusiness(businessData);
         setServices(servicesData);
         setProfessionals(professionalsData);
+        setReviews(reviewsData);
 
       } catch (error) {
 
@@ -232,6 +240,37 @@ export default function PublicBooking() {
 
         <h1 className="public-booking-title">{business.full_name}</h1>
         <p className="public-booking-subtitle">Agende seu horário</p>
+
+        {reviews && reviews.total_reviews > 0 && (
+          <>
+            <div className="review-summary">
+              <span className="review-summary-score">
+                {reviews.average_rating.toFixed(1)}
+              </span>
+
+              <div>
+                <StarRating value={Math.round(reviews.average_rating)} readOnly />
+                <span className="review-summary-count">
+                  {reviews.total_reviews} {reviews.total_reviews === 1 ? "avaliação" : "avaliações"}
+                </span>
+              </div>
+            </div>
+
+            <div className="review-list">
+              {reviews.reviews.map((review) => (
+                <div key={review.id} className="review-card">
+                  <div className="review-card-header">
+                    <StarRating value={review.rating} readOnly />
+                  </div>
+
+                  {review.comment && (
+                    <p className="review-card-comment">{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <form className="public-booking-form" onSubmit={handleSubmit}>
 

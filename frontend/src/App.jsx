@@ -8,6 +8,7 @@ import Clients from "./pages/Clients";
 import Services from "./pages/Services";
 import Professionals from "./pages/Professionals";
 import Packages from "./pages/Packages";
+import Reviews from "./pages/Reviews";
 import Appointments from "./pages/Appointments";
 import WorkingHours from "./pages/WorkingHours";
 import PublicBooking from "./pages/PublicBooking";
@@ -79,6 +80,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Packages />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reviews"
+          element={
+            <ProtectedRoute>
+              <Reviews />
             </ProtectedRoute>
           }
         />

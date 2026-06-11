@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -7,11 +9,13 @@ from app.models.appointment import Appointment
 from app.models.service import Service
 from app.models.professional import Professional
 from app.models.user import User
+from app.models.review import Review
 
 from app.schemas.public import (
     ManageAppointmentResponse,
     RescheduleRequest,
 )
+from app.schemas.review import ReviewCreate
 
 from app.core.scheduling import compute_available_slots
 from app.core.rate_limit import limiter
@@ -54,6 +58,16 @@ def _to_response(appointment: Appointment, db: Session) -> dict:
         Professional.id == appointment.professional_id
     ).first()
 
+    review = db.query(Review).filter(
+        Review.appointment_id == appointment.id
+    ).first()
+
+    can_review = (
+        appointment.status != "cancelled"
+        and appointment.scheduled_at <= datetime.now()
+        and review is None
+    )
+
     return {
         "public_token": appointment.public_token,
         "business_name": business.full_name if business else "",
@@ -61,6 +75,8 @@ def _to_response(appointment: Appointment, db: Session) -> dict:
         "professional_name": professional.name if professional else "",
         "scheduled_at": appointment.scheduled_at,
         "status": appointment.status,
+        "can_review": can_review,
+        "review": review,
     }
 
 
@@ -158,6 +174,54 @@ def reschedule_appointment(
 
     appointment.scheduled_at = data.scheduled_at
 
+    db.commit()
+    db.refresh(appointment)
+
+    return _to_response(appointment, db)
+
+
+# SUBMIT REVIEW
+@router.post("/{token}/review", response_model=ManageAppointmentResponse)
+@limiter.limit("10/minute")
+def submit_review(
+    request: Request,
+    token: str,
+    data: ReviewCreate,
+    db: Session = Depends(get_db)
+):
+
+    appointment = get_appointment_or_404(token, db)
+
+    if appointment.status == "cancelled":
+        raise HTTPException(
+            status_code=409,
+            detail="Agendamento cancelado não pode ser avaliado"
+        )
+
+    if appointment.scheduled_at > datetime.now():
+        raise HTTPException(
+            status_code=409,
+            detail="Agendamento ainda não foi concluído"
+        )
+
+    existing = db.query(Review).filter(
+        Review.appointment_id == appointment.id
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="Este agendamento já foi avaliado"
+        )
+
+    review = Review(
+        appointment_id=appointment.id,
+        owner_id=appointment.owner_id,
+        rating=data.rating,
+        comment=data.comment,
+    )
+
+    db.add(review)
     db.commit()
     db.refresh(appointment)
 

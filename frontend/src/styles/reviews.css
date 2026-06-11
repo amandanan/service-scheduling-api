@@ -1,0 +1,208 @@
+/* =========================
+   AVALIAÇÕES (ESTRELAS)
+========================= */
+
+.star-rating {
+  display: flex;
+  gap: 6px;
+}
+
+.star-rating .star {
+  font-size: 28px;
+  line-height: 1;
+
+  color: rgba(255,255,255,0.25);
+
+  cursor: pointer;
+
+  transition: 0.15s ease;
+}
+
+.star-rating .star.filled {
+  color: #facc15;
+}
+
+.star-rating.readonly .star {
+  font-size: 18px;
+  cursor: default;
+}
+
+.star-rating.light .star {
+  color: #d1d5db;
+}
+
+.star-rating.light .star.filled {
+  color: #facc15;
+}
+
+/* =========================
+   RESUMO DE AVALIAÇÕES
+========================= */
+
+.review-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+.review-summary-score {
+  font-size: 28px;
+  font-weight: 700;
+
+  color: white;
+}
+
+.review-summary-count {
+  color: rgba(255,255,255,0.65);
+
+  font-size: 14px;
+}
+
+/* =========================
+   LISTA DE AVALIAÇÕES
+========================= */
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  margin-bottom: 28px;
+}
+
+.review-card {
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  background: rgba(255,255,255,0.05);
+}
+
+.review-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 8px;
+}
+
+.review-card-comment {
+  color: rgba(255,255,255,0.85);
+
+  font-size: 14px;
+}
+
+/* =========================
+   FORMULÁRIO DE AVALIAÇÃO
+========================= */
+
+.review-form {
+  margin-top: 24px;
+}
+
+.review-form textarea {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  outline: none;
+
+  resize: vertical;
+
+  min-height: 90px;
+
+  font-family: inherit;
+
+  transition: 0.25s ease;
+}
+
+.review-form textarea::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+.review-form textarea:focus {
+  border-color: #8b5cf6;
+
+  box-shadow:
+    0 0 0 4px rgba(139,92,246,0.18);
+}
+
+/* =========================
+   PÁGINA DO PROFISSIONAL (TEMA CLARO)
+========================= */
+
+.owner-review-card {
+  padding: 16px 18px;
+
+  border-radius: 14px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #f9fafb;
+
+  margin-bottom: 14px;
+}
+
+.owner-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 8px;
+
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-review-meta {
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.owner-review-comment {
+  color: #374151;
+
+  font-size: 14px;
+}
+
+.reviews-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 18px 22px;
+
+  border-radius: 16px;
+
+  background: #f5f3ff;
+
+  border: 1px solid #ddd6fe;
+
+  margin-bottom: 25px;
+
+  color: #4c1d95;
+}
+
+.reviews-summary-score {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.reviews-summary-count {
+  font-size: 14px;
+  color: #6d28d9;
+}

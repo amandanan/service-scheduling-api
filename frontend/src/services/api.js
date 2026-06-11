@@ -265,6 +265,16 @@ export async function getPublicProfessionals(slug) {
 }
 
 
+export async function getPublicReviews(slug) {
+
+  const response = await api.get(
+    `/public/${slug}/reviews`
+  );
+
+  return response.data;
+}
+
+
 export async function getPublicAvailableSlots(slug, date, serviceId, professionalId) {
 
   const response = await api.get(
@@ -387,6 +397,29 @@ export async function rescheduleManagedAppointment(token, scheduledAt) {
   const response = await api.post(
     `/manage/${token}/reschedule`,
     { scheduled_at: scheduledAt }
+  );
+
+  return response.data;
+}
+
+
+export async function submitReview(token, rating, comment) {
+
+  const response = await api.post(
+    `/manage/${token}/review`,
+    { rating, comment }
+  );
+
+  return response.data;
+}
+
+
+// REVIEWS
+
+export async function getReviews() {
+
+  const response = await api.get(
+    "/reviews/"
   );
 
   return response.data;
