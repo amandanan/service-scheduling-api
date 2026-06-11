@@ -191,7 +191,21 @@ source .venv/bin/activate
 Install dependencies:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy python-jose[cryptography] passlib[bcrypt] python-multipart pydantic[email]
+pip install -r requirements.txt
+```
+
+Configure environment variables:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set a `SECRET_KEY` (generate one with `python -c "import secrets; print(secrets.token_hex(32))"`).
+
+Apply database migrations:
+
+```bash
+alembic upgrade head
 ```
 
 Run backend:
@@ -204,6 +218,21 @@ Backend runs at:
 
 ```bash
 http://127.0.0.1:8000
+```
+
+### Running tests
+
+```bash
+pytest
+```
+
+### Creating a new migration
+
+After changing a model, generate a migration and apply it:
+
+```bash
+alembic revision --autogenerate -m "describe your change"
+alembic upgrade head
 ```
 
 ---
@@ -290,10 +319,10 @@ service-scheduling-app/
 * Email reminders
 * WhatsApp notifications
 * User roles
-* Multi-user support
 * Working hours configuration
 * Holiday blocking
 * Recurring appointments
+* PostgreSQL support for production
 
 ---
 

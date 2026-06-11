@@ -1,5 +1,13 @@
 fastapi
 uvicorn
 sqlalchemy
-pydantic
+pydantic[email]
 python-dotenv
+python-jose[cryptography]
+passlib[argon2]
+python-multipart
+alembic
+
+# dev / tests
+pytest
+httpx
