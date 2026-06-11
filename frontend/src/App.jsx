@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Services from "./pages/Services";
 import Appointments from "./pages/Appointments";
+import WorkingHours from "./pages/WorkingHours";
 
 import {
   BrowserRouter,
@@ -61,6 +62,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Appointments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/working-hours"
+          element={
+            <ProtectedRoute>
+              <WorkingHours />
             </ProtectedRoute>
           }
         />

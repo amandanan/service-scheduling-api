@@ -10,12 +10,14 @@ from app.models.user import User
 from app.models.client import Client
 from app.models.service import Service
 from app.models.appointment import Appointment
+from app.models.working_hours import WorkingHours
 
 from app.routes import (
     auth,
     client,
     service,
     appointment,
+    working_hours,
 )
 
 app = FastAPI(
@@ -40,3 +42,4 @@ app.include_router(auth.router)
 app.include_router(client.router)
 app.include_router(service.router)
 app.include_router(appointment.router)
+app.include_router(working_hours.router)

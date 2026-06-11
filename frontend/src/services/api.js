@@ -160,4 +160,27 @@ export async function createAppointment(data) {
 }
 
 
+// WORKING HOURS
+
+export async function getWorkingHours() {
+
+  const response = await api.get(
+    "/working-hours/"
+  );
+
+  return response.data;
+}
+
+
+export async function updateWorkingHours(days) {
+
+  const response = await api.put(
+    "/working-hours/",
+    { days }
+  );
+
+  return response.data;
+}
+
+
 export default api;

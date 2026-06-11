@@ -27,6 +27,8 @@ from app.core.dependencies import (
     get_current_user
 )
 
+from app.core.working_hours import get_or_create_working_hours
+
 router = APIRouter(
     prefix="/appointments",
     tags=["Appointments"]
@@ -148,14 +150,29 @@ def get_available_slots(
         service.duration_minutes or 60
     )
 
-    day_start = datetime.strptime(
-        f"{date} 08:00",
-        "%Y-%m-%d %H:%M"
+    requested_date = datetime.strptime(
+        date,
+        "%Y-%m-%d"
     )
 
-    day_end = datetime.strptime(
-        f"{date} 20:00",
-        "%Y-%m-%d %H:%M"
+    working_hours_by_weekday = {
+        wh.weekday: wh
+        for wh in get_or_create_working_hours(db, current_user.id)
+    }
+
+    working_hours = working_hours_by_weekday[requested_date.weekday()]
+
+    if working_hours.is_closed:
+        return []
+
+    day_start = datetime.combine(
+        requested_date.date(),
+        working_hours.start_time
+    )
+
+    day_end = datetime.combine(
+        requested_date.date(),
+        working_hours.end_time
     )
 
     appointments = db.query(

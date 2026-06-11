@@ -9,6 +9,7 @@ import {
   FaUsers,
   FaTools,
   FaCalendarAlt,
+  FaClock,
   FaSignOutAlt,
   FaLayerGroup,
 } from "react-icons/fa";
@@ -80,6 +81,18 @@ export default function Navbar() {
         >
           <FaCalendarAlt />
           Agendamentos
+        </Link>
+
+        <Link
+          to="/working-hours"
+          className={
+            location.pathname === "/working-hours"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaClock />
+          Horários
         </Link>
 
         <button
