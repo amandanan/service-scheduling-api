@@ -19,6 +19,7 @@ from app.schemas.public import (
 
 from app.core.scheduling import compute_available_slots
 from app.core.rate_limit import limiter
+from app.core.notifications import send_booking_confirmation
 
 router = APIRouter(
     prefix="/public/{slug}",
@@ -209,5 +210,7 @@ def create_public_booking(
     db.add(new_appointment)
     db.commit()
     db.refresh(new_appointment)
+
+    send_booking_confirmation(new_appointment, business, service, professional, client)
 
     return new_appointment

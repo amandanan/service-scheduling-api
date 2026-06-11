@@ -35,6 +35,18 @@ def first_professional_id(client):
 
 
 @pytest.fixture
+def sent_emails(monkeypatch):
+    captured = []
+
+    def _fake_send_email(to, subject, body):
+        captured.append({"to": to, "subject": subject, "body": body})
+
+    monkeypatch.setattr("app.core.email.send_email", _fake_send_email)
+
+    return captured
+
+
+@pytest.fixture
 def auth_headers(client):
     def _create_user(email="user@test.com", password="senha123", cpf="52998224725"):
         client.post("/auth/register", json={

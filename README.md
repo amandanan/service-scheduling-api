@@ -226,6 +226,13 @@ Edit `.env` and set a `SECRET_KEY` (generate one with `python -c "import secrets
 
 By default the app uses a local SQLite file, so no extra setup is needed for development.
 
+### Email notifications
+
+Booking confirmations are sent by email and include a link to manage the appointment.
+Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` and `SMTP_USE_TLS` in `.env` to send through a real SMTP server.
+If `SMTP_HOST` is left empty, emails are logged instead of sent — useful for local development.
+`FRONTEND_URL` controls the base URL used to build links (e.g. the manage-appointment link) in those emails.
+
 ### Using PostgreSQL (production)
 
 Set `DATABASE_URL` in `.env` to a PostgreSQL connection string:

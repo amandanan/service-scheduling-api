@@ -26,6 +26,7 @@ from app.core.dependencies import (
 )
 
 from app.core.scheduling import compute_available_slots
+from app.core.notifications import send_booking_confirmation
 
 router = APIRouter(
     prefix="/appointments",
@@ -115,6 +116,8 @@ def create_appointment(
     db.commit()
 
     db.refresh(new_appointment)
+
+    send_booking_confirmation(new_appointment, current_user, service, professional, client)
 
     return new_appointment
 
