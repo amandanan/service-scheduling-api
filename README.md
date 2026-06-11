@@ -44,10 +44,12 @@ The goal of this project was to practice modern **full stack development**, inte
 
 * FastAPI
 * SQLAlchemy
-* SQLite
+* SQLite (development) / PostgreSQL (production)
+* Alembic (migrations)
 * JWT Authentication
 * Passlib (password hashing)
 * Pydantic
+* SlowAPI (rate limiting)
 
 ---
 
@@ -222,6 +224,24 @@ cp .env.example .env
 
 Edit `.env` and set a `SECRET_KEY` (generate one with `python -c "import secrets; print(secrets.token_hex(32))"`).
 
+By default the app uses a local SQLite file, so no extra setup is needed for development.
+
+### Using PostgreSQL (production)
+
+Set `DATABASE_URL` in `.env` to a PostgreSQL connection string:
+
+```bash
+DATABASE_URL=postgresql://scheduling:scheduling@localhost:5432/scheduling
+```
+
+A ready-to-use Postgres instance is provided via Docker Compose (from the project root):
+
+```bash
+docker compose up -d db
+```
+
+The same `alembic upgrade head` command then applies the schema to PostgreSQL — the migrations are dialect-aware.
+
 Apply database migrations:
 
 ```bash
@@ -341,7 +361,6 @@ service-scheduling-app/
 * User roles
 * Holiday blocking
 * Recurring appointments
-* PostgreSQL support for production
 
 ---
 
