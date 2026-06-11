@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import date, datetime
 
 
@@ -6,8 +6,7 @@ class BusinessInfo(BaseModel):
     full_name: str
     booking_slug: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicServiceResponse(BaseModel):
@@ -16,8 +15,7 @@ class PublicServiceResponse(BaseModel):
     price: float
     duration_minutes: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicBookingCreate(BaseModel):
@@ -35,5 +33,4 @@ class PublicBookingResponse(BaseModel):
     service_id: int
     scheduled_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
