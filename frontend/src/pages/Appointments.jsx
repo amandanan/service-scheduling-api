@@ -10,7 +10,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import Select from "react-select";
 
-import api from "../services/api";
+import api, { getClientPackages } from "../services/api";
 
 import Navbar from "../components/Navbar";
 
@@ -73,6 +73,12 @@ export default function Appointments() {
 
   const [editingId, setEditingId] =
     useState(null);
+
+  const [clientPackages, setClientPackages] =
+    useState([]);
+
+  const [clientPackageId, setClientPackageId] =
+    useState("");
 
   async function loadData() {
 
@@ -205,6 +211,27 @@ export default function Appointments() {
     loadData();
   }, []);
 
+  async function loadClientPackages(clientId) {
+
+    if (!clientId) {
+      setClientPackages([]);
+      return;
+    }
+
+    try {
+
+      const data = await getClientPackages(clientId);
+
+      setClientPackages(
+        data.filter((cp) => cp.remaining_sessions > 0)
+      );
+
+    } catch (error) {
+
+      console.error(error);
+    }
+  }
+
   function clearForm() {
 
     setClientId("");
@@ -228,6 +255,10 @@ export default function Appointments() {
     setShowSlots(false);
 
     setEditingId(null);
+
+    setClientPackages([]);
+
+    setClientPackageId("");
   }
 
   async function handleSubmit(e) {
@@ -283,6 +314,9 @@ export default function Appointments() {
 
       scheduled_at:
         scheduledAt,
+
+      client_package_id:
+        clientPackageId ? Number(clientPackageId) : null,
     };
 
     try {
@@ -517,6 +551,12 @@ export default function Appointments() {
                   setSelectedClient(
                     selected.client
                   );
+
+                  setClientPackageId("");
+
+                  loadClientPackages(
+                    selected.value
+                  );
                 }}
 
                 className="react-select-container"
@@ -578,6 +618,8 @@ export default function Appointments() {
                     selected.service
                   );
 
+                  setClientPackageId("");
+
                   if (selectedDate && professionalId) {
 
                     loadAvailableSlots(
@@ -595,6 +637,36 @@ export default function Appointments() {
               />
 
             </div>
+
+            {/* PACOTE DO CLIENTE */}
+
+            {serviceId &&
+              clientPackages.some(
+                (cp) => cp.service_id === Number(serviceId)
+              ) && (
+
+              <select
+                value={clientPackageId}
+                onChange={(e) =>
+                  setClientPackageId(e.target.value)
+                }
+              >
+                <option value="">
+                  Não usar pacote
+                </option>
+
+                {clientPackages
+                  .filter(
+                    (cp) => cp.service_id === Number(serviceId)
+                  )
+                  .map((cp) => (
+                    <option key={cp.id} value={cp.id}>
+                      {cp.package_name} ({cp.remaining_sessions}/{cp.total_sessions} restantes)
+                    </option>
+                  ))}
+              </select>
+
+            )}
 
             {/* PROFISSIONAL */}
 

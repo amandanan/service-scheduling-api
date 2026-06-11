@@ -35,7 +35,8 @@
   margin-bottom: 30px;
 }
 
-.appointments-form input {
+.appointments-form input,
+.appointments-form select {
   padding: 12px;
 
   border-radius: 12px;
@@ -51,7 +52,8 @@
   background: white;
 }
 
-.appointments-form input:focus {
+.appointments-form input:focus,
+.appointments-form select:focus {
   border-color: #6d28d9;
 
   box-shadow:
@@ -418,6 +420,7 @@
   }
 
   .appointments-form input,
+  .appointments-form select,
   .primary-btn,
   .slots-toggle-btn,
   .react-select-container {

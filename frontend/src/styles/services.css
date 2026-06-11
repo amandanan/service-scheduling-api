@@ -39,7 +39,8 @@
   flex-wrap: wrap;
 }
 
-.services-form input {
+.services-form input,
+.services-form select {
   padding: 12px;
 
   border-radius: 10px;
@@ -52,7 +53,8 @@
   transition: 0.2s;
 }
 
-.services-form input:focus {
+.services-form input:focus,
+.services-form select:focus {
   border-color: #6d28d9;
 
   box-shadow:
@@ -210,6 +212,7 @@
   }
 
   .services-form input,
+  .services-form select,
   .primary-btn,
   .secondary-btn {
     width: 100%;

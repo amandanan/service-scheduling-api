@@ -287,6 +287,68 @@ export async function createPublicBooking(slug, data) {
 }
 
 
+// PACKAGES
+
+export async function getPackages() {
+
+  const response = await api.get(
+    "/packages/"
+  );
+
+  return response.data;
+}
+
+
+export async function createPackage(data) {
+
+  const response = await api.post(
+    "/packages/",
+    data
+  );
+
+  return response.data;
+}
+
+
+export async function updatePackage(id, data) {
+
+  const response = await api.put(
+    `/packages/${id}`,
+    data
+  );
+
+  return response.data;
+}
+
+
+export async function deletePackage(id) {
+
+  await api.delete(`/packages/${id}`);
+}
+
+
+export async function purchasePackage(data) {
+
+  const response = await api.post(
+    "/packages/purchases",
+    data
+  );
+
+  return response.data;
+}
+
+
+export async function getClientPackages(clientId) {
+
+  const response = await api.get(
+    "/packages/purchases",
+    { params: { client_id: clientId } }
+  );
+
+  return response.data;
+}
+
+
 // MANAGE BOOKING (by public token, no auth)
 
 export async function getManagedAppointment(token) {

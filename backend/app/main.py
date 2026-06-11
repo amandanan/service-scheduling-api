@@ -15,6 +15,7 @@ from app.models.service import Service
 from app.models.appointment import Appointment
 from app.models.professional import Professional
 from app.models.working_hours import WorkingHours
+from app.models.package import Package, ClientPackage
 
 from app.core.rate_limit import limiter
 
@@ -26,6 +27,7 @@ from app.routes import (
     professional,
     public,
     manage,
+    package,
 )
 
 app = FastAPI(
@@ -56,3 +58,4 @@ app.include_router(appointment.router)
 app.include_router(professional.router)
 app.include_router(public.router)
 app.include_router(manage.router)
+app.include_router(package.router)
