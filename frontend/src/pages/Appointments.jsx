@@ -38,6 +38,9 @@ export default function Appointments() {
   const [services, setServices] =
     useState([]);
 
+  const [professionals, setProfessionals] =
+    useState([]);
+
   const [availableSlots, setAvailableSlots] =
     useState([]);
 
@@ -53,6 +56,9 @@ export default function Appointments() {
   const [serviceId, setServiceId] =
     useState("");
 
+  const [professionalId, setProfessionalId] =
+    useState("");
+
   const [scheduledAt, setScheduledAt] =
     useState("");
 
@@ -60,6 +66,9 @@ export default function Appointments() {
     useState(null);
 
   const [selectedService, setSelectedService] =
+    useState(null);
+
+  const [selectedProfessional, setSelectedProfessional] =
     useState(null);
 
   const [editingId, setEditingId] =
@@ -73,6 +82,7 @@ export default function Appointments() {
         appointmentsRes,
         clientsRes,
         servicesRes,
+        professionalsRes,
       ] = await Promise.all([
 
         api.get("/appointments/"),
@@ -80,11 +90,15 @@ export default function Appointments() {
         api.get("/clients/"),
 
         api.get("/services/"),
+
+        api.get("/professionals/"),
       ]);
 
       setClients(clientsRes.data);
 
       setServices(servicesRes.data);
+
+      setProfessionals(professionalsRes.data);
 
       const formatted =
         appointmentsRes.data.map(
@@ -124,6 +138,9 @@ export default function Appointments() {
               service_id:
                 item.service_id,
 
+              professional_id:
+                item.professional_id,
+
               title:
                 `${client?.full_name || "Cliente"} • ${service?.name || "Serviço"}`,
 
@@ -148,10 +165,11 @@ export default function Appointments() {
 
   async function loadAvailableSlots(
     date,
-    selectedServiceId
+    selectedServiceId,
+    selectedProfessionalId
   ) {
 
-    if (!date || !selectedServiceId)
+    if (!date || !selectedServiceId || !selectedProfessionalId)
       return;
 
     try {
@@ -163,6 +181,8 @@ export default function Appointments() {
             date,
             service_id:
               selectedServiceId,
+            professional_id:
+              selectedProfessionalId,
           },
         }
       );
@@ -191,6 +211,8 @@ export default function Appointments() {
 
     setServiceId("");
 
+    setProfessionalId("");
+
     setScheduledAt("");
 
     setSelectedDate("");
@@ -198,6 +220,8 @@ export default function Appointments() {
     setSelectedClient(null);
 
     setSelectedService(null);
+
+    setSelectedProfessional(null);
 
     setAvailableSlots([]);
 
@@ -228,6 +252,15 @@ export default function Appointments() {
       return;
     }
 
+    if (!professionalId) {
+
+      toast.error(
+        "Selecione um profissional"
+      );
+
+      return;
+    }
+
     if (!scheduledAt) {
 
       toast.error(
@@ -244,6 +277,9 @@ export default function Appointments() {
 
       service_id:
         Number(serviceId),
+
+      professional_id:
+        Number(professionalId),
 
       scheduled_at:
         scheduledAt,
@@ -338,9 +374,21 @@ export default function Appointments() {
       appointment.service_id
     );
 
+    const professional =
+      professionals.find(
+        (p) =>
+          p.id === appointment.professional_id
+      );
+
+    setProfessionalId(
+      appointment.professional_id
+    );
+
     setSelectedClient(client);
 
     setSelectedService(service);
+
+    setSelectedProfessional(professional);
 
     setSelectedDate(
       dateFormatted
@@ -352,7 +400,8 @@ export default function Appointments() {
 
     loadAvailableSlots(
       dateFormatted,
-      appointment.service_id
+      appointment.service_id,
+      appointment.professional_id
     );
 
     window.scrollTo({
@@ -529,10 +578,62 @@ export default function Appointments() {
                     selected.service
                   );
 
-                  if (selectedDate) {
+                  if (selectedDate && professionalId) {
 
                     loadAvailableSlots(
                       selectedDate,
+                      selected.value,
+                      professionalId
+                    );
+                  }
+                }}
+
+                className="react-select-container"
+
+                classNamePrefix="react-select"
+
+              />
+
+            </div>
+
+            {/* PROFISSIONAL */}
+
+            <div className="service-select-wrapper">
+
+              <Select
+
+                options={professionals.map((professional) => ({
+                  value: professional.id,
+                  label: professional.name,
+                  professional,
+                }))}
+
+                placeholder="Selecionar profissional..."
+
+                value={
+                  professionalId && selectedProfessional
+                    ? {
+                        value: professionalId,
+                        label: selectedProfessional.name,
+                      }
+                    : null
+                }
+
+                onChange={(selected) => {
+
+                  setProfessionalId(
+                    selected.value
+                  );
+
+                  setSelectedProfessional(
+                    selected.professional
+                  );
+
+                  if (selectedDate && serviceId) {
+
+                    loadAvailableSlots(
+                      selectedDate,
+                      serviceId,
                       selected.value
                     );
                   }
@@ -560,7 +661,8 @@ export default function Appointments() {
 
                 loadAvailableSlots(
                   date,
-                  serviceId
+                  serviceId,
+                  professionalId
                 );
               }}
               required

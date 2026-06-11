@@ -30,6 +30,12 @@ class Appointment(Base):
         ForeignKey("services.id")
     )
 
+    professional_id = Column(
+        Integer,
+        ForeignKey("professionals.id"),
+        nullable=False
+    )
+
     owner_id = Column(
         Integer,
         ForeignKey("users.id"),

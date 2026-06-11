@@ -8,6 +8,8 @@ class AppointmentBase(BaseModel):
 
     service_id: int
 
+    professional_id: int
+
     scheduled_at: datetime
 
 

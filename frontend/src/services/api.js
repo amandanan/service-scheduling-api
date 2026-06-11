@@ -170,22 +170,62 @@ export async function createAppointment(data) {
 }
 
 
-// WORKING HOURS
+// PROFESSIONALS
 
-export async function getWorkingHours() {
+export async function getProfessionals() {
 
   const response = await api.get(
-    "/working-hours/"
+    "/professionals/"
   );
 
   return response.data;
 }
 
 
-export async function updateWorkingHours(days) {
+export async function createProfessional(data) {
+
+  const response = await api.post(
+    "/professionals/",
+    data
+  );
+
+  return response.data;
+}
+
+
+export async function updateProfessional(id, data) {
 
   const response = await api.put(
-    "/working-hours/",
+    `/professionals/${id}`,
+    data
+  );
+
+  return response.data;
+}
+
+
+export async function deleteProfessional(id) {
+
+  await api.delete(`/professionals/${id}`);
+}
+
+
+// WORKING HOURS (per professional)
+
+export async function getWorkingHours(professionalId) {
+
+  const response = await api.get(
+    `/professionals/${professionalId}/working-hours`
+  );
+
+  return response.data;
+}
+
+
+export async function updateWorkingHours(professionalId, days) {
+
+  const response = await api.put(
+    `/professionals/${professionalId}/working-hours`,
     { days }
   );
 
@@ -215,11 +255,21 @@ export async function getPublicServices(slug) {
 }
 
 
-export async function getPublicAvailableSlots(slug, date, serviceId) {
+export async function getPublicProfessionals(slug) {
+
+  const response = await api.get(
+    `/public/${slug}/professionals`
+  );
+
+  return response.data;
+}
+
+
+export async function getPublicAvailableSlots(slug, date, serviceId, professionalId) {
 
   const response = await api.get(
     `/public/${slug}/available-slots`,
-    { params: { date, service_id: serviceId } }
+    { params: { date, service_id: serviceId, professional_id: professionalId } }
   );
 
   return response.data;

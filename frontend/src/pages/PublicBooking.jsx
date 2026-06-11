@@ -6,6 +6,7 @@ import { IMaskInput } from "react-imask";
 import {
   getPublicBusiness,
   getPublicServices,
+  getPublicProfessionals,
   getPublicAvailableSlots,
   createPublicBooking,
 } from "../services/api";
@@ -21,6 +22,9 @@ export default function PublicBooking() {
 
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
+
+  const [professionals, setProfessionals] = useState([]);
+  const [selectedProfessional, setSelectedProfessional] = useState(null);
 
   const [selectedDate, setSelectedDate] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -44,9 +48,11 @@ export default function PublicBooking() {
 
         const businessData = await getPublicBusiness(slug);
         const servicesData = await getPublicServices(slug);
+        const professionalsData = await getPublicProfessionals(slug);
 
         setBusiness(businessData);
         setServices(servicesData);
+        setProfessionals(professionalsData);
 
       } catch (error) {
 
@@ -59,13 +65,13 @@ export default function PublicBooking() {
   }, [slug]);
 
 
-  async function loadAvailableSlots(date, serviceId) {
+  async function loadAvailableSlots(date, serviceId, professionalId) {
 
-    if (!date || !serviceId) return;
+    if (!date || !serviceId || !professionalId) return;
 
     try {
 
-      const slots = await getPublicAvailableSlots(slug, date, serviceId);
+      const slots = await getPublicAvailableSlots(slug, date, serviceId, professionalId);
       setAvailableSlots(slots);
 
     } catch (error) {
@@ -82,8 +88,19 @@ export default function PublicBooking() {
     setSelectedService(service);
     setSelectedSlot("");
 
-    if (selectedDate) {
-      loadAvailableSlots(selectedDate, service.id);
+    if (selectedDate && selectedProfessional) {
+      loadAvailableSlots(selectedDate, service.id, selectedProfessional.id);
+    }
+  }
+
+
+  function handleSelectProfessional(professional) {
+
+    setSelectedProfessional(professional);
+    setSelectedSlot("");
+
+    if (selectedDate && selectedService) {
+      loadAvailableSlots(selectedDate, selectedService.id, professional.id);
     }
   }
 
@@ -94,8 +111,8 @@ export default function PublicBooking() {
     setSelectedSlot("");
     setAvailableSlots([]);
 
-    if (selectedService) {
-      loadAvailableSlots(date, selectedService.id);
+    if (selectedService && selectedProfessional) {
+      loadAvailableSlots(date, selectedService.id, selectedProfessional.id);
     }
   }
 
@@ -106,6 +123,11 @@ export default function PublicBooking() {
 
     if (!selectedService) {
       toast.error("Selecione um serviço");
+      return;
+    }
+
+    if (!selectedProfessional) {
+      toast.error("Selecione um profissional");
       return;
     }
 
@@ -125,6 +147,7 @@ export default function PublicBooking() {
         phone,
         email,
         service_id: selectedService.id,
+        professional_id: selectedProfessional.id,
         scheduled_at: `${selectedDate}T${selectedSlot}:00`,
       });
 
@@ -136,7 +159,7 @@ export default function PublicBooking() {
 
       if (error.response?.status === 409) {
         toast.error("Esse horário acabou de ficar indisponível. Escolha outro.");
-        loadAvailableSlots(selectedDate, selectedService.id);
+        loadAvailableSlots(selectedDate, selectedService.id, selectedProfessional.id);
         setSelectedSlot("");
       } else if (error.response?.status === 422) {
         toast.error("CPF inválido");
@@ -231,7 +254,33 @@ export default function PublicBooking() {
           </div>
 
           <div className="public-booking-step">
-            <label>2. Escolha a data</label>
+            <label>2. Escolha o profissional</label>
+
+            <div className="service-options">
+              {professionals.map((professional) => (
+                <div
+                  key={professional.id}
+                  className={
+                    selectedProfessional?.id === professional.id
+                      ? "service-option active"
+                      : "service-option"
+                  }
+                  onClick={() => handleSelectProfessional(professional)}
+                >
+                  <span>{professional.name}</span>
+                </div>
+              ))}
+
+              {professionals.length === 0 && (
+                <p className="public-booking-empty">
+                  Nenhum profissional disponível no momento.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="public-booking-step">
+            <label>3. Escolha a data</label>
 
             <input
               type="date"
@@ -241,9 +290,9 @@ export default function PublicBooking() {
             />
           </div>
 
-          {selectedDate && selectedService && (
+          {selectedDate && selectedService && selectedProfessional && (
             <div className="public-booking-step">
-              <label>3. Escolha o horário</label>
+              <label>4. Escolha o horário</label>
 
               <div className="slots-grid">
                 {availableSlots.map((slot) => (
@@ -272,7 +321,7 @@ export default function PublicBooking() {
 
           {selectedSlot && (
             <div className="public-booking-step">
-              <label>4. Seus dados</label>
+              <label>5. Seus dados</label>
 
               <div className="public-booking-form" style={{ gap: "12px" }}>
 

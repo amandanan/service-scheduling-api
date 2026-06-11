@@ -1,7 +1,11 @@
-def test_get_default_working_hours(client, auth_headers):
+def test_get_default_working_hours(client, auth_headers, first_professional_id):
     headers = auth_headers()
+    professional_id = first_professional_id(headers)
 
-    response = client.get("/working-hours/", headers=headers)
+    response = client.get(
+        f"/professionals/{professional_id}/working-hours",
+        headers=headers,
+    )
 
     assert response.status_code == 200
 
@@ -12,20 +16,25 @@ def test_get_default_working_hours(client, auth_headers):
     assert sunday["is_closed"] is True
 
 
-def test_update_working_hours(client, auth_headers):
+def test_update_working_hours(client, auth_headers, first_professional_id):
     headers = auth_headers()
+    professional_id = first_professional_id(headers)
 
-    response = client.put("/working-hours/", json={
-        "days": [
-            {"weekday": 0, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
-            {"weekday": 1, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
-            {"weekday": 2, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
-            {"weekday": 3, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
-            {"weekday": 4, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
-            {"weekday": 5, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
-            {"weekday": 6, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
-        ]
-    }, headers=headers)
+    response = client.put(
+        f"/professionals/{professional_id}/working-hours",
+        json={
+            "days": [
+                {"weekday": 0, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
+                {"weekday": 1, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
+                {"weekday": 2, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
+                {"weekday": 3, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
+                {"weekday": 4, "start_time": "09:00", "end_time": "17:00", "is_closed": False},
+                {"weekday": 5, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
+                {"weekday": 6, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
+            ]
+        },
+        headers=headers,
+    )
 
     assert response.status_code == 200
 
@@ -34,20 +43,25 @@ def test_update_working_hours(client, auth_headers):
     assert monday["end_time"] == "17:00:00"
 
 
-def test_available_slots_respect_working_hours(client, auth_headers):
+def test_available_slots_respect_working_hours(client, auth_headers, first_professional_id):
     headers = auth_headers()
+    professional_id = first_professional_id(headers)
 
-    client.put("/working-hours/", json={
-        "days": [
-            {"weekday": 0, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
-            {"weekday": 1, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
-            {"weekday": 2, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
-            {"weekday": 3, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
-            {"weekday": 4, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
-            {"weekday": 5, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
-            {"weekday": 6, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
-        ]
-    }, headers=headers)
+    client.put(
+        f"/professionals/{professional_id}/working-hours",
+        json={
+            "days": [
+                {"weekday": 0, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
+                {"weekday": 1, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
+                {"weekday": 2, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
+                {"weekday": 3, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
+                {"weekday": 4, "start_time": "09:00", "end_time": "12:00", "is_closed": False},
+                {"weekday": 5, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
+                {"weekday": 6, "start_time": "00:00", "end_time": "00:00", "is_closed": True},
+            ]
+        },
+        headers=headers,
+    )
 
     service_response = client.post("/services/", json={
         "name": "Corte",
@@ -60,7 +74,7 @@ def test_available_slots_respect_working_hours(client, auth_headers):
     # 2026-06-15 is a Monday
     response = client.get(
         "/appointments/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id},
+        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
         headers=headers,
     )
 
@@ -73,7 +87,7 @@ def test_available_slots_respect_working_hours(client, auth_headers):
     # 2026-06-21 is a Sunday -> closed
     response = client.get(
         "/appointments/available-slots",
-        params={"date": "2026-06-21", "service_id": service_id},
+        params={"date": "2026-06-21", "service_id": service_id, "professional_id": professional_id},
         headers=headers,
     )
 

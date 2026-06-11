@@ -17,18 +17,18 @@ DEFAULT_HOURS = {
 }
 
 
-def get_or_create_working_hours(db: Session, owner_id: int):
+def get_or_create_working_hours(db: Session, professional_id: int):
     existing = {
         wh.weekday: wh
         for wh in db.query(WorkingHours).filter(
-            WorkingHours.owner_id == owner_id
+            WorkingHours.professional_id == professional_id
         ).all()
     }
 
     for weekday, (start, end, is_closed) in DEFAULT_HOURS.items():
         if weekday not in existing:
             new_entry = WorkingHours(
-                owner_id=owner_id,
+                professional_id=professional_id,
                 weekday=weekday,
                 start_time=start,
                 end_time=end,

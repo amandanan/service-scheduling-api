@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   getWorkingHours,
   updateWorkingHours,
+  getProfessionals,
   getMe,
 } from "../services/api";
 
@@ -30,12 +31,18 @@ export default function WorkingHours() {
 
   const [bookingLink, setBookingLink] = useState("");
 
+  const [professionals, setProfessionals] = useState([]);
 
-  async function loadWorkingHours() {
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState("");
+
+
+  async function loadWorkingHours(professionalId) {
+
+    if (!professionalId) return;
 
     try {
 
-      const response = await getWorkingHours();
+      const response = await getWorkingHours(professionalId);
 
       const sorted = [...response].sort(
         (a, b) => a.weekday - b.weekday
@@ -50,6 +57,29 @@ export default function WorkingHours() {
       toast.error(
         "Erro ao carregar horário de funcionamento"
       );
+    }
+  }
+
+
+  async function loadProfessionals() {
+
+    try {
+
+      const data = await getProfessionals();
+
+      setProfessionals(data);
+
+      if (data.length > 0) {
+        const firstId = data[0].id;
+        setSelectedProfessionalId(firstId);
+        loadWorkingHours(firstId);
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Erro ao carregar profissionais");
     }
   }
 
@@ -72,9 +102,16 @@ export default function WorkingHours() {
 
 
   useEffect(() => {
-    loadWorkingHours();
+    loadProfessionals();
     loadBookingLink();
   }, []);
+
+
+  function handleProfessionalChange(e) {
+    const id = Number(e.target.value);
+    setSelectedProfessionalId(id);
+    loadWorkingHours(id);
+  }
 
 
   async function handleCopyLink() {
@@ -119,7 +156,7 @@ export default function WorkingHours() {
         is_closed: day.is_closed,
       }));
 
-      const response = await updateWorkingHours(payload);
+      const response = await updateWorkingHours(selectedProfessionalId, payload);
 
       const sorted = [...response].sort(
         (a, b) => a.weekday - b.weekday
@@ -193,6 +230,26 @@ export default function WorkingHours() {
             </div>
 
           )}
+
+
+          <div className="services-form" style={{ marginBottom: "20px" }}>
+
+            <label style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              Profissional:
+              <select
+                value={selectedProfessionalId}
+                onChange={handleProfessionalChange}
+                style={{ padding: "12px", borderRadius: "10px", border: "1px solid #ccc" }}
+              >
+                {professionals.map((professional) => (
+                  <option key={professional.id} value={professional.id}>
+                    {professional.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+          </div>
 
 
           <form onSubmit={handleSubmit}>

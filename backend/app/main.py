@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.client import Client
 from app.models.service import Service
 from app.models.appointment import Appointment
+from app.models.professional import Professional
 from app.models.working_hours import WorkingHours
 
 from app.core.rate_limit import limiter
@@ -22,7 +23,7 @@ from app.routes import (
     client,
     service,
     appointment,
-    working_hours,
+    professional,
     public,
 )
 
@@ -51,5 +52,5 @@ app.include_router(auth.router)
 app.include_router(client.router)
 app.include_router(service.router)
 app.include_router(appointment.router)
-app.include_router(working_hours.router)
+app.include_router(professional.router)
 app.include_router(public.router)

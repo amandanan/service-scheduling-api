@@ -26,6 +26,15 @@ def client():
 
 
 @pytest.fixture
+def first_professional_id(client):
+    def _get(headers):
+        response = client.get("/professionals/", headers=headers)
+        return response.json()[0]["id"]
+
+    return _get
+
+
+@pytest.fixture
 def auth_headers(client):
     def _create_user(email="user@test.com", password="senha123", cpf="52998224725"):
         client.post("/auth/register", json={

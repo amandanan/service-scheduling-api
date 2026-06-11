@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Services from "./pages/Services";
+import Professionals from "./pages/Professionals";
 import Appointments from "./pages/Appointments";
 import WorkingHours from "./pages/WorkingHours";
 import PublicBooking from "./pages/PublicBooking";
@@ -56,6 +57,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Services />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/professionals"
+          element={
+            <ProtectedRoute>
+              <Professionals />
             </ProtectedRoute>
           }
         />

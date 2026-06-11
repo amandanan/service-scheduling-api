@@ -22,6 +22,11 @@ def _login(client, email="salao@test.com", password="senha123"):
     return {"Authorization": f"Bearer {token}"}
 
 
+def _public_professional_id(client, slug):
+    response = client.get(f"/public/{slug}/professionals")
+    return response.json()[0]["id"]
+
+
 def test_register_generates_unique_booking_slug(client):
     user_a = _register_business(client)
 
@@ -68,6 +73,17 @@ def test_public_business_info(client):
     assert response.json()["booking_slug"] == user["booking_slug"]
 
 
+def test_public_lists_default_professional(client):
+    user = _register_business(client)
+
+    response = client.get(f"/public/{user['booking_slug']}/professionals")
+
+    assert response.status_code == 200
+    professionals = response.json()
+    assert len(professionals) == 1
+    assert professionals[0]["name"] == "Salao Da Amanda"
+
+
 def test_public_services_and_available_slots(client):
     user = _register_business(client)
     headers = _login(client)
@@ -80,6 +96,7 @@ def test_public_services_and_available_slots(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     response = client.get(f"/public/{slug}/services")
 
@@ -91,7 +108,7 @@ def test_public_services_and_available_slots(client):
 
     response = client.get(
         f"/public/{slug}/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id},
+        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
     )
 
     assert response.status_code == 200
@@ -110,6 +127,7 @@ def test_create_public_booking(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     booking_payload = {
         "full_name": "Cliente Publico",
@@ -118,6 +136,7 @@ def test_create_public_booking(client):
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2026-06-15T09:00:00",
     }
 
@@ -125,6 +144,7 @@ def test_create_public_booking(client):
 
     assert response.status_code == 200
     assert response.json()["service_id"] == service_id
+    assert response.json()["professional_id"] == professional_id
 
     clients_response = client.get("/clients/", headers=headers)
     clients = clients_response.json()
@@ -148,6 +168,7 @@ def test_public_booking_rejects_unavailable_slot(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     booking_payload = {
         "full_name": "Cliente Publico",
@@ -156,6 +177,7 @@ def test_public_booking_rejects_unavailable_slot(client):
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2026-06-15T09:00:00",
     }
 
@@ -183,10 +205,11 @@ def test_public_available_slots_excludes_past_date(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     response = client.get(
         f"/public/{slug}/available-slots",
-        params={"date": "2020-01-01", "service_id": service_id},
+        params={"date": "2020-01-01", "service_id": service_id, "professional_id": professional_id},
     )
 
     assert response.status_code == 200
@@ -205,6 +228,7 @@ def test_public_booking_rejects_invalid_cpf(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     response = client.post(f"/public/{slug}/appointments", json={
         "full_name": "Cliente Publico",
@@ -213,6 +237,7 @@ def test_public_booking_rejects_invalid_cpf(client):
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2026-06-15T09:00:00",
     })
 
@@ -231,6 +256,7 @@ def test_public_booking_rejects_past_date(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     response = client.post(f"/public/{slug}/appointments", json={
         "full_name": "Cliente Publico",
@@ -239,6 +265,7 @@ def test_public_booking_rejects_past_date(client):
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2020-01-01T09:00:00",
     })
 
@@ -257,6 +284,7 @@ def test_public_booking_is_rate_limited(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     # past date -> each request is rejected by the handler (409),
     # but every request still counts against the rate limit
@@ -267,6 +295,7 @@ def test_public_booking_is_rate_limited(client):
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2020-01-01T09:00:00",
     }
 
@@ -292,6 +321,7 @@ def test_public_booking_reuses_existing_client_by_cpf(client):
 
     service_id = service_response.json()["id"]
     slug = user["booking_slug"]
+    professional_id = _public_professional_id(client, slug)
 
     booking_payload = {
         "full_name": "Cliente Publico",
@@ -300,6 +330,7 @@ def test_public_booking_reuses_existing_client_by_cpf(client):
         "phone": "11977777777",
         "email": "clientepublico@test.com",
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2026-06-15T09:00:00",
     }
 

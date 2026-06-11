@@ -6,11 +6,13 @@ from app.database.session import SessionLocal
 from app.models.user import User
 from app.models.client import Client
 from app.models.service import Service
+from app.models.professional import Professional
 from app.models.appointment import Appointment
 
 from app.schemas.public import (
     BusinessInfo,
     PublicServiceResponse,
+    PublicProfessionalResponse,
     PublicBookingCreate,
     PublicBookingResponse,
 )
@@ -73,6 +75,21 @@ def list_public_services(
     ).all()
 
 
+# PROFESSIONALS
+@router.get("/professionals", response_model=list[PublicProfessionalResponse])
+def list_public_professionals(
+    slug: str,
+    db: Session = Depends(get_db)
+):
+
+    business = get_business_or_404(slug, db)
+
+    return db.query(Professional).filter(
+        Professional.owner_id == business.id,
+        Professional.is_active == True,
+    ).all()
+
+
 # AVAILABLE SLOTS
 @router.get("/available-slots")
 @limiter.limit("60/minute")
@@ -81,6 +98,7 @@ def get_public_available_slots(
     slug: str,
     date: str,
     service_id: int,
+    professional_id: int,
     db: Session = Depends(get_db)
 ):
 
@@ -97,7 +115,19 @@ def get_public_available_slots(
             detail="Service not found"
         )
 
-    return compute_available_slots(db, business.id, service, date)
+    professional = db.query(Professional).filter(
+        Professional.id == professional_id,
+        Professional.owner_id == business.id,
+        Professional.is_active == True,
+    ).first()
+
+    if not professional:
+        raise HTTPException(
+            status_code=404,
+            detail="Professional not found"
+        )
+
+    return compute_available_slots(db, business.id, professional_id, service, date)
 
 
 # CREATE BOOKING
@@ -124,9 +154,22 @@ def create_public_booking(
             detail="Service not found"
         )
 
+    professional = db.query(Professional).filter(
+        Professional.id == booking.professional_id,
+        Professional.owner_id == business.id,
+        Professional.is_active == True,
+    ).first()
+
+    if not professional:
+        raise HTTPException(
+            status_code=404,
+            detail="Professional not found"
+        )
+
     available_slots = compute_available_slots(
         db,
         business.id,
+        professional.id,
         service,
         booking.scheduled_at.strftime("%Y-%m-%d")
     )
@@ -158,6 +201,7 @@ def create_public_booking(
     new_appointment = Appointment(
         client_id=client.id,
         service_id=service.id,
+        professional_id=professional.id,
         scheduled_at=booking.scheduled_at,
         owner_id=business.id,
     )

@@ -16,32 +16,36 @@ def _create_client_and_service(api, headers):
     return client_response.json()["id"], service_response.json()["id"]
 
 
-def test_create_appointment(client, auth_headers):
+def test_create_appointment(client, auth_headers, first_professional_id):
     headers = auth_headers()
+    professional_id = first_professional_id(headers)
     client_id, service_id = _create_client_and_service(client, headers)
 
     response = client.post("/appointments/", json={
         "client_id": client_id,
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2026-06-15T09:00:00",
     }, headers=headers)
 
     assert response.status_code == 200
 
 
-def test_overlapping_appointment_is_not_offered_as_available_slot(client, auth_headers):
+def test_overlapping_appointment_is_not_offered_as_available_slot(client, auth_headers, first_professional_id):
     headers = auth_headers()
+    professional_id = first_professional_id(headers)
     client_id, service_id = _create_client_and_service(client, headers)
 
     client.post("/appointments/", json={
         "client_id": client_id,
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2026-06-15T09:00:00",
     }, headers=headers)
 
     response = client.get(
         "/appointments/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id},
+        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
         headers=headers,
     )
 
@@ -53,43 +57,66 @@ def test_overlapping_appointment_is_not_offered_as_available_slot(client, auth_h
     assert "10:00" in slots
 
 
-def test_cannot_create_appointment_with_other_users_client(client, auth_headers):
+def test_cannot_create_appointment_with_other_users_client(client, auth_headers, first_professional_id):
     headers_a = auth_headers(email="a@test.com", cpf="11144477735")
     headers_b = auth_headers(email="b@test.com", cpf="16899555468")
 
+    professional_b = first_professional_id(headers_b)
     client_id, service_id = _create_client_and_service(client, headers_a)
 
     response = client.post("/appointments/", json={
         "client_id": client_id,
         "service_id": service_id,
+        "professional_id": professional_b,
         "scheduled_at": "2026-06-15T09:00:00",
     }, headers=headers_b)
 
     assert response.status_code == 404
 
 
-def test_cannot_create_appointment_in_the_past(client, auth_headers):
+def test_cannot_create_appointment_in_the_past(client, auth_headers, first_professional_id):
     headers = auth_headers()
+    professional_id = first_professional_id(headers)
     client_id, service_id = _create_client_and_service(client, headers)
 
     response = client.post("/appointments/", json={
         "client_id": client_id,
         "service_id": service_id,
+        "professional_id": professional_id,
         "scheduled_at": "2020-01-01T09:00:00",
     }, headers=headers)
 
     assert response.status_code == 400
 
 
-def test_appointments_are_isolated_per_user(client, auth_headers):
+def test_cannot_create_appointment_with_other_users_professional(client, auth_headers, first_professional_id):
     headers_a = auth_headers(email="a@test.com", cpf="11144477735")
     headers_b = auth_headers(email="b@test.com", cpf="16899555468")
 
+    professional_b = first_professional_id(headers_b)
+    client_id, service_id = _create_client_and_service(client, headers_a)
+
+    response = client.post("/appointments/", json={
+        "client_id": client_id,
+        "service_id": service_id,
+        "professional_id": professional_b,
+        "scheduled_at": "2026-06-15T09:00:00",
+    }, headers=headers_a)
+
+    assert response.status_code == 404
+
+
+def test_appointments_are_isolated_per_user(client, auth_headers, first_professional_id):
+    headers_a = auth_headers(email="a@test.com", cpf="11144477735")
+    headers_b = auth_headers(email="b@test.com", cpf="16899555468")
+
+    professional_a = first_professional_id(headers_a)
     client_id, service_id = _create_client_and_service(client, headers_a)
 
     client.post("/appointments/", json={
         "client_id": client_id,
         "service_id": service_id,
+        "professional_id": professional_a,
         "scheduled_at": "2026-06-15T09:00:00",
     }, headers=headers_a)
 

@@ -8,7 +8,7 @@ from app.models.service import Service
 from app.core.working_hours import get_or_create_working_hours
 
 
-def compute_available_slots(db: Session, owner_id: int, service: Service, date: str) -> list[str]:
+def compute_available_slots(db: Session, owner_id: int, professional_id: int, service: Service, date: str) -> list[str]:
     duration = service.duration_minutes or 60
 
     requested_date = datetime.strptime(date, "%Y-%m-%d")
@@ -21,7 +21,7 @@ def compute_available_slots(db: Session, owner_id: int, service: Service, date: 
 
     working_hours_by_weekday = {
         wh.weekday: wh
-        for wh in get_or_create_working_hours(db, owner_id)
+        for wh in get_or_create_working_hours(db, professional_id)
     }
 
     working_hours = working_hours_by_weekday[requested_date.weekday()]
@@ -33,7 +33,7 @@ def compute_available_slots(db: Session, owner_id: int, service: Service, date: 
     day_end = datetime.combine(requested_date.date(), working_hours.end_time)
 
     appointments = db.query(Appointment).filter(
-        Appointment.owner_id == owner_id
+        Appointment.professional_id == professional_id
     ).all()
 
     services_by_id = {

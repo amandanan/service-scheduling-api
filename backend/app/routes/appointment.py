@@ -13,6 +13,7 @@ from app.database.session import SessionLocal
 from app.models.appointment import Appointment
 from app.models.client import Client
 from app.models.service import Service
+from app.models.professional import Professional
 from app.models.user import User
 
 from app.schemas.appointment import (
@@ -85,11 +86,24 @@ def create_appointment(
             detail="Service not found"
         )
 
+    professional = db.query(Professional).filter(
+        Professional.id == appointment.professional_id,
+        Professional.owner_id == current_user.id
+    ).first()
+
+    if not professional:
+        raise HTTPException(
+            status_code=404,
+            detail="Professional not found"
+        )
+
     new_appointment = Appointment(
 
         client_id=appointment.client_id,
 
         service_id=appointment.service_id,
+
+        professional_id=appointment.professional_id,
 
         scheduled_at=appointment.scheduled_at,
 
@@ -131,6 +145,7 @@ def list_appointments(
 def get_available_slots(
     date: str,
     service_id: int,
+    professional_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(
         get_current_user
@@ -149,7 +164,19 @@ def get_available_slots(
             detail="Service not found"
         )
 
-    return compute_available_slots(db, current_user.id, service, date)
+    professional = db.query(Professional).filter(
+        Professional.id == professional_id,
+        Professional.owner_id == current_user.id
+    ).first()
+
+    if not professional:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Professional not found"
+        )
+
+    return compute_available_slots(db, current_user.id, professional_id, service, date)
 
 
 # GET BY ID
@@ -272,12 +299,27 @@ def update_appointment(
             detail="Service not found"
         )
 
+    professional = db.query(Professional).filter(
+        Professional.id == appointment_data.professional_id,
+        Professional.owner_id == current_user.id
+    ).first()
+
+    if not professional:
+        raise HTTPException(
+            status_code=404,
+            detail="Professional not found"
+        )
+
     appointment.client_id = (
         appointment_data.client_id
     )
 
     appointment.service_id = (
         appointment_data.service_id
+    )
+
+    appointment.professional_id = (
+        appointment_data.professional_id
     )
 
     appointment.scheduled_at = (

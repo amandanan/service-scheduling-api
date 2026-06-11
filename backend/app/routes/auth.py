@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.database.session import SessionLocal
 from app.models.user import User
+from app.models.professional import Professional
 from app.schemas.user import UserCreate, UserResponse, Token
 from app.core.security import create_access_token
 from app.core.slugs import generate_unique_booking_slug
@@ -69,6 +70,17 @@ def register(
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    # every business starts with a default professional so the
+    # scheduling flow works out of the box
+    default_professional = Professional(
+        owner_id=db_user.id,
+        name=user.full_name,
+        is_active=True,
+    )
+
+    db.add(default_professional)
+    db.commit()
 
     return db_user
 

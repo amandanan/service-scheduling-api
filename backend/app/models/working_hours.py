@@ -14,14 +14,14 @@ class WorkingHours(Base):
     __tablename__ = "working_hours"
 
     __table_args__ = (
-        UniqueConstraint("owner_id", "weekday", name="uq_working_hours_owner_weekday"),
+        UniqueConstraint("professional_id", "weekday", name="uq_working_hours_professional_weekday"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
 
-    owner_id = Column(
+    professional_id = Column(
         Integer,
-        ForeignKey("users.id"),
+        ForeignKey("professionals.id"),
         nullable=False
     )
 

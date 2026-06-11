@@ -7,6 +7,7 @@ import {
 import {
   FaChartPie,
   FaUsers,
+  FaUserTie,
   FaTools,
   FaCalendarAlt,
   FaClock,
@@ -69,6 +70,18 @@ export default function Navbar() {
         >
           <FaTools />
           Serviços
+        </Link>
+
+        <Link
+          to="/professionals"
+          className={
+            location.pathname === "/professionals"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaUserTie />
+          Profissionais
         </Link>
 
         <Link

@@ -20,6 +20,13 @@ class PublicServiceResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class PublicProfessionalResponse(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class PublicBookingCreate(BaseModel):
     full_name: str
     birth_date: date
@@ -27,6 +34,7 @@ class PublicBookingCreate(BaseModel):
     phone: str
     email: EmailStr
     service_id: int
+    professional_id: int
     scheduled_at: datetime
 
     @field_validator("cpf")
@@ -38,6 +46,7 @@ class PublicBookingCreate(BaseModel):
 class PublicBookingResponse(BaseModel):
     id: int
     service_id: int
+    professional_id: int
     scheduled_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
