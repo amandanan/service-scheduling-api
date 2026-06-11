@@ -7,6 +7,8 @@ from app.database.session import SessionLocal
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse, Token
 from app.core.security import create_access_token
+from app.core.slugs import generate_unique_booking_slug
+from app.core.dependencies import get_current_user
 
 
 pwd_context = CryptContext(
@@ -60,7 +62,8 @@ def register(
         cpf=user.cpf,
         phone=user.phone,
         email=user.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        booking_slug=generate_unique_booking_slug(db, user.full_name)
     )
 
     db.add(db_user)
@@ -101,3 +104,12 @@ def login(
         "access_token": token,
         "token_type": "bearer"
     }
+
+
+# CURRENT USER
+@router.get("/me", response_model=UserResponse)
+def get_me(
+    current_user: User = Depends(get_current_user)
+):
+
+    return current_user

@@ -18,6 +18,7 @@ from app.routes import (
     service,
     appointment,
     working_hours,
+    public,
 )
 
 app = FastAPI(
@@ -43,3 +44,4 @@ app.include_router(client.router)
 app.include_router(service.router)
 app.include_router(appointment.router)
 app.include_router(working_hours.router)
+app.include_router(public.router)

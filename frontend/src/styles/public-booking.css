@@ -1,0 +1,285 @@
+.public-booking-container {
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 40px 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #1e0b36 0%,
+      #2b1055 45%,
+      #14081f 100%
+    );
+
+  position: relative;
+  overflow: hidden;
+}
+
+.public-booking-container::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  background: rgba(124, 58, 237, 0.22);
+
+  border-radius: 50%;
+
+  filter: blur(100px);
+
+  bottom: -140px;
+  right: -120px;
+}
+
+.public-booking-card {
+  width: 100%;
+  max-width: 560px;
+
+  padding: 45px 38px;
+
+  border-radius: 28px;
+
+  background: rgba(255,255,255,0.08);
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 8px 30px rgba(0,0,0,0.35);
+
+  position: relative;
+  z-index: 2;
+}
+
+.public-booking-title {
+  font-size: 32px;
+  font-weight: 700;
+
+  color: white;
+
+  text-align: center;
+
+  margin-bottom: 8px;
+}
+
+.public-booking-subtitle {
+  color: rgba(255,255,255,0.72);
+
+  text-align: center;
+
+  margin-bottom: 30px;
+
+  font-size: 15px;
+}
+
+.public-booking-step {
+  margin-bottom: 24px;
+}
+
+.public-booking-step label {
+  display: block;
+
+  color: rgba(255,255,255,0.85);
+
+  font-weight: 600;
+
+  margin-bottom: 10px;
+}
+
+.public-booking-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.public-booking-form input,
+.public-booking-form select,
+.public-booking-form .masked-input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  outline: none;
+
+  transition: 0.25s ease;
+
+  backdrop-filter: blur(10px);
+}
+
+.public-booking-form input::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+.public-booking-form input:focus,
+.public-booking-form select:focus {
+  border-color: #8b5cf6;
+
+  box-shadow:
+    0 0 0 4px rgba(139,92,246,0.18);
+}
+
+.public-booking-form input[type="date"],
+.public-booking-form input[type="time"] {
+  color-scheme: dark;
+}
+
+.service-options {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.service-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(255,255,255,0.06);
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.service-option:hover {
+  border-color: rgba(139,92,246,0.6);
+}
+
+.service-option.active {
+  border-color: #8b5cf6;
+
+  background: rgba(139,92,246,0.18);
+}
+
+.service-option-price {
+  color: #c4b5fd;
+
+  font-weight: 600;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+
+  gap: 10px;
+}
+
+.slot-btn {
+  padding: 10px;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(255,255,255,0.06);
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.slot-btn:hover {
+  border-color: rgba(139,92,246,0.6);
+}
+
+.slot-btn.active {
+  background: #8b5cf6;
+
+  border-color: #8b5cf6;
+}
+
+.public-booking-empty {
+  color: rgba(255,255,255,0.6);
+
+  text-align: center;
+
+  padding: 30px 0;
+}
+
+.public-booking-btn {
+  background: white;
+
+  color: #5b21b6;
+
+  border: none;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+
+  margin-top: 8px;
+}
+
+.public-booking-btn:hover {
+  transform: translateY(-3px);
+
+  background: #f3f4f6;
+}
+
+.public-booking-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+.public-booking-success {
+  text-align: center;
+
+  color: white;
+}
+
+.public-booking-success h2 {
+  margin-bottom: 12px;
+}
+
+.public-booking-success p {
+  color: rgba(255,255,255,0.75);
+}
+
+@media (max-width: 768px) {
+
+  .public-booking-card {
+    padding: 32px 22px;
+  }
+
+  .public-booking-title {
+    font-size: 26px;
+  }
+}

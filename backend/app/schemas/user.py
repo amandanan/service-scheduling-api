@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
     cpf: str
     phone: str
     email: EmailStr
+    booking_slug: str
 
     class Config:
         from_attributes = True

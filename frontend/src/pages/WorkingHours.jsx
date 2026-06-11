@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import {
   getWorkingHours,
   updateWorkingHours,
+  getMe,
 } from "../services/api";
 
 import Navbar from "../components/Navbar";
 
 import { toast } from "react-toastify";
 
-import { FaClock, FaSave } from "react-icons/fa";
+import { FaClock, FaSave, FaLink, FaCopy } from "react-icons/fa";
 
 import "../styles/services.css";
 
@@ -26,6 +27,8 @@ const WEEKDAY_LABELS = [
 export default function WorkingHours() {
 
   const [days, setDays] = useState([]);
+
+  const [bookingLink, setBookingLink] = useState("");
 
 
   async function loadWorkingHours() {
@@ -51,9 +54,44 @@ export default function WorkingHours() {
   }
 
 
+  async function loadBookingLink() {
+
+    try {
+
+      const me = await getMe();
+
+      setBookingLink(
+        `${window.location.origin}/agendar/${me.booking_slug}`
+      );
+
+    } catch (error) {
+
+      console.error(error);
+    }
+  }
+
+
   useEffect(() => {
     loadWorkingHours();
+    loadBookingLink();
   }, []);
+
+
+  async function handleCopyLink() {
+
+    try {
+
+      await navigator.clipboard.writeText(bookingLink);
+
+      toast.success("Link copiado!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Não foi possível copiar o link");
+    }
+  }
 
 
   function handleChange(weekday, field, value) {
@@ -119,6 +157,42 @@ export default function WorkingHours() {
             Horário de Funcionamento
 
           </h1>
+
+          {bookingLink && (
+
+            <div className="services-form" style={{ marginBottom: "30px" }}>
+
+              <input
+                type="text"
+                readOnly
+                value={bookingLink}
+                onFocus={(e) => e.target.select()}
+                style={{ flex: 1, minWidth: "260px" }}
+              />
+
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={handleCopyLink}
+              >
+                <FaCopy />
+                Copiar link
+              </button>
+
+              <a
+                href={bookingLink}
+                target="_blank"
+                rel="noreferrer"
+                className="secondary-btn"
+                style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}
+              >
+                <FaLink />
+                Abrir página de agendamento
+              </a>
+
+            </div>
+
+          )}
 
 
           <form onSubmit={handleSubmit}>

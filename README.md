@@ -12,7 +12,9 @@ The application allows users to:
 
 * Register and authenticate securely
 * Manage clients and services
+* Configure weekly working hours
 * Schedule appointments through an interactive calendar
+* Share a public booking page with their own clients
 * Search clients by name or CPF
 * Search services by code or name
 * Prevent schedule conflicts automatically
@@ -96,6 +98,22 @@ Examples:
 * Dynamic appointment duration
 * Visual schedule organization
 * Delete appointments directly from calendar
+
+---
+
+## 🌐 Public Booking Page
+
+Each user gets a unique, shareable booking link based on their business name (e.g. `/agendar/salao-da-amanda`).
+
+On this page, clients can, without logging in:
+
+* See the business name
+* Choose a service
+* Pick a date and an available time slot
+* Fill in their personal details
+* Confirm the appointment
+
+The link is available on the **Working Hours** page and can be copied or opened directly.
 
 ---
 
@@ -319,7 +337,6 @@ service-scheduling-app/
 * Email reminders
 * WhatsApp notifications
 * User roles
-* Working hours configuration
 * Holiday blocking
 * Recurring appointments
 * PostgreSQL support for production

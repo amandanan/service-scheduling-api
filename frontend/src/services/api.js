@@ -85,6 +85,16 @@ export async function login(data) {
 }
 
 
+export async function getMe() {
+
+  const response = await api.get(
+    "/auth/me"
+  );
+
+  return response.data;
+}
+
+
 // CLIENTS
 
 export async function getClients() {
@@ -177,6 +187,50 @@ export async function updateWorkingHours(days) {
   const response = await api.put(
     "/working-hours/",
     { days }
+  );
+
+  return response.data;
+}
+
+
+// PUBLIC BOOKING
+
+export async function getPublicBusiness(slug) {
+
+  const response = await api.get(
+    `/public/${slug}/`
+  );
+
+  return response.data;
+}
+
+
+export async function getPublicServices(slug) {
+
+  const response = await api.get(
+    `/public/${slug}/services`
+  );
+
+  return response.data;
+}
+
+
+export async function getPublicAvailableSlots(slug, date, serviceId) {
+
+  const response = await api.get(
+    `/public/${slug}/available-slots`,
+    { params: { date, service_id: serviceId } }
+  );
+
+  return response.data;
+}
+
+
+export async function createPublicBooking(slug, data) {
+
+  const response = await api.post(
+    `/public/${slug}/appointments`,
+    data
   );
 
   return response.data;
