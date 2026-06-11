@@ -287,4 +287,48 @@ export async function createPublicBooking(slug, data) {
 }
 
 
+// MANAGE BOOKING (by public token, no auth)
+
+export async function getManagedAppointment(token) {
+
+  const response = await api.get(
+    `/manage/${token}`
+  );
+
+  return response.data;
+}
+
+
+export async function getManageAvailableSlots(token, date) {
+
+  const response = await api.get(
+    `/manage/${token}/available-slots`,
+    { params: { date } }
+  );
+
+  return response.data;
+}
+
+
+export async function cancelManagedAppointment(token) {
+
+  const response = await api.post(
+    `/manage/${token}/cancel`
+  );
+
+  return response.data;
+}
+
+
+export async function rescheduleManagedAppointment(token, scheduledAt) {
+
+  const response = await api.post(
+    `/manage/${token}/reschedule`,
+    { scheduled_at: scheduledAt }
+  );
+
+  return response.data;
+}
+
+
 export default api;

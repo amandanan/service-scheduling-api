@@ -33,7 +33,8 @@ def compute_available_slots(db: Session, owner_id: int, professional_id: int, se
     day_end = datetime.combine(requested_date.date(), working_hours.end_time)
 
     appointments = db.query(Appointment).filter(
-        Appointment.professional_id == professional_id
+        Appointment.professional_id == professional_id,
+        Appointment.status != "cancelled",
     ).all()
 
     services_by_id = {

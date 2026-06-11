@@ -48,5 +48,19 @@ class PublicBookingResponse(BaseModel):
     service_id: int
     professional_id: int
     scheduled_at: datetime
+    public_token: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ManageAppointmentResponse(BaseModel):
+    public_token: str
+    business_name: str
+    service_name: str
+    professional_name: str
+    scheduled_at: datetime
+    status: str
+
+
+class RescheduleRequest(BaseModel):
+    scheduled_at: datetime

@@ -38,6 +38,7 @@ export default function PublicBooking() {
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [manageToken, setManageToken] = useState("");
 
 
   useEffect(() => {
@@ -140,7 +141,7 @@ export default function PublicBooking() {
 
     try {
 
-      await createPublicBooking(slug, {
+      const booking = await createPublicBooking(slug, {
         full_name: fullName,
         birth_date: birthDate,
         cpf,
@@ -151,6 +152,7 @@ export default function PublicBooking() {
         scheduled_at: `${selectedDate}T${selectedSlot}:00`,
       });
 
+      setManageToken(booking.public_token);
       setSuccess(true);
 
     } catch (error) {
@@ -209,6 +211,15 @@ export default function PublicBooking() {
               {selectedDate.split("-").reverse().join("/")} às {selectedSlot}
             </p>
             <p>Você receberá a confirmação em breve.</p>
+            <p>
+              Para cancelar ou remarcar, acesse:{" "}
+              <a
+                href={`/agendamento/${manageToken}`}
+                style={{ color: "#c4b5fd" }}
+              >
+                {window.location.origin}/agendamento/{manageToken}
+              </a>
+            </p>
           </div>
         </div>
       </div>

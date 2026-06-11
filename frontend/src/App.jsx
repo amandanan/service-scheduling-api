@@ -10,6 +10,7 @@ import Professionals from "./pages/Professionals";
 import Appointments from "./pages/Appointments";
 import WorkingHours from "./pages/WorkingHours";
 import PublicBooking from "./pages/PublicBooking";
+import ManageAppointment from "./pages/ManageAppointment";
 
 import {
   BrowserRouter,
@@ -33,6 +34,8 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route path="/agendar/:slug" element={<PublicBooking />} />
+
+        <Route path="/agendamento/:token" element={<ManageAppointment />} />
 
         <Route
           path="/dashboard"

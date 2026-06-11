@@ -134,7 +134,8 @@ def list_appointments(
     appointments = db.query(
         Appointment
     ).filter(
-        Appointment.owner_id == current_user.id
+        Appointment.owner_id == current_user.id,
+        Appointment.status != "cancelled",
     ).all()
 
     return appointments

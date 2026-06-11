@@ -1,6 +1,9 @@
+from uuid import uuid4
+
 from sqlalchemy import (
     Column,
     Integer,
+    String,
     ForeignKey,
     DateTime,
 )
@@ -43,6 +46,22 @@ class Appointment(Base):
     )
 
     scheduled_at = Column(DateTime)
+
+    # public token lets a client manage their own appointment without login
+    public_token = Column(
+        String,
+        unique=True,
+        index=True,
+        nullable=False,
+        default=lambda: uuid4().hex,
+    )
+
+    # "scheduled" or "cancelled"
+    status = Column(
+        String,
+        nullable=False,
+        default="scheduled",
+    )
 
 
     client = relationship(
