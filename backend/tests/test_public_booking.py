@@ -171,6 +171,54 @@ def test_public_booking_rejects_unavailable_slot(client):
     assert second.status_code == 409
 
 
+def test_public_available_slots_excludes_past_date(client):
+    user = _register_business(client)
+    headers = _login(client)
+
+    service_response = client.post("/services/", json={
+        "name": "Corte",
+        "price": 50.0,
+        "duration_minutes": 60,
+    }, headers=headers)
+
+    service_id = service_response.json()["id"]
+    slug = user["booking_slug"]
+
+    response = client.get(
+        f"/public/{slug}/available-slots",
+        params={"date": "2020-01-01", "service_id": service_id},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_public_booking_rejects_past_date(client):
+    user = _register_business(client)
+    headers = _login(client)
+
+    service_response = client.post("/services/", json={
+        "name": "Corte",
+        "price": 50.0,
+        "duration_minutes": 60,
+    }, headers=headers)
+
+    service_id = service_response.json()["id"]
+    slug = user["booking_slug"]
+
+    response = client.post(f"/public/{slug}/appointments", json={
+        "full_name": "Cliente Publico",
+        "birth_date": "1995-05-05",
+        "cpf": "33333333333",
+        "phone": "11977777777",
+        "email": "clientepublico@test.com",
+        "service_id": service_id,
+        "scheduled_at": "2020-01-01T09:00:00",
+    })
+
+    assert response.status_code == 409
+
+
 def test_public_booking_reuses_existing_client_by_cpf(client):
     user = _register_business(client)
     headers = _login(client)

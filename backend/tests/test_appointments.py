@@ -68,6 +68,19 @@ def test_cannot_create_appointment_with_other_users_client(client, auth_headers)
     assert response.status_code == 404
 
 
+def test_cannot_create_appointment_in_the_past(client, auth_headers):
+    headers = auth_headers()
+    client_id, service_id = _create_client_and_service(client, headers)
+
+    response = client.post("/appointments/", json={
+        "client_id": client_id,
+        "service_id": service_id,
+        "scheduled_at": "2020-01-01T09:00:00",
+    }, headers=headers)
+
+    assert response.status_code == 400
+
+
 def test_appointments_are_isolated_per_user(client, auth_headers):
     headers_a = auth_headers(email="a@test.com", cpf="11111111111")
     headers_b = auth_headers(email="b@test.com", cpf="33333333333")

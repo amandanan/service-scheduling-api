@@ -13,6 +13,12 @@ def compute_available_slots(db: Session, owner_id: int, service: Service, date: 
 
     requested_date = datetime.strptime(date, "%Y-%m-%d")
 
+    now = datetime.now()
+
+    # don't offer slots for days that already passed
+    if requested_date.date() < now.date():
+        return []
+
     working_hours_by_weekday = {
         wh.weekday: wh
         for wh in get_or_create_working_hours(db, owner_id)
@@ -39,6 +45,11 @@ def compute_available_slots(db: Session, owner_id: int, service: Service, date: 
     current = day_start
 
     while current < day_end:
+
+        # skip slots that already started (relevant when booking for today)
+        if current <= now:
+            current += timedelta(minutes=30)
+            continue
 
         current_end = current + timedelta(minutes=duration)
 

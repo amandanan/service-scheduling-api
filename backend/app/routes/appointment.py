@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -54,6 +56,12 @@ def create_appointment(
         get_current_user
     )
 ):
+
+    if appointment.scheduled_at <= datetime.now():
+        raise HTTPException(
+            status_code=400,
+            detail="Não é possível agendar em uma data passada"
+        )
 
     client = db.query(Client).filter(
         Client.id == appointment.client_id,
@@ -221,6 +229,12 @@ def update_appointment(
         get_current_user
     )
 ):
+
+    if appointment_data.scheduled_at <= datetime.now():
+        raise HTTPException(
+            status_code=400,
+            detail="Não é possível agendar em uma data passada"
+        )
 
     appointment = db.query(
         Appointment
