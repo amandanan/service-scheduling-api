@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.database.session import SessionLocal
@@ -16,6 +16,7 @@ from app.schemas.public import (
 )
 
 from app.core.scheduling import compute_available_slots
+from app.core.rate_limit import limiter
 
 router = APIRouter(
     prefix="/public/{slug}",
@@ -74,7 +75,9 @@ def list_public_services(
 
 # AVAILABLE SLOTS
 @router.get("/available-slots")
+@limiter.limit("60/minute")
 def get_public_available_slots(
+    request: Request,
     slug: str,
     date: str,
     service_id: int,
@@ -99,7 +102,10 @@ def get_public_available_slots(
 
 # CREATE BOOKING
 @router.post("/appointments", response_model=PublicBookingResponse)
+@limiter.limit("5/minute")
+@limiter.limit("30/hour")
 def create_public_booking(
+    request: Request,
     slug: str,
     booking: PublicBookingCreate,
     db: Session = Depends(get_db)

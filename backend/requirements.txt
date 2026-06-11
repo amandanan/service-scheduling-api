@@ -7,6 +7,7 @@ python-jose[cryptography]
 passlib[argon2]
 python-multipart
 alembic
+slowapi
 
 # dev / tests
 pytest

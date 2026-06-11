@@ -7,12 +7,15 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.database.session import Base, engine
+from app.core.rate_limit import limiter
 from app.main import app
 
 
 @pytest.fixture(autouse=True)
 def _fresh_database():
     Base.metadata.create_all(bind=engine)
+    # reset rate-limit counters so they don't leak between tests
+    limiter.reset()
     yield
     Base.metadata.drop_all(bind=engine)
 

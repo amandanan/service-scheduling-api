@@ -219,6 +219,41 @@ def test_public_booking_rejects_past_date(client):
     assert response.status_code == 409
 
 
+def test_public_booking_is_rate_limited(client):
+    user = _register_business(client)
+    headers = _login(client)
+
+    service_response = client.post("/services/", json={
+        "name": "Corte",
+        "price": 50.0,
+        "duration_minutes": 60,
+    }, headers=headers)
+
+    service_id = service_response.json()["id"]
+    slug = user["booking_slug"]
+
+    # past date -> each request is rejected by the handler (409),
+    # but every request still counts against the rate limit
+    payload = {
+        "full_name": "Cliente Publico",
+        "birth_date": "1995-05-05",
+        "cpf": "33333333333",
+        "phone": "11977777777",
+        "email": "clientepublico@test.com",
+        "service_id": service_id,
+        "scheduled_at": "2020-01-01T09:00:00",
+    }
+
+    statuses = [
+        client.post(f"/public/{slug}/appointments", json=payload).status_code
+        for _ in range(6)
+    ]
+
+    # the limit is 5/minute, so the 6th request is throttled
+    assert statuses[-1] == 429
+    assert statuses.count(429) == 1
+
+
 def test_public_booking_reuses_existing_client_by_cpf(client):
     user = _register_business(client)
     headers = _login(client)

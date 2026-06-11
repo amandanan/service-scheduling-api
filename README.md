@@ -115,6 +115,8 @@ On this page, clients can, without logging in:
 
 The link is available on the **Working Hours** page and can be copied or opened directly.
 
+The public endpoints are rate limited per IP (via `slowapi`) to protect against spam and abuse, since they require no authentication.
+
 ---
 
 ## 🚫 Schedule Conflict Blocking
