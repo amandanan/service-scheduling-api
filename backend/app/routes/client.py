@@ -41,12 +41,13 @@ def create_client(
     current_user: User = Depends(get_current_user)
 ):
 
+    duplicate_filters = [Client.email == client.email]
+    if client.cpf:
+        duplicate_filters.append(Client.cpf == client.cpf)
+
     existing = db.query(Client).filter(
         Client.owner_id == current_user.id,
-        or_(
-            Client.cpf == client.cpf,
-            Client.email == client.email,
-        ),
+        or_(*duplicate_filters),
     ).first()
 
     if existing:
@@ -157,13 +158,14 @@ def update_client(
             detail="Client not found"
         )
 
+    duplicate_filters = [Client.email == client_data.email]
+    if client_data.cpf:
+        duplicate_filters.append(Client.cpf == client_data.cpf)
+
     duplicate = db.query(Client).filter(
         Client.owner_id == current_user.id,
         Client.id != client_id,
-        or_(
-            Client.cpf == client_data.cpf,
-            Client.email == client_data.email,
-        ),
+        or_(*duplicate_filters),
     ).first()
 
     if duplicate:

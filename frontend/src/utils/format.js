@@ -2,7 +2,7 @@ export function formatCpf(value) {
   const digits = String(value || "").replace(/\D/g, "");
 
   if (digits.length !== 11) {
-    return value;
+    return value || "—";
   }
 
   return digits.replace(

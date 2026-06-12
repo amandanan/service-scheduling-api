@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getDashboardStats } from "../services/api";
+import { getDashboardStats, getSettings } from "../services/api";
 
 import Navbar from "../components/Navbar";
 
@@ -34,6 +34,7 @@ function brl(value) {
 export default function Dashboard() {
 
   const [stats, setStats] = useState(null);
+  const [term, setTerm] = useState({ singular: "Cliente", plural: "Clientes" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -44,8 +45,16 @@ export default function Dashboard() {
 
     try {
 
-      const data = await getDashboardStats();
+      const [data, settings] = await Promise.all([
+        getDashboardStats(),
+        getSettings(),
+      ]);
+
       setStats(data);
+      setTerm({
+        singular: settings.client_term_singular,
+        plural: settings.client_term_plural,
+      });
 
     } catch (err) {
 
@@ -227,23 +236,25 @@ export default function Dashboard() {
 
         <div className="dashboard-grid">
 
-          {/* PACIENTES */}
+          {/* CLIENTES */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
-                <p className="dashboard-card-title">Pacientes</p>
+                <p className="dashboard-card-title">{term.plural}</p>
                 <h2 className="dashboard-card-value">{kpis.total_clients}</h2>
               </div>
               <div className="dashboard-icon"><FaUsers /></div>
             </div>
-            <div className="dashboard-card-footer">Total de pacientes cadastrados</div>
+            <div className="dashboard-card-footer">
+              Total de {term.plural.toLowerCase()} cadastrados
+            </div>
           </div>
 
-          {/* NOVOS PACIENTES */}
+          {/* NOVOS CLIENTES */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
-                <p className="dashboard-card-title">Novos Pacientes</p>
+                <p className="dashboard-card-title">Novos {term.plural}</p>
                 <h2 className="dashboard-card-value">{kpis.new_clients_month}</h2>
               </div>
               <div className="dashboard-icon"><FaUsers /></div>
@@ -393,11 +404,11 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* TOP PACIENTES */}
+          {/* TOP CLIENTES */}
           <div className="dashboard-chart-card">
-            <h3 className="dashboard-chart-title">Top Pacientes</h3>
+            <h3 className="dashboard-chart-title">Top {term.plural}</h3>
             {stats.top_clients.length === 0 ? (
-              <div className="empty-state">Nenhum paciente</div>
+              <div className="empty-state">Nenhum {term.singular.toLowerCase()}</div>
             ) : (
               stats.top_clients.map((patient, index) => (
                 <div key={patient.id} className="appointment-item">
@@ -410,11 +421,11 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* PACIENTES SEM RETORNO */}
+          {/* CLIENTES SEM RETORNO */}
           <div className="dashboard-chart-card">
-            <h3 className="dashboard-chart-title">Pacientes Sem Retorno</h3>
+            <h3 className="dashboard-chart-title">{term.plural} Sem Retorno</h3>
             {stats.inactive_clients.length === 0 ? (
-              <div className="empty-state">Nenhum paciente sem retorno</div>
+              <div className="empty-state">Nenhum {term.singular.toLowerCase()} sem retorno</div>
             ) : (
               stats.inactive_clients.map((patient) => (
                 <div key={patient.id} className="appointment-item">

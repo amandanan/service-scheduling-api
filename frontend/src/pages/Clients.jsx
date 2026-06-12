@@ -207,7 +207,7 @@ export default function Clients() {
               onAccept={(value) =>
                 setCpf(value)
               }
-              placeholder="CPF"
+              placeholder="CPF (opcional)"
               className="masked-input"
             />
 

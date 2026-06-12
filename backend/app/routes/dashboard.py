@@ -22,10 +22,6 @@ router = APIRouter(
 )
 
 
-# Defaults — moved to business settings in a later iteration.
-MONTHLY_GOAL = 10000.0
-DAILY_CAPACITY = 20
-
 WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
 
 MONTHS = [
@@ -77,6 +73,9 @@ def get_dashboard_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
+    monthly_goal = current_user.monthly_goal
+    daily_capacity = current_user.daily_capacity
 
     now = datetime.now()
     today = now.date()
@@ -168,7 +167,7 @@ def get_dashboard_stats(
         else 0.0
     )
 
-    occupancy = round((today_appointments / DAILY_CAPACITY) * 100)
+    occupancy = round((today_appointments / daily_capacity) * 100)
     occupancy_rate = min(occupancy, 100)
 
     if previous_month_revenue > 0:
@@ -180,7 +179,7 @@ def get_dashboard_stats(
     else:
         monthly_growth = 0.0
 
-    goal_progress = min((month_revenue / MONTHLY_GOAL) * 100, 100) if MONTHLY_GOAL else 0.0
+    goal_progress = min((month_revenue / monthly_goal) * 100, 100) if monthly_goal else 0.0
 
     # ---- New clients this month ----
     new_clients_month = sum(
@@ -335,7 +334,7 @@ def get_dashboard_stats(
     # ---- Alerts ----
     alerts = []
 
-    goal_percent = (month_revenue / MONTHLY_GOAL) * 100 if MONTHLY_GOAL else 0
+    goal_percent = (month_revenue / monthly_goal) * 100 if monthly_goal else 0
     alerts.append({
         "type": "success" if goal_percent >= 100 else "warning",
         "text": f"Meta atingida em {goal_percent:.0f}%",
@@ -385,7 +384,7 @@ def get_dashboard_stats(
             "total_services": len(services),
             "average_rating": average_rating,
             "total_reviews": total_reviews,
-            "monthly_goal": MONTHLY_GOAL,
+            "monthly_goal": monthly_goal,
             "goal_progress": goal_progress,
         },
         "today_appointments_list": [

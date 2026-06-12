@@ -15,6 +15,7 @@ import {
   FaLayerGroup,
   FaBoxOpen,
   FaStar,
+  FaCog,
 } from "react-icons/fa";
 
 import "../styles/navbar.css";
@@ -132,6 +133,18 @@ export default function Navbar() {
         >
           <FaClock />
           Horários
+        </Link>
+
+        <Link
+          to="/settings"
+          className={
+            location.pathname === "/settings"
+              ? "navbar-link active"
+              : "navbar-link"
+          }
+        >
+          <FaCog />
+          Configurações
         </Link>
 
         <button

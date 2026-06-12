@@ -31,7 +31,7 @@ class PublicProfessionalResponse(BaseModel):
 class PublicBookingCreate(BaseModel):
     full_name: str
     birth_date: date
-    cpf: str
+    cpf: str | None = None
     phone: str
     email: EmailStr
     service_id: int
@@ -40,7 +40,9 @@ class PublicBookingCreate(BaseModel):
 
     @field_validator("cpf")
     @classmethod
-    def _validate_cpf(cls, value: str) -> str:
+    def _validate_cpf(cls, value: str | None) -> str | None:
+        if value is None or value.strip() == "":
+            return None
         return validate_and_normalize_cpf(value)
 
 

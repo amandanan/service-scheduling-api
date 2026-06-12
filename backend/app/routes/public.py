@@ -211,10 +211,17 @@ def create_public_booking(
             detail="Horário indisponível"
         )
 
-    client = db.query(Client).filter(
-        Client.owner_id == business.id,
-        Client.cpf == booking.cpf
-    ).first()
+    # Match an existing client by CPF when provided, otherwise by e-mail.
+    if booking.cpf:
+        client = db.query(Client).filter(
+            Client.owner_id == business.id,
+            Client.cpf == booking.cpf,
+        ).first()
+    else:
+        client = db.query(Client).filter(
+            Client.owner_id == business.id,
+            Client.email == booking.email,
+        ).first()
 
     if not client:
         client = Client(

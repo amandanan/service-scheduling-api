@@ -191,6 +191,75 @@
   background: #b91c1c;
 }
 
+/* CONFIGURAÇÕES */
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 720px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding-bottom: 22px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.settings-section-title {
+  font-size: 18px;
+  color: #4c1d95;
+}
+
+.settings-hint {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: -6px;
+}
+
+.settings-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  flex: 1;
+  min-width: 220px;
+}
+
+.settings-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.settings-field input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.2s;
+}
+
+.settings-field input:focus {
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+}
+
+.settings-field input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
 /* RESPONSIVO */
 
 @media (max-width: 768px) {

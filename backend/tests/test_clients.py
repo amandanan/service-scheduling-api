@@ -107,3 +107,38 @@ def test_user_cannot_access_other_users_client(client, auth_headers):
 
     response = client.delete(f"/clients/{client_id}", headers=headers_b)
     assert response.status_code == 404
+
+
+def test_create_client_without_cpf(client, auth_headers):
+    headers = auth_headers()
+
+    response = client.post("/clients/", json={
+        "full_name": "Sem CPF",
+        "birth_date": "1990-01-01",
+        "phone": "11988888888",
+        "email": "semcpf@test.com",
+    }, headers=headers)
+
+    assert response.status_code == 200
+    assert response.json()["cpf"] is None
+
+
+def test_create_multiple_clients_without_cpf(client, auth_headers):
+    headers = auth_headers()
+
+    first = client.post("/clients/", json={
+        "full_name": "Cliente Um",
+        "birth_date": "1990-01-01",
+        "phone": "11988888888",
+        "email": "um@test.com",
+    }, headers=headers)
+    assert first.status_code == 200
+
+    # a second CPF-less client must not collide with the first
+    second = client.post("/clients/", json={
+        "full_name": "Cliente Dois",
+        "birth_date": "1991-02-02",
+        "phone": "11977777777",
+        "email": "dois@test.com",
+    }, headers=headers)
+    assert second.status_code == 200

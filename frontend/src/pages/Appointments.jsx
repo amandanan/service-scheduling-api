@@ -268,7 +268,7 @@ export default function Appointments() {
     if (!clientId) {
 
       toast.error(
-        "Selecione um paciente"
+        "Selecione um cliente"
       );
 
       return;
@@ -520,7 +520,7 @@ export default function Appointments() {
                   client,
                 }))}
 
-                placeholder="Pesquisar paciente por nome ou CPF..."
+                placeholder="Pesquisar cliente por nome ou CPF..."
 
                 value={
                   clientId && selectedClient

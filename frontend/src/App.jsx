@@ -11,6 +11,7 @@ import Packages from "./pages/Packages";
 import Reviews from "./pages/Reviews";
 import Appointments from "./pages/Appointments";
 import WorkingHours from "./pages/WorkingHours";
+import Settings from "./pages/Settings";
 import PublicBooking from "./pages/PublicBooking";
 import ManageAppointment from "./pages/ManageAppointment";
 
@@ -107,6 +108,15 @@ function App() {
           element={
             <ProtectedRoute>
               <WorkingHours />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />

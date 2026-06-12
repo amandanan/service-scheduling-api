@@ -395,7 +395,7 @@ export default function PublicBooking() {
                   mask="000.000.000-00"
                   value={cpf}
                   onAccept={(value) => setCpf(value)}
-                  placeholder="CPF"
+                  placeholder="CPF (opcional)"
                   className="masked-input"
                 />
 

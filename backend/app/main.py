@@ -31,6 +31,7 @@ from app.routes import (
     package,
     review,
     dashboard,
+    settings,
 )
 
 app = FastAPI(
@@ -64,3 +65,4 @@ app.include_router(manage.router)
 app.include_router(package.router)
 app.include_router(review.router)
 app.include_router(dashboard.router)
+app.include_router(settings.router)

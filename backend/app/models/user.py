@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, Float
 
 from app.database.session import Base
 
@@ -21,3 +21,12 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
 
     booking_slug = Column(String, unique=True, nullable=False, index=True)
+
+    # Business settings — let the product adapt to any kind of establishment.
+    monthly_goal = Column(Float, nullable=False, default=10000.0)
+
+    daily_capacity = Column(Integer, nullable=False, default=20)
+
+    client_term_singular = Column(String, nullable=False, default="Cliente")
+
+    client_term_plural = Column(String, nullable=False, default="Clientes")
