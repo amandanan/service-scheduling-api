@@ -30,6 +30,7 @@ from app.routes import (
     manage,
     package,
     review,
+    dashboard,
 )
 
 app = FastAPI(
@@ -62,3 +63,4 @@ app.include_router(public.router)
 app.include_router(manage.router)
 app.include_router(package.router)
 app.include_router(review.router)
+app.include_router(dashboard.router)

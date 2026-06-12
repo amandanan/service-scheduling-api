@@ -426,4 +426,19 @@ export async function getReviews() {
 }
 
 
+// DASHBOARD
+
+export async function getDashboardStats(professionalId) {
+
+  const response = await api.get(
+    "/dashboard/stats",
+    professionalId
+      ? { params: { professional_id: professionalId } }
+      : undefined
+  );
+
+  return response.data;
+}
+
+
 export default api;

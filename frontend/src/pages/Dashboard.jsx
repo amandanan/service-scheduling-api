@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import api from "../services/api";
+import { getDashboardStats } from "../services/api";
 
 import Navbar from "../components/Navbar";
 
@@ -10,6 +10,7 @@ import {
   FaMoneyBillWave,
   FaTools,
   FaClock,
+  FaStar,
 } from "react-icons/fa";
 
 import {
@@ -20,830 +21,74 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  LineChart,
+  Line,
 } from "recharts";
 
 import "../styles/dashboard.css";
 
+function brl(value) {
+  return `R$ ${Number(value || 0).toFixed(2)}`;
+}
+
 export default function Dashboard() {
 
-  const [clients, setClients] =
-    useState([]);
-
-  const [services, setServices] =
-    useState([]);
-
-  const [appointments, setAppointments] =
-    useState([]);
-
-  const [weeklyData, setWeeklyData] =
-    useState([]);
-
-  const [todayRevenue, setTodayRevenue] =
-    useState(0);
-
-  const [todayAppointments, setTodayAppointments] =
-    useState([]);
-
-  const [nextAppointments, setNextAppointments] =
-  useState([]);
-
-  const [monthlyRevenue, setMonthlyRevenue] =
-    useState(0);
-
-  const [topServices, setTopServices] =
-    useState([]);
-
-  const [birthdayClients, setBirthdayClients] =
-    useState([]);
-
-  const [forecastRevenue, setForecastRevenue] =
-    useState(0);
-
-  const [occupancyRate, setOccupancyRate] =
-    useState(0);
-
-  const [monthlyGoal] =
-    useState(10000);
-
-  const [goalProgress, setGoalProgress] =
-    useState(0);
-  
-  const [tomorrowAppointments, setTomorrowAppointments] =
-    useState([]);
-
-  const [averageTicket, setAverageTicket] =
-    useState(0);
-
-  const [newPatientsMonth, setNewPatientsMonth] =
-    useState(0);
-
-  const [monthlyGrowth, setMonthlyGrowth] =
-    useState(0);
-
-  const [topPatients, setTopPatients] =
-    useState([]);
-
-  const [inactivePatients, setInactivePatients] =
-    useState([]);
-
-  const [alerts, setAlerts] =
-    useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   async function loadData() {
 
+    setLoading(true);
+    setError(false);
+
     try {
 
-      const [
-        clientsRes,
-        servicesRes,
-        appointmentsRes,
-      ] = await Promise.all([
+      const data = await getDashboardStats();
+      setStats(data);
 
-        api.get("/clients/"),
+    } catch (err) {
 
-        api.get("/services/"),
+      console.error("Erro ao carregar dashboard:", err);
+      setError(true);
 
-        api.get("/appointments/"),
-      ]);
-
-      setClients(clientsRes.data);
-
-      setServices(servicesRes.data);
-
-      setAppointments(
-        appointmentsRes.data
-      );
-
-      calculateDashboardData(
-        appointmentsRes.data,
-        servicesRes.data,
-        clientsRes.data
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Erro ao carregar dashboard:",
-        error
-      );
+    } finally {
+      setLoading(false);
     }
-  }
-
-  function calculateDashboardData(
-    appointmentsData,
-    servicesData,
-    clientsData
-  ) {
-
-    const today =
-      new Date()
-        .toISOString()
-        .split("T")[0];
-
-    const currentMonth =
-      new Date().getMonth();
-
-    const currentYear =
-      new Date().getFullYear();
-
-    let revenue = 0;
-
-    const todayList =
-      appointmentsData.filter(
-        (appointment) => {
-
-          const appointmentDate =
-            appointment.scheduled_at
-              .split("T")[0];
-
-          return appointmentDate === today;
-        }
-      );
-    
-    const appointmentsToday =
-      todayList.length;
-
-    const dailyCapacity = 20;
-
-    const occupancy =
-      Math.round(
-        (appointmentsToday /
-          dailyCapacity) * 100
-      );
-
-    setOccupancyRate(
-      occupancy > 100
-        ? 100
-        : occupancy
-    );
-
-    todayList.forEach((appointment) => {
-
-      const service =
-        servicesData.find(
-          (s) =>
-            s.id === appointment.service_id
-        );
-
-      revenue +=
-        Number(service?.price || 0);
-    });
-
-    setTodayRevenue(revenue);
-
-    //TICKET MEDIO
-
-      const ticket =
-
-        todayList.length > 0
-          ? revenue /
-            todayList.length
-          : 0;
-
-      setAverageTicket(ticket);
-
-    // FATURAMENTO DO MÊS
-
-        let monthRevenue = 0;
-
-        appointmentsData.forEach(
-          (appointment) => {
-
-            const appointmentDate =
-              new Date(
-                appointment.scheduled_at
-              );
-
-            if (
-              appointmentDate.getMonth() ===
-                currentMonth &&
-              appointmentDate.getFullYear() ===
-                currentYear
-            ) {
-
-              const service =
-                servicesData.find(
-                  (s) =>
-                    s.id === appointment.service_id
-                );
-
-              monthRevenue += Number(
-                service?.price || 0
-              );
-            }
-          }
-        );
-
-        setMonthlyRevenue(
-          monthRevenue
-        );
-
-    //CRESCIMENTO MENSAL
-
-      let previousMonthRevenue = 0;
-        
-      const growth =
-
-          previousMonthRevenue > 0
-
-            ? (
-                (
-                  monthRevenue -
-                  previousMonthRevenue
-                ) /
-                previousMonthRevenue
-              ) * 100
-
-            : 100;
-
-        setMonthlyGrowth(growth);
-
-      appointmentsData.forEach(
-        (appointment) => {
-
-          const appointmentDate =
-            new Date(
-              appointment.scheduled_at
-            );
-
-          const month =
-            appointmentDate.getMonth();
-
-          const year =
-            appointmentDate.getFullYear();
-
-          const isPreviousMonth =
-
-            currentMonth === 0
-
-              ? month === 11 &&
-                year === currentYear - 1
-
-              : month ===
-                  currentMonth - 1 &&
-                year === currentYear;
-
-          if (isPreviousMonth) {
-
-            const service =
-              servicesData.find(
-                (s) =>
-                  s.id === appointment.service_id
-              );
-
-            previousMonthRevenue +=
-              Number(
-                service?.price || 0
-              );
-          }
-        }
-      );
-
-    // PACIENTES NOVOS DO MES
-
-    const newPatients =
-      clientsData.filter(
-        (client) => {
-
-          if (!client.created_at)
-            return false;
-
-          const created =
-            new Date(
-              client.created_at
-            );
-
-          return (
-            created.getMonth() === currentMonth &&
-            created.getFullYear() === currentYear
-          );
-        }
-      );
-
-    setNewPatientsMonth(
-      newPatients.length
-    );
-
-    // META MENSAL
-
-    const progress =
-      Math.min(
-        (monthRevenue / monthlyGoal) * 100,
-        100
-      );
-
-    setGoalProgress(progress);
-
-    // FATURAMENTO PREVISTO
-
-      let forecast = 0;
-
-        appointmentsData.forEach(
-          (appointment) => {
-
-            const appointmentDate =
-              new Date(
-                appointment.scheduled_at
-              );
-
-            if (
-              appointmentDate >= new Date()
-            ) {
-
-              const service =
-                servicesData.find(
-                  (s) =>
-                    s.id === appointment.service_id
-                );
-
-              forecast += Number(
-                service?.price || 0
-              );
-            }
-          }
-        );
-
-        setForecastRevenue(forecast);
-
-    // PROXIMOS AGENDAMENTOS 
-
-      const upcoming =
-        appointmentsData
-          .filter(
-            appointment =>
-              new Date(
-                appointment.scheduled_at
-              ) > new Date()
-          )
-          .sort(
-            (a, b) =>
-              new Date(a.scheduled_at) -
-              new Date(b.scheduled_at)
-          )
-          .slice(0, 5)
-          .map((appointment) => {
-
-            const client =
-              clientsData.find(
-                c =>
-                  c.id === appointment.client_id
-              );
-
-            const service =
-              servicesData.find(
-                s =>
-                  s.id === appointment.service_id
-              );
-
-            return {
-              id: appointment.id,
-              client: client?.full_name,
-              service: service?.name,
-              date: appointment.scheduled_at,
-            };
-          });
-
-      setNextAppointments(upcoming);
-
-
-    // SERVICOS MAIS REALIZADOS
-
-      const serviceCount = {};
-
-        appointmentsData.forEach(
-          (appointment) => {
-
-            serviceCount[
-              appointment.service_id
-            ] =
-              (serviceCount[
-                appointment.service_id
-              ] || 0) + 1;
-          }
-        );
-
-        const ranking =
-          Object.entries(serviceCount)
-            .map(([id, total]) => {
-
-              const service =
-                servicesData.find(
-                  (s) =>
-                    s.id === Number(id)
-                );
-
-              return {
-
-                name:
-                  service?.name ||
-                  "Serviço",
-
-                total,
-              };
-            })
-            .sort(
-              (a, b) =>
-                b.total - a.total
-            )
-            .slice(0, 5);
-
-        setTopServices(ranking);
-
-    // TOP PACIENTES
-
-      const patientCount = {};
-
-        appointmentsData.forEach(
-          (appointment) => {
-
-            patientCount[
-              appointment.client_id
-            ] =
-              (patientCount[
-                appointment.client_id
-              ] || 0) + 1;
-          }
-        );
-
-        const rankingPatients =
-          Object.entries(patientCount)
-            .map(([id, total]) => {
-
-              const client =
-                clientsData.find(
-                  (c) =>
-                    c.id === Number(id)
-                );
-
-              return {
-
-                id,
-
-                name:
-                  client?.full_name ||
-                  "Paciente",
-
-                total,
-              };
-            })
-            .sort(
-              (a, b) =>
-                b.total - a.total
-            )
-            .slice(0, 5);
-
-        setTopPatients(
-          rankingPatients
-        );
-
-    // PACIENTES SEM RETORNO
-        const lastAppointments = {};
-
-          appointmentsData.forEach(
-            (appointment) => {
-
-              const currentDate =
-                new Date(
-                  appointment.scheduled_at
-                );
-
-              const previousDate =
-                lastAppointments[
-                  appointment.client_id
-                ];
-
-              if (
-                !previousDate ||
-                currentDate > previousDate
-              ) {
-
-                lastAppointments[
-                  appointment.client_id
-                ] = currentDate;
-              }
-            }
-          );
-          const todayDate =
-              new Date();
-
-            const inactive =
-              Object.entries(
-                lastAppointments
-              )
-                .filter(
-                  ([, lastDate]) => {
-
-                    const diffDays =
-                      Math.floor(
-                        (
-                          todayDate -
-                          lastDate
-                        ) /
-                        (
-                          1000 *
-                          60 *
-                          60 *
-                          24
-                        )
-                      );
-
-                    return diffDays > 90;
-                  }
-                )
-                .map(
-                  ([clientId, lastDate]) => {
-
-                    const client =
-                      clientsData.find(
-                        (c) =>
-                          c.id ===
-                          Number(clientId)
-                      );
-
-                    const diffDays =
-                      Math.floor(
-                        (
-                          todayDate -
-                          lastDate
-                        ) /
-                        (
-                          1000 *
-                          60 *
-                          60 *
-                          24
-                        )
-                      );
-
-                    return {
-
-                      id: clientId,
-
-                      name:
-                        client?.full_name ||
-                        "Paciente",
-
-                      days:
-                        diffDays,
-                    };
-                  }
-                )
-                .sort(
-                  (a, b) =>
-                    b.days - a.days
-                )
-                .slice(0, 5);
-
-            setInactivePatients(
-              inactive
-            );
-
-    // ANIVERSARIANTE
-
-      const birthdays =
-        clientsData.filter((client) => {
-
-          if (!client.birth_date)
-            return false;
-
-          const month =
-            Number(
-              client.birth_date.split("-")[1]
-            );
-
-          return month === currentMonth;
-        });
-
-      setBirthdayClients(
-        birthdays.slice(0, 5)
-      );
-          
-    const formattedTodayAppointments =
-      todayList.map((appointment) => {
-
-        const client =
-          clientsData.find(
-            (c) =>
-              c.id === appointment.client_id
-          );
-
-        const service =
-          servicesData.find(
-            (s) =>
-              s.id === appointment.service_id
-          );
-
-        return {
-
-          id: appointment.id,
-
-          client:
-            client?.full_name ||
-            "Cliente",
-
-          service:
-            service?.name ||
-            "Serviço",
-
-          time:
-            appointment.scheduled_at
-              .split("T")[1]
-              ?.slice(0, 5),
-        };
-      });
-
-    setTodayAppointments(
-      formattedTodayAppointments
-    );
-
-    // AGENDA DE AMANHA
-
-    const tomorrow = new Date();
-
-      tomorrow.setDate(
-        tomorrow.getDate() + 1
-      );
-
-      const tomorrowDate =
-        tomorrow
-          .toISOString()
-          .split("T")[0];
-
-      const tomorrowList =
-        appointmentsData
-          .filter((appointment) => {
-
-            const date =
-              appointment.scheduled_at
-                .split("T")[0];
-
-            return (
-              date === tomorrowDate
-            );
-          })
-          .map((appointment) => {
-
-            const client =
-              clientsData.find(
-                (c) =>
-                  c.id === appointment.client_id
-              );
-
-            const service =
-              servicesData.find(
-                (s) =>
-                  s.id === appointment.service_id
-              );
-
-            return {
-
-              id: appointment.id,
-
-              client:
-                client?.full_name ||
-                "Cliente",
-
-              service:
-                service?.name ||
-                "Serviço",
-
-              time:
-                appointment.scheduled_at
-                  .split("T")[1]
-                  ?.slice(0, 5),
-            };
-          });
-
-      setTomorrowAppointments(
-        tomorrowList
-      );
-
-    const weekMap = {
-
-      Dom: 0,
-      Seg: 0,
-      Ter: 0,
-      Qua: 0,
-      Qui: 0,
-      Sex: 0,
-      Sab: 0,
-    };
-
-    appointmentsData.forEach(
-      (appointment) => {
-
-        const date =
-          new Date(
-            appointment.scheduled_at
-          );
-
-        const day =
-          [
-            "Dom",
-            "Seg",
-            "Ter",
-            "Qua",
-            "Qui",
-            "Sex",
-            "Sab",
-          ][date.getDay()];
-
-        weekMap[day]++;
-      }
-    );
-
-    const chartData =
-      Object.keys(weekMap).map(
-        (day) => ({
-          day,
-          agendamentos:
-            weekMap[day],
-        })
-      );
-
-    setWeeklyData(chartData);
-
-    const dashboardAlerts = [];
-
-          const goalPercent =
-        (monthRevenue /
-          monthlyGoal) * 100;
-
-      dashboardAlerts.push({
-
-        type:
-          goalPercent >= 100
-            ? "success"
-            : "warning",
-
-        text:
-          `Meta atingida em ${goalPercent.toFixed(0)}%`,
-      });
-
-      dashboardAlerts.push({
-
-          type:
-            growth >= 0
-              ? "success"
-              : "danger",
-
-          text:
-
-            growth >= 0
-
-              ? `Crescimento de ${growth.toFixed(1)}%`
-
-              : `Queda de ${Math.abs(
-                  growth
-                ).toFixed(1)}%`,
-        });
-
-        if (
-            ranking.length > 0
-          ) {
-
-            dashboardAlerts.push({
-
-              type: "info",
-
-              text:
-                `Serviço líder: ${ranking[0].name}`,
-            });
-          }
-
-          if (
-              birthdays.length > 0
-            ) {
-
-              dashboardAlerts.push({
-
-                type: "info",
-
-                text:
-                  `${birthdays.length} aniversariantes este mês`,
-              });
-            }
-
-            if (
-                  tomorrowAppointments.length < 3
-                ) {
-
-                  dashboardAlerts.push({
-
-                    type: "warning",
-
-                    text:
-                      "Poucos agendamentos amanhã",
-                  });
-                }
-
-                setAlerts(
-                      dashboardAlerts
-                    );
   }
 
   useEffect(() => {
     loadData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <Navbar />
+        <div className="dashboard-container">
+          <div className="dashboard-state">Carregando dashboard...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="dashboard-page">
+        <Navbar />
+        <div className="dashboard-container">
+          <div className="dashboard-state">
+            <p>Não foi possível carregar o dashboard.</p>
+            <button className="dashboard-retry-btn" onClick={loadData}>
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { kpis } = stats;
 
   return (
 
@@ -871,794 +116,353 @@ export default function Dashboard() {
 
         <div className="dashboard-grid">
 
-            {/* RECEITA MES*/}
-
-            <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Mês
-              </p>
-
-              <h2 className="dashboard-card-value">
-                R$ {monthlyRevenue}
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaMoneyBillWave />
-
-            </div>
-
-          </div>
-
-          <div className="dashboard-card-footer">
-            Receita mensal
-          </div>
-          </div>
-
-                {/* META MENSAL*/}
-
-         <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Meta Mensal
-              </p>
-
-              <h2 className="dashboard-card-value">
-                {goalProgress.toFixed(0)}%
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaMoneyBillWave />
-
-            </div>
-
-          </div>
-
-          <div className="goal-progress-bar">
-
-            <div
-              className="goal-progress-fill"
-              style={{
-                width: `${goalProgress}%`,
-              }}
-            />
-
-          </div>
-
-          <div className="dashboard-card-footer">
-
-            R$ {monthlyRevenue.toFixed(2)}
-            {" / "}
-            R$ {monthlyGoal.toFixed(2)}
-
-          </div>
-
-         </div>
-
-         {/*CRESCIMENTO MENSAL*/}
-
-         <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Crescimento
-              </p>
-
-              <h2 className="dashboard-card-value">
-
-                {monthlyGrowth > 0
-                  ? "↑"
-                  : "↓"}
-
-                {" "}
-
-                {Math.abs(
-                  monthlyGrowth
-                ).toFixed(1)}%
-
-              </h2>
-
-            </div>
-
-            <div className="dashboard-icon">
-
-              <FaCalendarCheck />
-
-            </div>
-
-          </div>
-
-          <div className="dashboard-card-footer">
-
-            Comparado ao mês anterior
-
-          </div>
-
-         </div>
-
-         {/* FATURAMENTO PREVISTO */}
-
+          {/* RECEITA MES */}
           <div className="dashboard-card">
-
             <div className="dashboard-card-top">
-
               <div>
-
-                <p className="dashboard-card-title">
-                  Previsto
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  R$ {forecastRevenue.toFixed(2)}
-                </h2>
-
+                <p className="dashboard-card-title">Mês</p>
+                <h2 className="dashboard-card-value">{brl(kpis.month_revenue)}</h2>
               </div>
-
-              <div className="dashboard-icon">
-
-                <FaMoneyBillWave />
-
-              </div>
-
+              <div className="dashboard-icon"><FaMoneyBillWave /></div>
             </div>
+            <div className="dashboard-card-footer">Receita mensal</div>
+          </div>
 
-            <div className="dashboard-card-footer">
-              Receita futura agendada
-            </div> 
-          
-        </div> 
-
-        {/* AGENDAMENTOS */}
-
+          {/* META MENSAL */}
           <div className="dashboard-card">
-
             <div className="dashboard-card-top">
-
               <div>
-
-                <p className="dashboard-card-title">
-                  Hoje
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {
-                    todayAppointments.length
-                  }
-                </h2>
-
+                <p className="dashboard-card-title">Meta Mensal</p>
+                <h2 className="dashboard-card-value">{kpis.goal_progress.toFixed(0)}%</h2>
               </div>
-
-              <div className="dashboard-icon">
-
-                <FaCalendarCheck />
-
-              </div>
-
+              <div className="dashboard-icon"><FaMoneyBillWave /></div>
             </div>
-
+            <div className="goal-progress-bar">
+              <div
+                className="goal-progress-fill"
+                style={{ width: `${kpis.goal_progress}%` }}
+              />
+            </div>
             <div className="dashboard-card-footer">
-              Agendamentos do dia
+              {brl(kpis.month_revenue)} {" / "} {brl(kpis.monthly_goal)}
             </div>
+          </div>
 
-          
+          {/* CRESCIMENTO MENSAL */}
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Crescimento</p>
+                <h2 className="dashboard-card-value">
+                  {kpis.monthly_growth >= 0 ? "↑" : "↓"}{" "}
+                  {Math.abs(kpis.monthly_growth).toFixed(1)}%
+                </h2>
+              </div>
+              <div className="dashboard-icon"><FaCalendarCheck /></div>
+            </div>
+            <div className="dashboard-card-footer">Comparado ao mês anterior</div>
+          </div>
+
+          {/* FATURAMENTO PREVISTO */}
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Previsto</p>
+                <h2 className="dashboard-card-value">{brl(kpis.forecast_revenue)}</h2>
+              </div>
+              <div className="dashboard-icon"><FaMoneyBillWave /></div>
+            </div>
+            <div className="dashboard-card-footer">Receita futura agendada</div>
+          </div>
+
+          {/* AGENDAMENTOS HOJE */}
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Hoje</p>
+                <h2 className="dashboard-card-value">{kpis.today_appointments}</h2>
+              </div>
+              <div className="dashboard-icon"><FaCalendarCheck /></div>
+            </div>
+            <div className="dashboard-card-footer">Agendamentos do dia</div>
+          </div>
+
           {/* OCUPACAO */}
-          </div>
-
           <div className="dashboard-card">
-
             <div className="dashboard-card-top">
-
               <div>
-
-                <p className="dashboard-card-title">
-                  Ocupação
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {occupancyRate}%
-                </h2>
-
+                <p className="dashboard-card-title">Ocupação</p>
+                <h2 className="dashboard-card-value">{kpis.occupancy_rate}%</h2>
               </div>
-
-              <div className="dashboard-icon">
-
-                <FaCalendarCheck />
-
-              </div>
-
+              <div className="dashboard-icon"><FaCalendarCheck /></div>
             </div>
-
-            <div className="dashboard-card-footer">
-              Agenda ocupada hoje
-            </div>
-
+            <div className="dashboard-card-footer">Agenda ocupada hoje</div>
           </div>
 
-          {/*TICKET MEDIO*/}
-
+          {/* TICKET MEDIO */}
           <div className="dashboard-card">
-
-          <div className="dashboard-card-top">
-
-            <div>
-
-              <p className="dashboard-card-title">
-                Ticket Médio
-              </p>
-
-              <h2 className="dashboard-card-value">
-
-                R$
-                {" "}
-                {averageTicket.toFixed(2)}
-
-              </h2>
-
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Ticket Médio</p>
+                <h2 className="dashboard-card-value">{brl(kpis.average_ticket)}</h2>
+              </div>
+              <div className="dashboard-icon"><FaMoneyBillWave /></div>
             </div>
-
-            <div className="dashboard-icon">
-
-              <FaMoneyBillWave />
-
-            </div>
-
+            <div className="dashboard-card-footer">Receita média por atendimento</div>
           </div>
 
-          <div className="dashboard-card-footer">
-
-            Receita média por atendimento
-
+          {/* FATURAMENTO HOJE */}
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Hoje</p>
+                <h2 className="dashboard-card-value">{brl(kpis.today_revenue)}</h2>
+              </div>
+              <div className="dashboard-icon"><FaMoneyBillWave /></div>
+            </div>
+            <div className="dashboard-card-footer">Receita de hoje</div>
           </div>
-
-        
 
         </div>
 
-         {/* FATURAMENTO */}
+        <div className="dashboard-grid">
 
+          {/* PACIENTES */}
           <div className="dashboard-card">
-
             <div className="dashboard-card-top">
-
               <div>
-
-                <p className="dashboard-card-title">
-                  Hoje
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  R$ {todayRevenue}
-                </h2>
-
+                <p className="dashboard-card-title">Pacientes</p>
+                <h2 className="dashboard-card-value">{kpis.total_clients}</h2>
               </div>
-
-              <div className="dashboard-icon">
-
-                <FaMoneyBillWave />
-
-              </div>
-
+              <div className="dashboard-icon"><FaUsers /></div>
             </div>
-
-            <div className="dashboard-card-footer">
-              Receita de hoje
-            </div>
-
+            <div className="dashboard-card-footer">Total de pacientes cadastrados</div>
           </div>
 
-          </div>
-
-       <div className="dashboard-grid">
-
-         {/* PACIENTES */}
-
+          {/* NOVOS PACIENTES */}
           <div className="dashboard-card">
-
             <div className="dashboard-card-top">
-
               <div>
-
-                <p className="dashboard-card-title">
-                  Pacientes
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {clients.length}
-                </h2>
-
+                <p className="dashboard-card-title">Novos Pacientes</p>
+                <h2 className="dashboard-card-value">{kpis.new_clients_month}</h2>
               </div>
-
-              <div className="dashboard-icon">
-
-                <FaUsers />
-
-              </div>
-
+              <div className="dashboard-icon"><FaUsers /></div>
             </div>
-
-            <div className="dashboard-card-footer">
-              Total de pacientes cadastrados
-            </div>
-
-          </div>
-
-          {/*PACIENTES NOVO DO MES*/}
-
-          <div className="dashboard-card">
-
-            <div className="dashboard-card-top">
-
-              <div>
-
-                <p className="dashboard-card-title">
-                  Novos Pacientes
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {newPatientsMonth}
-                </h2>
-
-              </div>
-
-              <div className="dashboard-icon">
-
-                <FaUsers />
-
-              </div>
-
-            </div>
-
-            <div className="dashboard-card-footer">
-              Cadastros realizados este mês
-            </div>
-
+            <div className="dashboard-card-footer">Cadastros realizados este mês</div>
           </div>
 
           {/* SERVIÇOS */}
-
           <div className="dashboard-card">
-
             <div className="dashboard-card-top">
-
               <div>
-
-                <p className="dashboard-card-title">
-                  Serviços
-                </p>
-
-                <h2 className="dashboard-card-value">
-                  {services.length}
-                </h2>
-
+                <p className="dashboard-card-title">Serviços</p>
+                <h2 className="dashboard-card-value">{kpis.total_services}</h2>
               </div>
-
-              <div className="dashboard-icon">
-
-                <FaTools />
-
-              </div>
-
+              <div className="dashboard-icon"><FaTools /></div>
             </div>
-
-            <div className="dashboard-card-footer">
-              Serviços disponíveis
-            </div>
-
+            <div className="dashboard-card-footer">Serviços disponíveis</div>
           </div>
-        </div> 
+
+          {/* AVALIAÇÕES */}
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Avaliações</p>
+                <h2 className="dashboard-card-value">
+                  {kpis.average_rating != null ? kpis.average_rating.toFixed(1) : "—"}
+                </h2>
+              </div>
+              <div className="dashboard-icon"><FaStar /></div>
+            </div>
+            <div className="dashboard-card-footer">
+              {kpis.total_reviews} {kpis.total_reviews === 1 ? "avaliação" : "avaliações"}
+            </div>
+          </div>
+
+        </div>
 
         {/* GRÁFICOS */}
 
         <div className="dashboard-charts-grid">
-
-          {/* GRÁFICO */}
-
           <div className="dashboard-chart-card">
-
-            <h3 className="dashboard-chart-title">
-              Agendamentos da Semana
-            </h3>
-
-            <ResponsiveContainer
-              width="100%"
-              height={320}
-            >
-
-              <BarChart
-                data={weeklyData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                />
-
+            <h3 className="dashboard-chart-title">Agendamentos da Semana</h3>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={stats.weekly_appointments}>
+                <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="day" />
-
-                <YAxis />
-
+                <YAxis allowDecimals={false} />
                 <Tooltip />
-
-                <Bar
-                  dataKey="agendamentos"
-                  radius={[8, 8, 0, 0]}
-                />
-
+                <Bar dataKey="agendamentos" fill="#6d28d9" radius={[8, 8, 0, 0]} />
               </BarChart>
-
             </ResponsiveContainer>
-
           </div>
-     
+        </div>
+
+        <div className="dashboard-charts-grid">
+          <div className="dashboard-chart-card">
+            <h3 className="dashboard-chart-title">Faturamento Últimos 6 Meses</h3>
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={stats.monthly_revenue_chart}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => brl(value)} />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#6d28d9"
+                  strokeWidth={3}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="dashboard-charts-grid">
+
+          {/* PRÓXIMOS */}
+          <div className="dashboard-chart-card">
+            <h3 className="dashboard-chart-title">Próximos Atendimentos</h3>
+            {stats.today_appointments_list.length === 0 ? (
+              <div className="empty-state">Nenhum agendamento hoje</div>
+            ) : (
+              stats.today_appointments_list.map((appointment) => (
+                <div key={appointment.id} className="appointment-item">
+                  <div className="appointment-time">
+                    <FaClock />
+                    {appointment.time}
+                  </div>
+                  <div className="appointment-info">
+                    <strong>{appointment.client}</strong>
+                    <span>{appointment.service}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* AGENDA DE AMANHÃ */}
+          <div className="dashboard-chart-card">
+            <h3 className="dashboard-chart-title">Agenda de Amanhã</h3>
+            {stats.tomorrow_appointments.length === 0 ? (
+              <div className="empty-state">Nenhum agendamento amanhã</div>
+            ) : (
+              stats.tomorrow_appointments.map((appointment) => (
+                <div key={appointment.id} className="appointment-item">
+                  <div className="appointment-time">
+                    <FaClock />
+                    {appointment.time}
+                  </div>
+                  <div className="appointment-info">
+                    <strong>{appointment.client}</strong>
+                    <span>{appointment.service}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
         </div>
 
         <div className="dashboard-charts-grid">
 
-         {/* PRÓXIMOS */}
-
+          {/* SERVIÇOS MAIS USADOS */}
           <div className="dashboard-chart-card">
-
-            <h3 className="dashboard-chart-title">
-              Próximos Atendimentos
-            </h3>
-
-            {todayAppointments.length === 0 ? (
-
-              <div className="empty-state">
-
-                Nenhum agendamento hoje
-
-              </div>
-
+            <h3 className="dashboard-chart-title">Serviços Mais Realizados</h3>
+            {stats.top_services.length === 0 ? (
+              <div className="empty-state">Nenhum serviço realizado</div>
             ) : (
-
-              todayAppointments.map(
-                (appointment) => (
-
-                  <div
-                    key={appointment.id}
-                    className="appointment-item"
-                  >
-
-                    <div className="appointment-time">
-
-                      <FaClock />
-
-                      {appointment.time}
-
+              stats.top_services.map((service) => {
+                const maxValue = stats.top_services[0]?.total || 1;
+                const percentage = (service.total / maxValue) * 100;
+                return (
+                  <div key={service.name} className="service-ranking-item">
+                    <div className="service-ranking-header">
+                      <strong>{service.name}</strong>
+                      <span>{service.total}</span>
                     </div>
-
-                    <div className="appointment-info">
-
-                      <strong>
-                        {appointment.client}
-                      </strong>
-
-                      <span>
-                        {appointment.service}
-                      </span>
-
+                    <div className="service-ranking-bar">
+                      <div
+                        className="service-ranking-fill"
+                        style={{ width: `${percentage}%` }}
+                      />
                     </div>
-
                   </div>
-                )
-              )
-
+                );
+              })
             )}
-
           </div>
 
-         {/*AGENDAMENTOS DE AMANHA*/}
-
+          {/* TOP PACIENTES */}
           <div className="dashboard-chart-card">
-
-              <h3 className="dashboard-chart-title">
-                Agenda de Amanhã
-              </h3>
-
-              {tomorrowAppointments.length === 0 ? (
-
-                <div className="empty-state">
-
-                  Nenhum agendamento amanhã
-
+            <h3 className="dashboard-chart-title">Top Pacientes</h3>
+            {stats.top_clients.length === 0 ? (
+              <div className="empty-state">Nenhum paciente</div>
+            ) : (
+              stats.top_clients.map((patient, index) => (
+                <div key={patient.id} className="appointment-item">
+                  <div className="appointment-info">
+                    <strong>#{index + 1} {patient.name}</strong>
+                    <span>{patient.total} atendimentos</span>
+                  </div>
                 </div>
+              ))
+            )}
+          </div>
 
-              ) : (
+          {/* PACIENTES SEM RETORNO */}
+          <div className="dashboard-chart-card">
+            <h3 className="dashboard-chart-title">Pacientes Sem Retorno</h3>
+            {stats.inactive_clients.length === 0 ? (
+              <div className="empty-state">Nenhum paciente sem retorno</div>
+            ) : (
+              stats.inactive_clients.map((patient) => (
+                <div key={patient.id} className="appointment-item">
+                  <div className="appointment-info">
+                    <strong>{patient.name}</strong>
+                    <span>{patient.days} dias sem atendimento</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-                tomorrowAppointments.map(
-                  (appointment) => (
+          {/* ANIVERSARIANTES */}
+          <div className="dashboard-chart-card">
+            <h3 className="dashboard-chart-title">Aniversariantes do Mês</h3>
+            {stats.birthday_clients.length === 0 ? (
+              <div className="empty-state">Nenhum aniversariante este mês</div>
+            ) : (
+              stats.birthday_clients.map((client) => (
+                <div key={client.id} className="appointment-item">
+                  <div className="appointment-info">
+                    <strong>{client.name}</strong>
+                    <span>{client.birth_date.split("-").reverse().join("/")}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-                    <div
-                      key={appointment.id}
-                      className="appointment-item"
-                    >
+        </div>
 
-                      <div className="appointment-time">
-
-                        <FaClock />
-
-                        {appointment.time}
-
-                      </div>
-
-                      <div className="appointment-info">
-
-                        <strong>
-                          {appointment.client}
-                        </strong>
-
-                        <span>
-                          {appointment.service}
-                        </span>
-
-                      </div>
-
-                    </div>
-                  )
-                )
-
-              )}
-
-            </div> 
+        <div className="dashboard-charts-grid">
+          {/* ALERTAS */}
+          <div className="dashboard-chart-card">
+            <h3 className="dashboard-chart-title">Alertas Inteligentes</h3>
+            {stats.alerts.length === 0 ? (
+              <div className="empty-state">Nenhum alerta</div>
+            ) : (
+              stats.alerts.map((alert, index) => (
+                <div key={index} className={`alert-item ${alert.type}`}>
+                  {alert.text}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
       </div>
-
-      <div className="dashboard-charts-grid">
-
-        {/* SERVICOS MAIS USADOS */}
-
-          <div className="dashboard-chart-card">
-
-            <h3 className="dashboard-chart-title">
-              Serviços Mais Realizados
-            </h3>
-
-            {topServices.map((service) => {
-
-              const maxValue =
-                topServices[0]?.total || 1;
-
-              const percentage =
-                (service.total / maxValue) * 100;
-
-              return (
-
-                <div
-                  key={service.name}
-                  className="service-ranking-item"
-                >
-
-                  <div className="service-ranking-header">
-
-                    <strong>
-                      {service.name}
-                    </strong>
-
-                    <span>
-                      {service.total}
-                    </span>
-
-                  </div>
-
-                  <div className="service-ranking-bar">
-
-                    <div
-                      className="service-ranking-fill"
-                      style={{
-                        width: `${percentage}%`
-                      }}
-                    />
-
-                  </div>
-
-                </div>
-
-                  );
-
-                })}
-
-          </div>
-
-      {/* TOP PACIENTES*/}
-        <div className="dashboard-chart-card">
-
-          <h3 className="dashboard-chart-title">
-            Top Pacientes
-          </h3>
-
-          {topPatients.length === 0 ? (
-
-            <div className="empty-state">
-              Nenhum paciente
-            </div>
-
-          ) : (
-
-            topPatients.map(
-              (patient, index) => (
-
-                <div
-                  key={patient.id}
-                  className="appointment-item"
-                >
-
-                  <div className="appointment-info">
-
-                    <strong>
-                      #{index + 1} {patient.name}
-                    </strong>
-
-                    <span>
-                      {patient.total} atendimentos
-                    </span>
-
-                  </div>
-
-                </div>
-              )
-            )
-
-          )}
-
-        </div>
-
-      {/* PACIENTES SEM RETORNO*/}
-
-       <div className="dashboard-chart-card">
-
-          <h3 className="dashboard-chart-title">
-            Pacientes Sem Retorno
-          </h3>
-
-          {inactivePatients.length === 0 ? (
-
-            <div className="empty-state">
-
-              Nenhum paciente sem retorno
-
-            </div>
-
-          ) : (
-
-            inactivePatients.map(
-              (patient) => (
-
-                <div
-                  key={patient.id}
-                  className="appointment-item"
-                >
-
-                  <div className="appointment-info">
-
-                    <strong>
-                      {patient.name}
-                    </strong>
-
-                    <span>
-
-                      {patient.days}
-                      {" "}
-                      dias sem atendimento
-
-                    </span>
-
-                  </div>
-
-                </div>
-              )
-            )
-
-          )}
-
-        </div>
-
-      {/* ANIVERSARIANTES */}
-
-        <div className="dashboard-chart-card">
-
-            <h3 className="dashboard-chart-title">
-              Aniversariantes do Mês
-            </h3>
-
-            {birthdayClients.length === 0 ? (
-
-              <div className="empty-state">
-                Nenhum aniversariante este mês
-              </div>
-
-            ) : (
-
-              birthdayClients.map(
-                (client) => (
-
-                  <div
-                    key={client.id}
-                    className="appointment-item"
-                  >
-
-                    <div className="appointment-info">
-
-                      <strong>
-                        {client.full_name}
-                      </strong>
-
-                      <span>
-                        {client.birth_date}
-                      </span>
-
-                    </div>
-
-                  </div>
-                )
-              )
-
-            )}
-
-         </div>
-         </div> 
-      
-        </div>  
-
-        <div className="dashboard-charts-grid">
-
-          {/*ALERTAS*/}
-
-        <div className="dashboard-chart-card">
-
-              <h3 className="dashboard-chart-title">
-
-                Alertas Inteligentes
-
-              </h3>
-
-              {alerts.length === 0 ? (
-
-                <div className="empty-state">
-
-                  Nenhum alerta
-
-                </div>
-
-              ) : (
-
-                alerts.map(
-                  (alert, index) => (
-
-                    <div
-                      key={index}
-                      className={`alert-item ${alert.type}`}
-                    >
-
-                      {alert.text}
-
-                    </div>
-                  )
-                )
-
-              )}
-
-            </div>
-      </div>          
     </div>
-
-    
   );
 }

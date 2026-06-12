@@ -652,3 +652,46 @@
 
   color: #1e3a8a;
 }
+
+/* LOADING / ERROR STATES */
+
+.dashboard-state {
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  min-height: 320px;
+
+  color: #6b7280;
+
+  font-size: 16px;
+
+  text-align: center;
+}
+
+.dashboard-retry-btn {
+
+  background: #6d28d9;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 20px;
+
+  border-radius: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.dashboard-retry-btn:hover {
+
+  background: #5b21b6;
+}

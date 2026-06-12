@@ -1,8 +1,11 @@
+from datetime import datetime, timezone
+
 from sqlalchemy import (
     Column,
     Integer,
     String,
     Date,
+    DateTime,
     ForeignKey,
     UniqueConstraint,
 )
@@ -26,6 +29,12 @@ class Client(Base):
     cpf = Column(String)
     phone = Column(String)
     email = Column(String)
+
+    created_at = Column(
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
+    )
 
     owner_id = Column(
         Integer,
