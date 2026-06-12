@@ -82,9 +82,20 @@ class DashboardAlert(BaseModel):
     text: str
 
 
+class PeriodSummary(BaseModel):
+
+    start: date
+    end: date
+    revenue: float
+    appointments: int
+    ticket: float
+
+
 class DashboardStats(BaseModel):
 
     kpis: DashboardKPIs
+
+    period: PeriodSummary
 
     today_appointments_list: list[AppointmentBrief]
     tomorrow_appointments: list[AppointmentBrief]

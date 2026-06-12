@@ -165,3 +165,40 @@ def test_filter_by_professional(client):
         headers=headers,
     ).json()
     assert other["kpis"]["today_appointments"] == 0
+
+
+def test_period_summary_defaults_to_month(client):
+    headers, slug, service_id, professional_id = _setup_business(client)
+
+    response = client.get("/dashboard/stats", headers=headers)
+    body = response.json()
+
+    assert "period" in body
+    assert body["period"]["appointments"] == 0
+    assert body["period"]["revenue"] == 0
+
+
+def test_period_summary_respects_date_range(client):
+    headers, slug, service_id, professional_id = _setup_business(client)
+
+    booking = _book(
+        client, slug, service_id, professional_id,
+        "16899555468", "2026-06-15T09:00:00",
+    )
+    _set_scheduled_at(booking["public_token"], datetime(2026, 3, 10, 9, 0, 0))
+
+    inside = client.get(
+        "/dashboard/stats",
+        params={"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        headers=headers,
+    ).json()
+    assert inside["period"]["appointments"] == 1
+    assert inside["period"]["revenue"] == 50.0
+    assert inside["period"]["ticket"] == 50.0
+
+    outside = client.get(
+        "/dashboard/stats",
+        params={"start_date": "2026-04-01", "end_date": "2026-04-30"},
+        headers=headers,
+    ).json()
+    assert outside["period"]["appointments"] == 0

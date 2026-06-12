@@ -428,14 +428,23 @@ export async function getReviews() {
 
 // DASHBOARD
 
-export async function getDashboardStats(professionalId) {
+export async function getDashboardStats(filters = {}) {
 
-  const response = await api.get(
-    "/dashboard/stats",
-    professionalId
-      ? { params: { professional_id: professionalId } }
-      : undefined
-  );
+  const params = {};
+
+  if (filters.professionalId) {
+    params.professional_id = filters.professionalId;
+  }
+
+  if (filters.startDate) {
+    params.start_date = filters.startDate;
+  }
+
+  if (filters.endDate) {
+    params.end_date = filters.endDate;
+  }
+
+  const response = await api.get("/dashboard/stats", { params });
 
   return response.data;
 }

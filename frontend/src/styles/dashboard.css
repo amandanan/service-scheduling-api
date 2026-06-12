@@ -53,6 +53,127 @@
   font-weight: 600;
 }
 
+/* CONTROLES (FILTRO + PERÍODO) */
+
+.dashboard-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dashboard-select {
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #374151;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-select:focus {
+  border-color: #6d28d9;
+}
+
+.dashboard-period {
+  display: inline-flex;
+  background: white;
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.period-btn {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.period-btn:hover {
+  color: #4c1d95;
+}
+
+.period-btn.active {
+  background: #6d28d9;
+  color: white;
+}
+
+/* RESUMO DO PERÍODO */
+
+.period-summary {
+  background: linear-gradient(135deg, #6d28d9, #7c3aed);
+  border-radius: 22px;
+  padding: 26px 28px;
+  margin-bottom: 30px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(109, 40, 217, 0.25);
+}
+
+.period-summary-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.period-summary-head h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.period-summary-range {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.period-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.period-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.period-summary-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.period-summary-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 4px;
+}
+
+.period-summary-value {
+  font-size: 26px;
+  font-weight: 700;
+}
+
 /* GRID DOS CARDS */
 
 .dashboard-grid {
@@ -380,6 +501,32 @@
   gap: 24px;
 
   margin-top: 30px;
+}
+
+.dashboard-charts-grid.two-col {
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+}
+
+.dashboard-chart-subtitle {
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: -14px;
+  margin-bottom: 18px;
+}
+
+.dashboard-card-value.positive {
+  color: #059669;
+}
+
+.dashboard-card-value.negative {
+  color: #dc2626;
+}
+
+/* atenua o conteúdo durante o refetch sem trocar o layout */
+.dashboard-container.is-refreshing {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
 .dashboard-chart-card {

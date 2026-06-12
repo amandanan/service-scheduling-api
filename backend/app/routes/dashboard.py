@@ -70,6 +70,8 @@ def _brief(appointment: Appointment, clients_by_id, services_by_id, professional
 @router.get("/stats", response_model=DashboardStats)
 def get_dashboard_stats(
     professional_id: int | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -83,6 +85,18 @@ def get_dashboard_stats(
 
     current_month = now.month
     current_year = now.year
+
+    # The analytical sections (period summary, rankings, weekly chart) are
+    # scoped to a date range; it defaults to the current month.
+    period_start = start_date or date(current_year, current_month, 1)
+    period_end = end_date or today
+
+    def in_period(appointment: Appointment) -> bool:
+        d = appointment.scheduled_at.date()
+        return (
+            appointment.status != "cancelled"
+            and period_start <= d <= period_end
+        )
 
     if current_month == 1:
         previous_month, previous_year = 12, current_year - 1
@@ -216,11 +230,17 @@ def get_dashboard_stats(
         key=lambda a: a.scheduled_at,
     )[:5]
 
-    # ---- Top services ----
+    # ---- Period summary ----
+    period_appointments = [a for a in appointments if in_period(a)]
+    period_count = len(period_appointments)
+    period_revenue = sum(
+        price_of(a) for a in period_appointments if _is_billable(a)
+    )
+    period_ticket = period_revenue / period_count if period_count else 0.0
+
+    # ---- Top services (scoped to the period) ----
     service_count = {}
-    for appointment in appointments:
-        if appointment.status == "cancelled":
-            continue
+    for appointment in period_appointments:
         service_count[appointment.service_id] = (
             service_count.get(appointment.service_id, 0) + 1
         )
@@ -237,11 +257,9 @@ def get_dashboard_stats(
         reverse=True,
     )[:5]
 
-    # ---- Top clients ----
+    # ---- Top clients (scoped to the period) ----
     client_count = {}
-    for appointment in appointments:
-        if appointment.status == "cancelled":
-            continue
+    for appointment in period_appointments:
         client_count[appointment.client_id] = (
             client_count.get(appointment.client_id, 0) + 1
         )
@@ -293,11 +311,9 @@ def get_dashboard_stats(
         if c.birth_date and c.birth_date.month == current_month
     ][:5]
 
-    # ---- Weekly distribution ----
+    # ---- Weekly distribution (scoped to the period) ----
     week_map = {day: 0 for day in WEEKDAYS}
-    for appointment in appointments:
-        if appointment.status == "cancelled":
-            continue
+    for appointment in period_appointments:
         # Python weekday(): Mon=0..Sun=6 ; map to WEEKDAYS (Sun=0..Sat=6)
         index = (appointment.scheduled_at.weekday() + 1) % 7
         week_map[WEEKDAYS[index]] += 1
@@ -386,6 +402,13 @@ def get_dashboard_stats(
             "total_reviews": total_reviews,
             "monthly_goal": monthly_goal,
             "goal_progress": goal_progress,
+        },
+        "period": {
+            "start": period_start,
+            "end": period_end,
+            "revenue": period_revenue,
+            "appointments": period_count,
+            "ticket": period_ticket,
         },
         "today_appointments_list": [
             _brief(a, clients_by_id, services_by_id, professionals_by_id)

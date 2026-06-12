@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
-import { getDashboardStats, getSettings } from "../services/api";
+import {
+  getDashboardStats,
+  getSettings,
+  getProfessionals,
+} from "../services/api";
 
 import Navbar from "../components/Navbar";
 
@@ -11,6 +15,8 @@ import {
   FaTools,
   FaClock,
   FaStar,
+  FaChartLine,
+  FaReceipt,
 } from "react-icons/fa";
 
 import {
@@ -31,50 +37,148 @@ function brl(value) {
   return `R$ ${Number(value || 0).toFixed(2)}`;
 }
 
+function toISODate(date) {
+  return date.toISOString().split("T")[0];
+}
+
+// Period presets compute a {startDate, endDate} range (or {} for "this month").
+const PERIODS = [
+  { key: "today", label: "Hoje" },
+  { key: "7d", label: "7 dias" },
+  { key: "30d", label: "30 dias" },
+  { key: "month", label: "Este mês" },
+];
+
+function rangeForPeriod(key) {
+  const today = new Date();
+
+  if (key === "today") {
+    const d = toISODate(today);
+    return { startDate: d, endDate: d };
+  }
+
+  if (key === "7d") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 6);
+    return { startDate: toISODate(start), endDate: toISODate(today) };
+  }
+
+  if (key === "30d") {
+    const start = new Date(today);
+    start.setDate(start.getDate() - 29);
+    return { startDate: toISODate(start), endDate: toISODate(today) };
+  }
+
+  // "month" → let the backend default to the current month
+  return {};
+}
+
 export default function Dashboard() {
 
   const [stats, setStats] = useState(null);
   const [term, setTerm] = useState({ singular: "Cliente", plural: "Clientes" });
+  const [professionals, setProfessionals] = useState([]);
+
+  const [period, setPeriod] = useState("month");
+  const [professionalId, setProfessionalId] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  async function loadData() {
-
-    setLoading(true);
-    setError(false);
-
+  async function loadStaticData() {
     try {
-
-      const [data, settings] = await Promise.all([
-        getDashboardStats(),
+      const [settings, pros] = await Promise.all([
         getSettings(),
+        getProfessionals(),
       ]);
-
-      setStats(data);
       setTerm({
         singular: settings.client_term_singular,
         plural: settings.client_term_plural,
       });
-
+      setProfessionals(pros);
     } catch (err) {
+      console.error("Erro ao carregar configurações:", err);
+    }
+  }
 
+  async function loadStats() {
+    setLoading(true);
+    setError(false);
+
+    try {
+      const data = await getDashboardStats({
+        professionalId: professionalId || undefined,
+        ...rangeForPeriod(period),
+      });
+      setStats(data);
+    } catch (err) {
       console.error("Erro ao carregar dashboard:", err);
       setError(true);
-
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadData();
+    loadStaticData();
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, professionalId]);
+
+  function periodLabel() {
+    if (!stats) return "";
+    const { start, end } = stats.period;
+    const fmt = (s) => s.split("-").reverse().join("/");
+    return start === end ? fmt(start) : `${fmt(start)} – ${fmt(end)}`;
+  }
+
+  const controls = (
+    <div className="dashboard-controls">
+      <select
+        className="dashboard-select"
+        value={professionalId}
+        onChange={(e) => setProfessionalId(e.target.value)}
+      >
+        <option value="">Todos os profissionais</option>
+        {professionals.map((p) => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+
+      <div className="dashboard-period">
+        {PERIODS.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            className={period === p.key ? "period-btn active" : "period-btn"}
+            onClick={() => setPeriod(p.key)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const header = (
+    <div className="dashboard-header">
+      <div>
+        <h1 className="dashboard-title">Dashboard</h1>
+        <p className="dashboard-subtitle">Visão geral do seu negócio</p>
+      </div>
+      {controls}
+    </div>
+  );
+
+  if (loading && !stats) {
     return (
       <div className="dashboard-page">
         <Navbar />
         <div className="dashboard-container">
+          {header}
           <div className="dashboard-state">Carregando dashboard...</div>
         </div>
       </div>
@@ -86,9 +190,10 @@ export default function Dashboard() {
       <div className="dashboard-page">
         <Navbar />
         <div className="dashboard-container">
+          {header}
           <div className="dashboard-state">
             <p>Não foi possível carregar o dashboard.</p>
-            <button className="dashboard-retry-btn" onClick={loadData}>
+            <button className="dashboard-retry-btn" onClick={loadStats}>
               Tentar novamente
             </button>
           </div>
@@ -97,35 +202,53 @@ export default function Dashboard() {
     );
   }
 
-  const { kpis } = stats;
+  const { kpis, period: periodData } = stats;
 
   return (
-
     <div className="dashboard-page">
-
       <Navbar />
 
-      <div className="dashboard-container">
+      <div className={`dashboard-container ${loading ? "is-refreshing" : ""}`}>
 
-        {/* HEADER */}
+        {header}
 
-        <div className="dashboard-header">
+        {/* RESUMO DO PERÍODO */}
+        <div className="period-summary">
+          <div className="period-summary-head">
+            <h3>Resumo do período</h3>
+            <span className="period-summary-range">{periodLabel()}</span>
+          </div>
 
-          <h1 className="dashboard-title">
-            Dashboard
-          </h1>
+          <div className="period-summary-grid">
+            <div className="period-summary-card">
+              <div className="period-summary-icon"><FaChartLine /></div>
+              <div>
+                <p className="period-summary-label">Faturamento</p>
+                <h2 className="period-summary-value">{brl(periodData.revenue)}</h2>
+              </div>
+            </div>
 
-          <p className="dashboard-subtitle">
-            Visão geral do sistema
-          </p>
+            <div className="period-summary-card">
+              <div className="period-summary-icon"><FaCalendarCheck /></div>
+              <div>
+                <p className="period-summary-label">Atendimentos</p>
+                <h2 className="period-summary-value">{periodData.appointments}</h2>
+              </div>
+            </div>
 
+            <div className="period-summary-card">
+              <div className="period-summary-icon"><FaReceipt /></div>
+              <div>
+                <p className="period-summary-label">Ticket médio</p>
+                <h2 className="period-summary-value">{brl(periodData.ticket)}</h2>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* CARDS */}
-
+        {/* KPIs DO MÊS / TEMPO REAL */}
         <div className="dashboard-grid">
 
-          {/* RECEITA MES */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
@@ -134,10 +257,9 @@ export default function Dashboard() {
               </div>
               <div className="dashboard-icon"><FaMoneyBillWave /></div>
             </div>
-            <div className="dashboard-card-footer">Receita mensal</div>
+            <div className="dashboard-card-footer">Receita do mês atual</div>
           </div>
 
-          {/* META MENSAL */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
@@ -157,22 +279,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* CRESCIMENTO MENSAL */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
                 <p className="dashboard-card-title">Crescimento</p>
-                <h2 className="dashboard-card-value">
+                <h2 className={`dashboard-card-value ${kpis.monthly_growth >= 0 ? "positive" : "negative"}`}>
                   {kpis.monthly_growth >= 0 ? "↑" : "↓"}{" "}
                   {Math.abs(kpis.monthly_growth).toFixed(1)}%
                 </h2>
               </div>
-              <div className="dashboard-icon"><FaCalendarCheck /></div>
+              <div className="dashboard-icon"><FaChartLine /></div>
             </div>
             <div className="dashboard-card-footer">Comparado ao mês anterior</div>
           </div>
 
-          {/* FATURAMENTO PREVISTO */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
@@ -184,19 +304,17 @@ export default function Dashboard() {
             <div className="dashboard-card-footer">Receita futura agendada</div>
           </div>
 
-          {/* AGENDAMENTOS HOJE */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
-                <p className="dashboard-card-title">Hoje</p>
+                <p className="dashboard-card-title">Agendamentos Hoje</p>
                 <h2 className="dashboard-card-value">{kpis.today_appointments}</h2>
               </div>
               <div className="dashboard-icon"><FaCalendarCheck /></div>
             </div>
-            <div className="dashboard-card-footer">Agendamentos do dia</div>
+            <div className="dashboard-card-footer">{brl(kpis.today_revenue)} previstos hoje</div>
           </div>
 
-          {/* OCUPACAO */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
@@ -208,73 +326,6 @@ export default function Dashboard() {
             <div className="dashboard-card-footer">Agenda ocupada hoje</div>
           </div>
 
-          {/* TICKET MEDIO */}
-          <div className="dashboard-card">
-            <div className="dashboard-card-top">
-              <div>
-                <p className="dashboard-card-title">Ticket Médio</p>
-                <h2 className="dashboard-card-value">{brl(kpis.average_ticket)}</h2>
-              </div>
-              <div className="dashboard-icon"><FaMoneyBillWave /></div>
-            </div>
-            <div className="dashboard-card-footer">Receita média por atendimento</div>
-          </div>
-
-          {/* FATURAMENTO HOJE */}
-          <div className="dashboard-card">
-            <div className="dashboard-card-top">
-              <div>
-                <p className="dashboard-card-title">Hoje</p>
-                <h2 className="dashboard-card-value">{brl(kpis.today_revenue)}</h2>
-              </div>
-              <div className="dashboard-icon"><FaMoneyBillWave /></div>
-            </div>
-            <div className="dashboard-card-footer">Receita de hoje</div>
-          </div>
-
-        </div>
-
-        <div className="dashboard-grid">
-
-          {/* CLIENTES */}
-          <div className="dashboard-card">
-            <div className="dashboard-card-top">
-              <div>
-                <p className="dashboard-card-title">{term.plural}</p>
-                <h2 className="dashboard-card-value">{kpis.total_clients}</h2>
-              </div>
-              <div className="dashboard-icon"><FaUsers /></div>
-            </div>
-            <div className="dashboard-card-footer">
-              Total de {term.plural.toLowerCase()} cadastrados
-            </div>
-          </div>
-
-          {/* NOVOS CLIENTES */}
-          <div className="dashboard-card">
-            <div className="dashboard-card-top">
-              <div>
-                <p className="dashboard-card-title">Novos {term.plural}</p>
-                <h2 className="dashboard-card-value">{kpis.new_clients_month}</h2>
-              </div>
-              <div className="dashboard-icon"><FaUsers /></div>
-            </div>
-            <div className="dashboard-card-footer">Cadastros realizados este mês</div>
-          </div>
-
-          {/* SERVIÇOS */}
-          <div className="dashboard-card">
-            <div className="dashboard-card-top">
-              <div>
-                <p className="dashboard-card-title">Serviços</p>
-                <h2 className="dashboard-card-value">{kpis.total_services}</h2>
-              </div>
-              <div className="dashboard-icon"><FaTools /></div>
-            </div>
-            <div className="dashboard-card-footer">Serviços disponíveis</div>
-          </div>
-
-          {/* AVALIAÇÕES */}
           <div className="dashboard-card">
             <div className="dashboard-card-top">
               <div>
@@ -290,16 +341,39 @@ export default function Dashboard() {
             </div>
           </div>
 
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">{term.plural}</p>
+                <h2 className="dashboard-card-value">{kpis.total_clients}</h2>
+              </div>
+              <div className="dashboard-icon"><FaUsers /></div>
+            </div>
+            <div className="dashboard-card-footer">
+              +{kpis.new_clients_month} novos este mês
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="dashboard-card-top">
+              <div>
+                <p className="dashboard-card-title">Serviços</p>
+                <h2 className="dashboard-card-value">{kpis.total_services}</h2>
+              </div>
+              <div className="dashboard-icon"><FaTools /></div>
+            </div>
+            <div className="dashboard-card-footer">Serviços disponíveis</div>
+          </div>
+
         </div>
 
         {/* GRÁFICOS */}
-
-        <div className="dashboard-charts-grid">
+        <div className="dashboard-charts-grid two-col">
           <div className="dashboard-chart-card">
-            <h3 className="dashboard-chart-title">Agendamentos da Semana</h3>
-            <ResponsiveContainer width="100%" height={320}>
+            <h3 className="dashboard-chart-title">Agendamentos por Dia da Semana</h3>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={stats.weekly_appointments}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="day" />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
@@ -307,14 +381,12 @@ export default function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
 
-        <div className="dashboard-charts-grid">
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Faturamento Últimos 6 Meses</h3>
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={stats.monthly_revenue_chart}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip formatter={(value) => brl(value)} />
@@ -323,15 +395,16 @@ export default function Dashboard() {
                   dataKey="revenue"
                   stroke="#6d28d9"
                   strokeWidth={3}
+                  dot={{ r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="dashboard-charts-grid">
+        {/* LISTAS */}
+        <div className="dashboard-charts-grid two-col">
 
-          {/* PRÓXIMOS */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Próximos Atendimentos</h3>
             {stats.today_appointments_list.length === 0 ? (
@@ -345,14 +418,13 @@ export default function Dashboard() {
                   </div>
                   <div className="appointment-info">
                     <strong>{appointment.client}</strong>
-                    <span>{appointment.service}</span>
+                    <span>{appointment.service} · {appointment.professional}</span>
                   </div>
                 </div>
               ))
             )}
           </div>
 
-          {/* AGENDA DE AMANHÃ */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Agenda de Amanhã</h3>
             {stats.tomorrow_appointments.length === 0 ? (
@@ -366,7 +438,7 @@ export default function Dashboard() {
                   </div>
                   <div className="appointment-info">
                     <strong>{appointment.client}</strong>
-                    <span>{appointment.service}</span>
+                    <span>{appointment.service} · {appointment.professional}</span>
                   </div>
                 </div>
               ))
@@ -377,11 +449,11 @@ export default function Dashboard() {
 
         <div className="dashboard-charts-grid">
 
-          {/* SERVIÇOS MAIS USADOS */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Serviços Mais Realizados</h3>
+            <p className="dashboard-chart-subtitle">no período selecionado</p>
             {stats.top_services.length === 0 ? (
-              <div className="empty-state">Nenhum serviço realizado</div>
+              <div className="empty-state">Nenhum serviço no período</div>
             ) : (
               stats.top_services.map((service) => {
                 const maxValue = stats.top_services[0]?.total || 1;
@@ -404,11 +476,11 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* TOP CLIENTES */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Top {term.plural}</h3>
+            <p className="dashboard-chart-subtitle">no período selecionado</p>
             {stats.top_clients.length === 0 ? (
-              <div className="empty-state">Nenhum {term.singular.toLowerCase()}</div>
+              <div className="empty-state">Nenhum {term.singular.toLowerCase()} no período</div>
             ) : (
               stats.top_clients.map((patient, index) => (
                 <div key={patient.id} className="appointment-item">
@@ -421,9 +493,9 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* CLIENTES SEM RETORNO */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">{term.plural} Sem Retorno</h3>
+            <p className="dashboard-chart-subtitle">há mais de 90 dias</p>
             {stats.inactive_clients.length === 0 ? (
               <div className="empty-state">Nenhum {term.singular.toLowerCase()} sem retorno</div>
             ) : (
@@ -438,7 +510,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* ANIVERSARIANTES */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Aniversariantes do Mês</h3>
             {stats.birthday_clients.length === 0 ? (
@@ -458,7 +529,6 @@ export default function Dashboard() {
         </div>
 
         <div className="dashboard-charts-grid">
-          {/* ALERTAS */}
           <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">Alertas Inteligentes</h3>
             {stats.alerts.length === 0 ? (
