@@ -24,6 +24,10 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Too aggressive for our legitimate "load data on mount" pattern, where
+      // loaders set a loading flag synchronously. Re-enable if we adopt a data
+      // fetching library that owns this concern.
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ])

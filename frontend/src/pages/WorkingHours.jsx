@@ -222,6 +222,7 @@ export default function WorkingHours() {
   useEffect(() => {
     loadProfessionals();
     loadBookingLink();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

@@ -46,10 +46,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # lint runs for visibility but doesn't block CI yet (pre-existing debt)
       - name: Lint
         run: npm run lint
-        continue-on-error: true
 
       - name: Build
         run: npm run build
