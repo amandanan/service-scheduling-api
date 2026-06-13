@@ -14,7 +14,7 @@ from app.schemas.service import (
 from app.core.dependencies import (
     get_current_user
 )
-from app.core.account import account_id
+from app.core.account import account_id, require_management
 
 router = APIRouter(
     prefix="/services",
@@ -42,7 +42,7 @@ def get_db():
 def create_service(
     service: ServiceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     new_service = Service(
@@ -73,7 +73,7 @@ def create_service(
 )
 def list_services(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     services = db.query(Service).filter(
@@ -91,7 +91,7 @@ def list_services(
 def get_service(
     service_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     service = db.query(Service).filter(
@@ -114,7 +114,7 @@ def get_service(
 def delete_service(
     service_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     service = db.query(Service).filter(
@@ -148,7 +148,7 @@ def update_service(
     service_id: int,
     service_data: ServiceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     service = db.query(Service).filter(

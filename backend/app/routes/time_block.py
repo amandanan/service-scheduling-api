@@ -15,7 +15,7 @@ router = APIRouter(
     prefix="/blocks",
     tags=["Time Blocks"]
 )
-from app.core.account import account_id
+from app.core.account import account_id, require_management
 
 
 # DB
@@ -34,7 +34,7 @@ def get_db():
 def create_block(
     block: TimeBlockCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     professional = db.query(Professional).filter(
@@ -68,7 +68,7 @@ def create_block(
 def list_blocks(
     professional_id: int | None = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     query = db.query(TimeBlock).filter(
@@ -86,7 +86,7 @@ def list_blocks(
 def delete_block(
     block_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     block = db.query(TimeBlock).filter(

@@ -25,7 +25,7 @@ from app.schemas.appointment import (
 from app.core.dependencies import (
     get_current_user
 )
-from app.core.account import account_id
+from app.core.account import account_id, require_management
 
 from app.core.scheduling import compute_available_slots
 from app.core.notifications import send_booking_confirmation
@@ -56,9 +56,7 @@ def get_db():
 def create_appointment(
     appointment: AppointmentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     if appointment.scheduled_at <= datetime.now():
@@ -131,9 +129,7 @@ def create_appointment(
 )
 def list_appointments(
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     appointments = db.query(
@@ -153,9 +149,7 @@ def get_available_slots(
     service_id: int,
     professional_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     service = db.query(Service).filter(
@@ -193,9 +187,7 @@ def get_available_slots(
 def get_appointment(
     appointment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     appointment = db.query(
@@ -224,9 +216,7 @@ def update_appointment_status(
     appointment_id: int,
     data: AppointmentStatusUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     appointment = db.query(Appointment).filter(
@@ -259,9 +249,7 @@ def update_appointment_status(
 def delete_appointment(
     appointment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     appointment = db.query(
@@ -297,9 +285,7 @@ def update_appointment(
     appointment_id: int,
     appointment_data: AppointmentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    )
+    current_user: User = Depends(require_management)
 ):
 
     if appointment_data.scheduled_at <= datetime.now():

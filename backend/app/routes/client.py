@@ -15,7 +15,7 @@ from app.schemas.client import (
 from app.core.dependencies import (
     get_current_user
 )
-from app.core.account import account_id
+from app.core.account import account_id, require_management
 
 router = APIRouter(
     prefix="/clients",
@@ -39,7 +39,7 @@ def get_db():
 def create_client(
     client: ClientCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     duplicate_filters = [Client.email == client.email]
@@ -79,7 +79,7 @@ def create_client(
 @router.get("/", response_model=list[ClientResponse])
 def list_clients(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     clients = db.query(Client).filter(
@@ -94,7 +94,7 @@ def list_clients(
 def get_client(
     client_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     client = db.query(Client).filter(
@@ -116,7 +116,7 @@ def get_client(
 def delete_client(
     client_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     client = db.query(Client).filter(
@@ -145,7 +145,7 @@ def update_client(
     client_id: int,
     client_data: ClientCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     client = db.query(Client).filter(

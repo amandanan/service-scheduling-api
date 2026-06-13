@@ -11,7 +11,7 @@ from app.schemas.review import OwnerReviewResponse
 from app.core.dependencies import (
     get_current_user
 )
-from app.core.account import account_id
+from app.core.account import account_id, require_management
 
 router = APIRouter(
     prefix="/reviews",
@@ -38,7 +38,7 @@ def get_db():
 )
 def list_reviews(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_management)
 ):
 
     return db.query(Review).filter(

@@ -14,7 +14,7 @@ from app.models.review import Review
 
 from app.schemas.dashboard import DashboardStats
 
-from app.core.account import get_account_owner
+from app.core.account import get_account_owner, require_management
 
 router = APIRouter(
     prefix="/dashboard",
@@ -70,6 +70,7 @@ def get_dashboard_stats(
     end_date: date | None = None,
     db: Session = Depends(get_db),
     account_owner: User = Depends(get_account_owner),
+    _: User = Depends(require_management),
 ):
 
     monthly_goal = account_owner.monthly_goal
