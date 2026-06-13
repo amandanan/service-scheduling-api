@@ -7,7 +7,6 @@ from app.models.user import User
 
 from app.schemas.settings import SettingsResponse, SettingsUpdate
 
-from app.core.dependencies import get_current_user
 from app.core.account import get_account_owner, require_owner
 
 router = APIRouter(

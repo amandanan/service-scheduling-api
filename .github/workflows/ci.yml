@@ -8,11 +8,31 @@ on:
 
 jobs:
   backend:
-    name: Backend tests
+    name: Backend tests (Postgres)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: scheduling
+          POSTGRES_PASSWORD: scheduling
+          POSTGRES_DB: scheduling_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U scheduling"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg2://scheduling:scheduling@localhost:5432/scheduling_test
+      SECRET_KEY: ci-secret-key
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,6 +44,14 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: ruff check app tests
+
+      - name: Validate migrations on Postgres
+        run: |
+          alembic upgrade head
+          alembic downgrade base
 
       - name: Run tests
         run: pytest -q

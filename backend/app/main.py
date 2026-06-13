@@ -11,14 +11,6 @@ from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
-from app.models.user import User
-from app.models.client import Client
-from app.models.service import Service
-from app.models.appointment import Appointment
-from app.models.professional import Professional
-from app.models.working_hours import WorkingHours
-from app.models.review import Review
-from app.models.time_block import TimeBlock
 
 from app.core.rate_limit import limiter
 from app.core.reminders import (

@@ -241,7 +241,7 @@ cp .env.example .env
 
 Edit `.env` and set a `SECRET_KEY` (generate one with `python -c "import secrets; print(secrets.token_hex(32))"`).
 
-By default the app uses a local SQLite file, so no extra setup is needed for development.
+For development and production we use **PostgreSQL** (see "Using PostgreSQL" below — a one-command Docker Compose Postgres is provided). If `DATABASE_URL` is left unset the app falls back to a local SQLite file for quick experiments.
 
 ### Email notifications
 
@@ -250,12 +250,12 @@ Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` and `SMT
 If `SMTP_HOST` is left empty, emails are logged instead of sent — useful for local development.
 `FRONTEND_URL` controls the base URL used to build links (e.g. the manage-appointment link) in those emails.
 
-### Using PostgreSQL (production)
+### Using PostgreSQL (dev & production)
 
 Set `DATABASE_URL` in `.env` to a PostgreSQL connection string:
 
 ```bash
-DATABASE_URL=postgresql://scheduling:scheduling@localhost:5432/scheduling
+DATABASE_URL=postgresql+psycopg2://scheduling:scheduling@localhost:5432/scheduling
 ```
 
 A ready-to-use Postgres instance is provided via Docker Compose (from the project root):

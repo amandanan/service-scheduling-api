@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from app.database.session import SessionLocal
 from app.models.appointment import Appointment

@@ -9,13 +9,12 @@ from app.models.user import User
 
 from app.schemas.time_block import TimeBlockCreate, TimeBlockResponse
 
-from app.core.dependencies import get_current_user
+from app.core.account import account_id, require_management
 
 router = APIRouter(
     prefix="/blocks",
     tags=["Time Blocks"]
 )
-from app.core.account import account_id, require_management
 
 
 # DB

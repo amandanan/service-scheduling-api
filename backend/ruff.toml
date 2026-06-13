@@ -1,0 +1,10 @@
+# Ruff configuration for the backend.
+# Default rule set (E, F, W) is enough; we only carve out the few places
+# where module-level imports must run after environment setup.
+
+[lint.per-file-ignores]
+# main.py imports models/routes only after load_dotenv() so env vars
+# (DATABASE_URL, SECRET_KEY) are loaded before the DB engine is created.
+"app/main.py" = ["E402"]
+# conftest sets DATABASE_URL/SECRET_KEY before importing the app.
+"tests/conftest.py" = ["E402"]

@@ -15,6 +15,9 @@ connect_args = (
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
+    # verify connections before use so dropped Postgres connections are
+    # transparently replaced (no-op overhead for SQLite)
+    pool_pre_ping=True,
 )
 
 SessionLocal = sessionmaker(

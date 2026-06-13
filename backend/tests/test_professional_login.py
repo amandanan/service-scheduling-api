@@ -1,7 +1,4 @@
-from datetime import datetime, timedelta
 
-from app.database.session import SessionLocal
-from app.models.appointment import Appointment
 
 
 def _owner(client, email="dono@test.com", cpf="11144477735"):

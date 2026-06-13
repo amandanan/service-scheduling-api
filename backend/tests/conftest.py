@@ -1,6 +1,8 @@
 import os
 
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+# default to a local SQLite file for a fast inner loop, but honour a
+# pre-set DATABASE_URL (CI points this at a real Postgres)
+os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
 import pytest

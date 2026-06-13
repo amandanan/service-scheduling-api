@@ -89,7 +89,7 @@ def list_public_professionals(
 
     return db.query(Professional).filter(
         Professional.owner_id == business.id,
-        Professional.is_active == True,
+        Professional.is_active.is_(True),
     ).all()
 
 
@@ -149,7 +149,7 @@ def get_public_available_slots(
     professional = db.query(Professional).filter(
         Professional.id == professional_id,
         Professional.owner_id == business.id,
-        Professional.is_active == True,
+        Professional.is_active.is_(True),
     ).first()
 
     if not professional:
@@ -188,7 +188,7 @@ def create_public_booking(
     professional = db.query(Professional).filter(
         Professional.id == booking.professional_id,
         Professional.owner_id == business.id,
-        Professional.is_active == True,
+        Professional.is_active.is_(True),
     ).first()
 
     if not professional:
