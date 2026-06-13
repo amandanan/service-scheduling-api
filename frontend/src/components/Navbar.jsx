@@ -15,6 +15,7 @@ import {
   FaLayerGroup,
   FaStar,
   FaCog,
+  FaUserShield,
 } from "react-icons/fa";
 
 import "../styles/navbar.css";
@@ -23,9 +24,12 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isOwner = (localStorage.getItem("role") || "owner") === "owner";
+
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
+    localStorage.removeItem("role");
     navigate("/");
   }
 
@@ -123,17 +127,33 @@ export default function Navbar() {
           Horários
         </Link>
 
-        <Link
-          to="/settings"
-          className={
-            location.pathname === "/settings"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaCog />
-          Configurações
-        </Link>
+        {isOwner && (
+          <Link
+            to="/staff"
+            className={
+              location.pathname === "/staff"
+                ? "navbar-link active"
+                : "navbar-link"
+            }
+          >
+            <FaUserShield />
+            Equipe
+          </Link>
+        )}
+
+        {isOwner && (
+          <Link
+            to="/settings"
+            className={
+              location.pathname === "/settings"
+                ? "navbar-link active"
+                : "navbar-link"
+            }
+          >
+            <FaCog />
+            Configurações
+          </Link>
+        )}
 
         <button
           className="logout-btn"

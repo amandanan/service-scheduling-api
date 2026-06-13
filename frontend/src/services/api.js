@@ -57,6 +57,7 @@ async function refreshAccessToken() {
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("refresh_token");
+  localStorage.removeItem("role");
   window.location.href = "/login";
 }
 
@@ -528,6 +529,30 @@ export async function updateSettings(data) {
   const response = await api.put("/settings/", data);
 
   return response.data;
+}
+
+
+// STAFF (team members) — owner only
+
+export async function getStaff() {
+
+  const response = await api.get("/staff/");
+
+  return response.data;
+}
+
+
+export async function createStaff(data) {
+
+  const response = await api.post("/staff/", data);
+
+  return response.data;
+}
+
+
+export async function deleteStaff(id) {
+
+  await api.delete(`/staff/${id}`);
 }
 
 

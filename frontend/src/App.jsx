@@ -13,6 +13,7 @@ import Reviews from "./pages/Reviews";
 import Appointments from "./pages/Appointments";
 import WorkingHours from "./pages/WorkingHours";
 import Settings from "./pages/Settings";
+import Staff from "./pages/Staff";
 import PublicBooking from "./pages/PublicBooking";
 import ManageAppointment from "./pages/ManageAppointment";
 
@@ -113,6 +114,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/staff"
+          element={
+            <ProtectedRoute>
+              <Staff />
             </ProtectedRoute>
           }
         />

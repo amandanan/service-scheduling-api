@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../services/api";
+import { login, getMe } from "../services/api";
 import { toast } from "react-toastify";
 
 import "../styles/login.css";
@@ -33,6 +33,13 @@ function Login() {
        "refresh_token",
        data.refresh_token
       );
+
+      try {
+        const me = await getMe();
+        localStorage.setItem("role", me.role);
+      } catch {
+        localStorage.setItem("role", "owner");
+      }
 
       toast.success("Login realizado com sucesso");
 
