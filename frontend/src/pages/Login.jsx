@@ -29,6 +29,11 @@ function Login() {
        data.access_token
       );
 
+      localStorage.setItem(
+       "refresh_token",
+       data.refresh_token
+      );
+
       toast.success("Login realizado com sucesso");
 
       navigate("/dashboard");
@@ -90,6 +95,12 @@ function Login() {
            Entrar
           </button>
         </form>
+
+        <p className="login-link">
+          <Link to="/esqueci-senha">
+            Esqueci minha senha
+          </Link>
+        </p>
 
         <p className="login-link">
           Não possui conta?

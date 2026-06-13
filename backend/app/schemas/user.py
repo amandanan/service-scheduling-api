@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
+from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
 from datetime import date
 
 from app.core.cpf import validate_and_normalize_cpf
@@ -32,4 +32,23 @@ class UserResponse(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=6)

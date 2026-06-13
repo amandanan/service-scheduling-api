@@ -3,6 +3,8 @@ import "./styles/global.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Services from "./pages/Services";
@@ -34,6 +36,10 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/register" element={<Register />} />
+
+        <Route path="/esqueci-senha" element={<ForgotPassword />} />
+
+        <Route path="/redefinir-senha/:token" element={<ResetPassword />} />
 
         <Route path="/agendar/:slug" element={<PublicBooking />} />
 

@@ -9,9 +9,33 @@ from app.models.service import Service
 from app.models.user import User
 
 
+def _frontend_url() -> str:
+    return os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+
+
 def _manage_url(public_token: str) -> str:
-    base_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-    return f"{base_url}/agendamento/{public_token}"
+    return f"{_frontend_url()}/agendamento/{public_token}"
+
+
+def send_password_reset(user: User, reset_token: str) -> None:
+    """E-mail a password reset link to a business owner."""
+
+    if not user.email:
+        return
+
+    reset_url = f"{_frontend_url()}/redefinir-senha/{reset_token}"
+
+    subject = "Redefinição de senha"
+
+    body = (
+        f"Olá {user.full_name},\n\n"
+        f"Recebemos um pedido para redefinir a senha da sua conta.\n"
+        f"Acesse o link abaixo para criar uma nova senha (expira em 1 hora):\n\n"
+        f"{reset_url}\n\n"
+        f"Se você não solicitou, ignore este e-mail."
+    )
+
+    email.send_email(user.email, subject, body)
 
 
 def _appointment_message(

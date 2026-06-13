@@ -25,6 +25,7 @@ export default function Navbar() {
 
   function logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     navigate("/");
   }
 

@@ -28,21 +28,71 @@ api.interceptors.request.use(
 
 
 // INTERCEPTOR RESPONSE
+// On a 401 we try to silently refresh the access token once before giving up,
+// so a short-lived access token doesn't log the user out mid-session.
+
+let refreshPromise = null;
+
+async function refreshAccessToken() {
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!refreshToken) {
+    return null;
+  }
+
+  try {
+    const response = await axios.post(`${API_URL}/auth/refresh`, {
+      refresh_token: refreshToken,
+    });
+
+    const newToken = response.data.access_token;
+    localStorage.setItem("token", newToken);
+    return newToken;
+
+  } catch {
+    return null;
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refresh_token");
+  window.location.href = "/login";
+}
+
 api.interceptors.response.use(
 
   (response) => response,
 
-  (error) => {
+  async (error) => {
 
-    // token expirado / inválido
-    if (
-      error.response &&
-      error.response.status === 401
-    ) {
+    const original = error.config;
+    const status = error.response?.status;
 
-      localStorage.removeItem("token");
+    const canRetry =
+      status === 401 &&
+      original &&
+      !original._retry &&
+      !original.url?.includes("/auth/refresh");
 
-      window.location.href = "/login";
+    if (canRetry) {
+      original._retry = true;
+
+      // de-duplicate concurrent refreshes
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken().finally(() => {
+          refreshPromise = null;
+        });
+      }
+
+      const newToken = await refreshPromise;
+
+      if (newToken) {
+        original.headers.Authorization = `Bearer ${newToken}`;
+        return api(original);
+      }
+
+      logout();
     }
 
     return Promise.reject(error);
@@ -89,6 +139,28 @@ export async function getMe() {
 
   const response = await api.get(
     "/auth/me"
+  );
+
+  return response.data;
+}
+
+
+export async function forgotPassword(email) {
+
+  const response = await api.post(
+    "/auth/forgot-password",
+    { email }
+  );
+
+  return response.data;
+}
+
+
+export async function resetPassword(token, newPassword) {
+
+  const response = await api.post(
+    "/auth/reset-password",
+    { token, new_password: newPassword }
   );
 
   return response.data;

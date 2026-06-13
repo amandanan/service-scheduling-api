@@ -1,3 +1,5 @@
+from jose import JWTError
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -6,10 +8,24 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.database.session import SessionLocal
 from app.models.user import User
 from app.models.professional import Professional
-from app.schemas.user import UserCreate, UserResponse, Token
-from app.core.security import create_access_token
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    Token,
+    AccessToken,
+    RefreshRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    create_password_reset_token,
+    decode_token,
+)
 from app.core.slugs import generate_unique_booking_slug
 from app.core.dependencies import get_current_user
+from app.core.notifications import send_password_reset
 
 
 pwd_context = CryptContext(
@@ -108,13 +124,105 @@ def login(
             detail="Credenciais inválidas"
         )
 
-    token = create_access_token({
-        "sub": db_user.email
-    })
+    return {
+        "access_token": create_access_token({"sub": db_user.email}),
+        "refresh_token": create_refresh_token({"sub": db_user.email}),
+        "token_type": "bearer"
+    }
+
+
+# REFRESH ACCESS TOKEN
+@router.post("/refresh", response_model=AccessToken)
+def refresh(
+    data: RefreshRequest,
+    db: Session = Depends(get_db)
+):
+
+    invalid = HTTPException(
+        status_code=401,
+        detail="Refresh token inválido"
+    )
+
+    try:
+        payload = decode_token(data.refresh_token)
+    except JWTError:
+        raise invalid
+
+    if payload.get("type") != "refresh":
+        raise invalid
+
+    email = payload.get("sub")
+
+    if not email:
+        raise invalid
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise invalid
 
     return {
-        "access_token": token,
+        "access_token": create_access_token({"sub": user.email}),
         "token_type": "bearer"
+    }
+
+
+# FORGOT PASSWORD
+@router.post("/forgot-password")
+def forgot_password(
+    data: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+
+    user = db.query(User).filter(User.email == data.email).first()
+
+    # only send when the account exists, but always answer the same way so
+    # the endpoint can't be used to discover which e-mails are registered
+    if user:
+        reset_token = create_password_reset_token({"sub": user.email})
+        send_password_reset(user, reset_token)
+
+    return {
+        "message": "Se o e-mail estiver cadastrado, enviaremos um link de redefinição."
+    }
+
+
+# RESET PASSWORD
+@router.post("/reset-password")
+def reset_password(
+    data: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+
+    invalid = HTTPException(
+        status_code=400,
+        detail="Link de redefinição inválido ou expirado"
+    )
+
+    try:
+        payload = decode_token(data.token)
+    except JWTError:
+        raise invalid
+
+    if payload.get("type") != "reset":
+        raise invalid
+
+    email = payload.get("sub")
+
+    if not email:
+        raise invalid
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise invalid
+
+    user.hashed_password = hash_password(data.new_password)
+
+    db.commit()
+
+    return {
+        "message": "Senha redefinida com sucesso"
     }
 
 
