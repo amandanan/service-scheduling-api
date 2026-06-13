@@ -1,6 +1,7 @@
 import logging
 
 from app.core.email import send_email
+from app.core.whatsapp import send_whatsapp, normalize_phone
 from app.core.notifications import send_appointment_reminder
 
 
@@ -57,6 +58,76 @@ def test_public_booking_sends_confirmation_email(client, sent_emails):
     assert "Studio Bella" in sent["subject"]
     assert "Corte" in sent["body"]
     assert booking["public_token"] in sent["body"]
+
+
+def test_public_booking_sends_whatsapp_confirmation(client, sent_whatsapps):
+    headers, slug, service_id, professional_id = _setup_business_with_service(client)
+
+    response = client.post(f"/public/{slug}/appointments", json={
+        "full_name": "Cliente Publico",
+        "birth_date": "1995-05-05",
+        "cpf": "16899555468",
+        "phone": "11977777777",
+        "email": "cliente@test.com",
+        "service_id": service_id,
+        "professional_id": professional_id,
+        "scheduled_at": "2026-06-15T09:00:00",
+    })
+
+    assert response.status_code == 200
+    booking = response.json()
+
+    assert len(sent_whatsapps) == 1
+    sent = sent_whatsapps[0]
+
+    # the client's phone is forwarded; normalisation happens inside send_whatsapp
+    assert sent["to"] == "11977777777"
+    assert "Corte" in sent["message"]
+    assert booking["public_token"] in sent["message"]
+
+
+def test_booking_without_phone_skips_whatsapp(client, sent_whatsapps, auth_headers, first_professional_id):
+    headers = auth_headers()
+    professional_id = first_professional_id(headers)
+
+    # client created without a phone number
+    client_response = client.post("/clients/", json={
+        "full_name": "Sem Telefone",
+        "birth_date": "1990-01-01",
+        "phone": "",
+        "email": "semfone@test.com",
+    }, headers=headers)
+
+    service_response = client.post("/services/", json={
+        "name": "Corte",
+        "price": 50.0,
+        "duration_minutes": 60,
+    }, headers=headers)
+
+    client.post("/appointments/", json={
+        "client_id": client_response.json()["id"],
+        "service_id": service_response.json()["id"],
+        "professional_id": professional_id,
+        "scheduled_at": "2026-06-15T09:00:00",
+    }, headers=headers)
+
+    assert sent_whatsapps == []
+
+
+def test_normalize_phone():
+    assert normalize_phone("(11) 97777-7777") == "5511977777777"
+    assert normalize_phone("11977777777") == "5511977777777"
+    assert normalize_phone("5511977777777") == "5511977777777"
+    assert normalize_phone("") == ""
+
+
+def test_send_whatsapp_logs_when_provider_not_configured(monkeypatch, caplog):
+    monkeypatch.delenv("WHATSAPP_API_URL", raising=False)
+
+    with caplog.at_level(logging.INFO, logger="app.core.whatsapp"):
+        send_whatsapp("11977777777", "Mensagem de teste")
+
+    assert any("WhatsApp not sent" in record.message for record in caplog.records)
 
 
 def test_authenticated_booking_sends_confirmation_email(client, auth_headers, first_professional_id, sent_emails):

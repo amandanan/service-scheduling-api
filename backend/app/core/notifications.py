@@ -1,6 +1,7 @@
 import os
 
 from app.core import email
+from app.core import whatsapp
 from app.models.appointment import Appointment
 from app.models.client import Client
 from app.models.professional import Professional
@@ -13,7 +14,7 @@ def _manage_url(public_token: str) -> str:
     return f"{base_url}/agendamento/{public_token}"
 
 
-def _appointment_email_body(
+def _appointment_message(
     greeting: str,
     appointment: Appointment,
     business: User,
@@ -31,6 +32,16 @@ def _appointment_email_body(
     )
 
 
+def _notify(client: Client, subject: str, body: str) -> None:
+    """Deliver a notification over every channel the client allows."""
+
+    if client.email:
+        email.send_email(client.email, subject, body)
+
+    if client.phone:
+        whatsapp.send_whatsapp(client.phone, body)
+
+
 def send_booking_confirmation(
     appointment: Appointment,
     business: User,
@@ -39,12 +50,9 @@ def send_booking_confirmation(
     client: Client,
 ) -> None:
 
-    if not client.email:
-        return
-
     subject = f"Agendamento confirmado - {business.full_name}"
 
-    body = _appointment_email_body(
+    body = _appointment_message(
         f"Olá {client.full_name}, seu agendamento foi confirmado:",
         appointment,
         business,
@@ -52,7 +60,7 @@ def send_booking_confirmation(
         professional,
     )
 
-    email.send_email(client.email, subject, body)
+    _notify(client, subject, body)
 
 
 def send_appointment_reminder(
@@ -62,18 +70,15 @@ def send_appointment_reminder(
     professional: Professional,
     client: Client,
 ) -> None:
-    """Reminder email for an upcoming appointment.
+    """Reminder for an upcoming appointment, sent by e-mail and WhatsApp.
 
     Not yet wired to a scheduler; intended to be called by a future
     background job that finds appointments happening soon.
     """
 
-    if not client.email:
-        return
-
     subject = f"Lembrete de agendamento - {business.full_name}"
 
-    body = _appointment_email_body(
+    body = _appointment_message(
         f"Olá {client.full_name}, este é um lembrete do seu agendamento:",
         appointment,
         business,
@@ -81,4 +86,4 @@ def send_appointment_reminder(
         professional,
     )
 
-    email.send_email(client.email, subject, body)
+    _notify(client, subject, body)

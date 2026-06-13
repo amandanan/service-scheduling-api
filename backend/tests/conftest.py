@@ -47,6 +47,18 @@ def sent_emails(monkeypatch):
 
 
 @pytest.fixture
+def sent_whatsapps(monkeypatch):
+    captured = []
+
+    def _fake_send_whatsapp(to, message):
+        captured.append({"to": to, "message": message})
+
+    monkeypatch.setattr("app.core.whatsapp.send_whatsapp", _fake_send_whatsapp)
+
+    return captured
+
+
+@pytest.fixture
 def auth_headers(client):
     def _create_user(email="user@test.com", password="senha123", cpf="52998224725"):
         client.post("/auth/register", json={

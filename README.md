@@ -15,6 +15,7 @@ The application allows users to:
 * Configure weekly working hours
 * Schedule appointments through an interactive calendar
 * Share a public booking page with their own clients
+* Send booking confirmations by e-mail and WhatsApp
 * Search clients by name or CPF
 * Search services by code or name
 * Prevent schedule conflicts automatically
