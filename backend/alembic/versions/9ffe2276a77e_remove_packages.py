@@ -62,7 +62,7 @@ def downgrade() -> None:
     sa.Column('package_id', sa.INTEGER(), nullable=False),
     sa.Column('total_sessions', sa.INTEGER(), nullable=False),
     sa.Column('remaining_sessions', sa.INTEGER(), nullable=False),
-    sa.Column('purchased_at', sa.DATETIME(), nullable=False),
+    sa.Column('purchased_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['client_id'], ['clients.id'], ),
     sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['package_id'], ['packages.id'], ),
