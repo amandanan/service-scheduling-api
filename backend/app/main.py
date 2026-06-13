@@ -1,5 +1,7 @@
 import os
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -18,6 +20,10 @@ from app.models.working_hours import WorkingHours
 from app.models.review import Review
 
 from app.core.rate_limit import limiter
+from app.core.reminders import (
+    start_reminder_scheduler,
+    stop_reminder_scheduler,
+)
 
 from app.routes import (
     auth,
@@ -32,8 +38,18 @@ from app.routes import (
     settings,
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Optional in-process reminder loop (enabled via REMINDERS_ENABLED).
+    start_reminder_scheduler()
+    yield
+    stop_reminder_scheduler()
+
+
 app = FastAPI(
-    redirect_slashes=False
+    redirect_slashes=False,
+    lifespan=lifespan,
 )
 
 app.state.limiter = limiter

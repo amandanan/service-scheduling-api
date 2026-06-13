@@ -63,6 +63,9 @@ class Appointment(Base):
         default="scheduled",
     )
 
+    # set when an automated reminder has been sent, so it is sent only once
+    reminder_sent_at = Column(DateTime, nullable=True)
+
 
     client = relationship(
         "Client",
