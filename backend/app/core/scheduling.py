@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.appointment import Appointment
 from app.models.service import Service
+from app.models.time_block import TimeBlock
 
 from app.core.working_hours import get_or_create_working_hours
 
@@ -35,6 +36,13 @@ def compute_available_slots(db: Session, owner_id: int, professional_id: int, se
     appointments = db.query(Appointment).filter(
         Appointment.professional_id == professional_id,
         Appointment.status != "cancelled",
+    ).all()
+
+    # one-off blocks (day off, break) that overlap this day
+    blocks = db.query(TimeBlock).filter(
+        TimeBlock.professional_id == professional_id,
+        TimeBlock.start_at < day_end,
+        TimeBlock.end_at > day_start,
     ).all()
 
     services_by_id = {
@@ -76,6 +84,13 @@ def compute_available_slots(db: Session, owner_id: int, professional_id: int, se
             if conflict:
                 has_conflict = True
                 break
+
+        # a slot overlapping any block is unavailable
+        if not has_conflict:
+            for block in blocks:
+                if current < block.end_at and current_end > block.start_at:
+                    has_conflict = True
+                    break
 
         if not has_conflict:
             available_slots.append(current.strftime("%H:%M"))

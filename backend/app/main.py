@@ -18,6 +18,7 @@ from app.models.appointment import Appointment
 from app.models.professional import Professional
 from app.models.working_hours import WorkingHours
 from app.models.review import Review
+from app.models.time_block import TimeBlock
 
 from app.core.rate_limit import limiter
 from app.core.reminders import (
@@ -36,6 +37,7 @@ from app.routes import (
     review,
     dashboard,
     settings,
+    time_block,
 )
 
 
@@ -79,3 +81,4 @@ app.include_router(manage.router)
 app.include_router(review.router)
 app.include_router(dashboard.router)
 app.include_router(settings.router)
+app.include_router(time_block.router)

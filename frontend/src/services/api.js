@@ -305,6 +305,36 @@ export async function updateWorkingHours(professionalId, days) {
 }
 
 
+// TIME BLOCKS (folgas e bloqueios)
+
+export async function getTimeBlocks(professionalId) {
+
+  const response = await api.get(
+    "/blocks/",
+    { params: { professional_id: professionalId } }
+  );
+
+  return response.data;
+}
+
+
+export async function createTimeBlock(data) {
+
+  const response = await api.post(
+    "/blocks/",
+    data
+  );
+
+  return response.data;
+}
+
+
+export async function deleteTimeBlock(id) {
+
+  await api.delete(`/blocks/${id}`);
+}
+
+
 // PUBLIC BOOKING
 
 export async function getPublicBusiness(slug) {

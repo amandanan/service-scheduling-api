@@ -13,6 +13,7 @@ from app.models.appointment import Appointment
 from app.models.professional import Professional
 from app.models.working_hours import WorkingHours
 from app.models.review import Review
+from app.models.time_block import TimeBlock
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
