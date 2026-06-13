@@ -38,6 +38,7 @@ from app.routes import (
     dashboard,
     settings,
     time_block,
+    staff,
 )
 
 
@@ -88,3 +89,4 @@ app.include_router(review.router)
 app.include_router(dashboard.router)
 app.include_router(settings.router)
 app.include_router(time_block.router)
+app.include_router(staff.router)

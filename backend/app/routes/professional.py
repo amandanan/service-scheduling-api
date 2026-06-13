@@ -24,6 +24,7 @@ router = APIRouter(
     prefix="/professionals",
     tags=["Professionals"]
 )
+from app.core.account import account_id
 
 
 # DB
@@ -61,7 +62,7 @@ def create_professional(
 ):
 
     new_professional = Professional(
-        owner_id=current_user.id,
+        owner_id=account_id(current_user),
         name=professional.name,
         is_active=professional.is_active,
     )
@@ -81,7 +82,7 @@ def list_professionals(
 ):
 
     return db.query(Professional).filter(
-        Professional.owner_id == current_user.id
+        Professional.owner_id == account_id(current_user)
     ).all()
 
 
@@ -94,7 +95,7 @@ def update_professional(
     current_user: User = Depends(get_current_user)
 ):
 
-    professional = get_professional_or_404(db, professional_id, current_user.id)
+    professional = get_professional_or_404(db, professional_id, account_id(current_user))
 
     professional.name = data.name
     professional.is_active = data.is_active
@@ -113,7 +114,7 @@ def delete_professional(
     current_user: User = Depends(get_current_user)
 ):
 
-    professional = get_professional_or_404(db, professional_id, current_user.id)
+    professional = get_professional_or_404(db, professional_id, account_id(current_user))
 
     db.delete(professional)
     db.commit()
@@ -132,7 +133,7 @@ def get_working_hours(
     current_user: User = Depends(get_current_user)
 ):
 
-    get_professional_or_404(db, professional_id, current_user.id)
+    get_professional_or_404(db, professional_id, account_id(current_user))
 
     return get_or_create_working_hours(db, professional_id)
 
@@ -148,7 +149,7 @@ def update_working_hours(
     current_user: User = Depends(get_current_user)
 ):
 
-    get_professional_or_404(db, professional_id, current_user.id)
+    get_professional_or_404(db, professional_id, account_id(current_user))
 
     existing = {
         wh.weekday: wh

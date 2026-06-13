@@ -25,7 +25,8 @@ class UserResponse(BaseModel):
     cpf: str
     phone: str
     email: EmailStr
-    booking_slug: str
+    booking_slug: str | None
+    role: str
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -14,6 +14,7 @@ from app.schemas.service import (
 from app.core.dependencies import (
     get_current_user
 )
+from app.core.account import account_id
 
 router = APIRouter(
     prefix="/services",
@@ -53,7 +54,7 @@ def create_service(
         duration_minutes=
             service.duration_minutes,
 
-        owner_id=current_user.id
+        owner_id=account_id(current_user)
     )
 
     db.add(new_service)
@@ -76,7 +77,7 @@ def list_services(
 ):
 
     services = db.query(Service).filter(
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).all()
 
     return services
@@ -95,7 +96,7 @@ def get_service(
 
     service = db.query(Service).filter(
         Service.id == service_id,
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).first()
 
     if not service:
@@ -118,7 +119,7 @@ def delete_service(
 
     service = db.query(Service).filter(
         Service.id == service_id,
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).first()
 
     if not service:
@@ -152,7 +153,7 @@ def update_service(
 
     service = db.query(Service).filter(
         Service.id == service_id,
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).first()
 
     if not service:

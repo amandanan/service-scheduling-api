@@ -15,6 +15,7 @@ from app.schemas.client import (
 from app.core.dependencies import (
     get_current_user
 )
+from app.core.account import account_id
 
 router = APIRouter(
     prefix="/clients",
@@ -46,7 +47,7 @@ def create_client(
         duplicate_filters.append(Client.cpf == client.cpf)
 
     existing = db.query(Client).filter(
-        Client.owner_id == current_user.id,
+        Client.owner_id == account_id(current_user),
         or_(*duplicate_filters),
     ).first()
 
@@ -62,7 +63,7 @@ def create_client(
         cpf=client.cpf,
         phone=client.phone,
         email=client.email,
-        owner_id=current_user.id
+        owner_id=account_id(current_user)
     )
 
     db.add(new_client)
@@ -82,7 +83,7 @@ def list_clients(
 ):
 
     clients = db.query(Client).filter(
-        Client.owner_id == current_user.id
+        Client.owner_id == account_id(current_user)
     ).all()
 
     return clients
@@ -98,7 +99,7 @@ def get_client(
 
     client = db.query(Client).filter(
         Client.id == client_id,
-        Client.owner_id == current_user.id
+        Client.owner_id == account_id(current_user)
     ).first()
 
     if not client:
@@ -120,7 +121,7 @@ def delete_client(
 
     client = db.query(Client).filter(
         Client.id == client_id,
-        Client.owner_id == current_user.id
+        Client.owner_id == account_id(current_user)
     ).first()
 
     if not client:
@@ -149,7 +150,7 @@ def update_client(
 
     client = db.query(Client).filter(
         Client.id == client_id,
-        Client.owner_id == current_user.id
+        Client.owner_id == account_id(current_user)
     ).first()
 
     if not client:
@@ -163,7 +164,7 @@ def update_client(
         duplicate_filters.append(Client.cpf == client_data.cpf)
 
     duplicate = db.query(Client).filter(
-        Client.owner_id == current_user.id,
+        Client.owner_id == account_id(current_user),
         Client.id != client_id,
         or_(*duplicate_filters),
     ).first()

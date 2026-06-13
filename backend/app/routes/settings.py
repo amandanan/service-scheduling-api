@@ -8,6 +8,7 @@ from app.models.user import User
 from app.schemas.settings import SettingsResponse, SettingsUpdate
 
 from app.core.dependencies import get_current_user
+from app.core.account import get_account_owner, require_owner
 
 router = APIRouter(
     prefix="/settings",
@@ -28,17 +29,17 @@ def get_db():
 
 @router.get("/", response_model=SettingsResponse)
 def get_settings(
-    current_user: User = Depends(get_current_user)
+    account_owner: User = Depends(get_account_owner)
 ):
-
-    return current_user
+    # staff see the settings of the business they belong to
+    return account_owner
 
 
 @router.put("/", response_model=SettingsResponse)
 def update_settings(
     data: SettingsUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_owner)
 ):
 
     user = db.query(User).filter(User.id == current_user.id).first()

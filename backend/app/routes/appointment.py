@@ -25,6 +25,7 @@ from app.schemas.appointment import (
 from app.core.dependencies import (
     get_current_user
 )
+from app.core.account import account_id
 
 from app.core.scheduling import compute_available_slots
 from app.core.notifications import send_booking_confirmation
@@ -68,7 +69,7 @@ def create_appointment(
 
     client = db.query(Client).filter(
         Client.id == appointment.client_id,
-        Client.owner_id == current_user.id
+        Client.owner_id == account_id(current_user)
     ).first()
 
     if not client:
@@ -79,7 +80,7 @@ def create_appointment(
 
     service = db.query(Service).filter(
         Service.id == appointment.service_id,
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).first()
 
     if not service:
@@ -90,7 +91,7 @@ def create_appointment(
 
     professional = db.query(Professional).filter(
         Professional.id == appointment.professional_id,
-        Professional.owner_id == current_user.id
+        Professional.owner_id == account_id(current_user)
     ).first()
 
     if not professional:
@@ -109,7 +110,7 @@ def create_appointment(
 
         scheduled_at=appointment.scheduled_at,
 
-        owner_id=current_user.id,
+        owner_id=account_id(current_user),
     )
 
     db.add(new_appointment)
@@ -138,7 +139,7 @@ def list_appointments(
     appointments = db.query(
         Appointment
     ).filter(
-        Appointment.owner_id == current_user.id,
+        Appointment.owner_id == account_id(current_user),
         Appointment.status != "cancelled",
     ).all()
 
@@ -159,7 +160,7 @@ def get_available_slots(
 
     service = db.query(Service).filter(
         Service.id == service_id,
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).first()
 
     if not service:
@@ -171,7 +172,7 @@ def get_available_slots(
 
     professional = db.query(Professional).filter(
         Professional.id == professional_id,
-        Professional.owner_id == current_user.id
+        Professional.owner_id == account_id(current_user)
     ).first()
 
     if not professional:
@@ -181,7 +182,7 @@ def get_available_slots(
             detail="Professional not found"
         )
 
-    return compute_available_slots(db, current_user.id, professional_id, service, date)
+    return compute_available_slots(db, account_id(current_user), professional_id, service, date)
 
 
 # GET BY ID
@@ -201,7 +202,7 @@ def get_appointment(
         Appointment
     ).filter(
         Appointment.id == appointment_id,
-        Appointment.owner_id == current_user.id
+        Appointment.owner_id == account_id(current_user)
     ).first()
 
     if not appointment:
@@ -230,7 +231,7 @@ def update_appointment_status(
 
     appointment = db.query(Appointment).filter(
         Appointment.id == appointment_id,
-        Appointment.owner_id == current_user.id
+        Appointment.owner_id == account_id(current_user)
     ).first()
 
     if not appointment:
@@ -267,7 +268,7 @@ def delete_appointment(
         Appointment
     ).filter(
         Appointment.id == appointment_id,
-        Appointment.owner_id == current_user.id
+        Appointment.owner_id == account_id(current_user)
     ).first()
 
     if not appointment:
@@ -311,7 +312,7 @@ def update_appointment(
         Appointment
     ).filter(
         Appointment.id == appointment_id,
-        Appointment.owner_id == current_user.id
+        Appointment.owner_id == account_id(current_user)
     ).first()
 
     if not appointment:
@@ -323,7 +324,7 @@ def update_appointment(
 
     client = db.query(Client).filter(
         Client.id == appointment_data.client_id,
-        Client.owner_id == current_user.id
+        Client.owner_id == account_id(current_user)
     ).first()
 
     if not client:
@@ -334,7 +335,7 @@ def update_appointment(
 
     service = db.query(Service).filter(
         Service.id == appointment_data.service_id,
-        Service.owner_id == current_user.id
+        Service.owner_id == account_id(current_user)
     ).first()
 
     if not service:
@@ -345,7 +346,7 @@ def update_appointment(
 
     professional = db.query(Professional).filter(
         Professional.id == appointment_data.professional_id,
-        Professional.owner_id == current_user.id
+        Professional.owner_id == account_id(current_user)
     ).first()
 
     if not professional:

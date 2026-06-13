@@ -11,6 +11,7 @@ from app.schemas.review import OwnerReviewResponse
 from app.core.dependencies import (
     get_current_user
 )
+from app.core.account import account_id
 
 router = APIRouter(
     prefix="/reviews",
@@ -41,5 +42,5 @@ def list_reviews(
 ):
 
     return db.query(Review).filter(
-        Review.owner_id == current_user.id
+        Review.owner_id == account_id(current_user)
     ).order_by(Review.created_at.desc()).all()

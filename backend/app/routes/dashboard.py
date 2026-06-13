@@ -14,7 +14,7 @@ from app.models.review import Review
 
 from app.schemas.dashboard import DashboardStats
 
-from app.core.dependencies import get_current_user
+from app.core.account import get_account_owner
 
 router = APIRouter(
     prefix="/dashboard",
@@ -69,11 +69,11 @@ def get_dashboard_stats(
     start_date: date | None = None,
     end_date: date | None = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    account_owner: User = Depends(get_account_owner),
 ):
 
-    monthly_goal = current_user.monthly_goal
-    daily_capacity = current_user.daily_capacity
+    monthly_goal = account_owner.monthly_goal
+    daily_capacity = account_owner.daily_capacity
 
     now = datetime.now()
     today = now.date()
@@ -101,22 +101,22 @@ def get_dashboard_stats(
 
     # ---- Load the owner's data once ----
     services = db.query(Service).filter(
-        Service.owner_id == current_user.id
+        Service.owner_id == account_owner.id
     ).all()
     services_by_id = {s.id: s for s in services}
 
     clients = db.query(Client).filter(
-        Client.owner_id == current_user.id
+        Client.owner_id == account_owner.id
     ).all()
     clients_by_id = {c.id: c for c in clients}
 
     professionals = db.query(Professional).filter(
-        Professional.owner_id == current_user.id
+        Professional.owner_id == account_owner.id
     ).all()
     professionals_by_id = {p.id: p for p in professionals}
 
     appointments_query = db.query(Appointment).filter(
-        Appointment.owner_id == current_user.id
+        Appointment.owner_id == account_owner.id
     )
 
     if professional_id is not None:
@@ -204,7 +204,7 @@ def get_dashboard_stats(
     review_ratings = [
         r.rating
         for r in db.query(Review).filter(
-            Review.owner_id == current_user.id
+            Review.owner_id == account_owner.id
         ).all()
     ]
     total_reviews = len(review_ratings)

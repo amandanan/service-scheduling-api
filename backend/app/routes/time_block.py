@@ -15,6 +15,7 @@ router = APIRouter(
     prefix="/blocks",
     tags=["Time Blocks"]
 )
+from app.core.account import account_id
 
 
 # DB
@@ -38,7 +39,7 @@ def create_block(
 
     professional = db.query(Professional).filter(
         Professional.id == block.professional_id,
-        Professional.owner_id == current_user.id,
+        Professional.owner_id == account_id(current_user),
     ).first()
 
     if not professional:
@@ -48,7 +49,7 @@ def create_block(
         )
 
     new_block = TimeBlock(
-        owner_id=current_user.id,
+        owner_id=account_id(current_user),
         professional_id=block.professional_id,
         start_at=block.start_at,
         end_at=block.end_at,
@@ -71,7 +72,7 @@ def list_blocks(
 ):
 
     query = db.query(TimeBlock).filter(
-        TimeBlock.owner_id == current_user.id
+        TimeBlock.owner_id == account_id(current_user)
     )
 
     if professional_id is not None:
@@ -90,7 +91,7 @@ def delete_block(
 
     block = db.query(TimeBlock).filter(
         TimeBlock.id == block_id,
-        TimeBlock.owner_id == current_user.id,
+        TimeBlock.owner_id == account_id(current_user),
     ).first()
 
     if not block:
