@@ -56,6 +56,7 @@ def _complete_appointment(token):
     ).first()
 
     appointment.scheduled_at = datetime.now() - timedelta(days=1)
+    appointment.status = "completed"
 
     db.commit()
     db.close()

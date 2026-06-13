@@ -128,6 +128,19 @@ export default function Appointments() {
                 duration * 60 * 1000
               );
 
+            const statusColors = {
+              scheduled: "#6d28d9",
+              confirmed: "#2563eb",
+              completed: "#059669",
+              no_show: "#9ca3af",
+            };
+
+            const statusLabels = {
+              confirmed: "✓ ",
+              completed: "✓✓ ",
+              no_show: "✕ ",
+            };
+
             return {
 
               id: item.id,
@@ -141,12 +154,20 @@ export default function Appointments() {
               professional_id:
                 item.professional_id,
 
+              status: item.status,
+
               title:
-                `${client?.full_name || "Cliente"} • ${service?.name || "Serviço"}`,
+                `${statusLabels[item.status] || ""}${client?.full_name || "Cliente"} • ${service?.name || "Serviço"}`,
 
               start: startDate,
 
               end: endDate,
+
+              backgroundColor:
+                statusColors[item.status] || "#6d28d9",
+
+              borderColor:
+                statusColors[item.status] || "#6d28d9",
             };
           }
         );
@@ -441,6 +462,33 @@ export default function Appointments() {
       toast.error(
         "Erro ao excluir agendamento"
       );
+    }
+  }
+
+  async function handleSetStatus(id, status) {
+
+    try {
+
+      await api.patch(
+        `/appointments/${id}/status`,
+        { status }
+      );
+
+      const labels = {
+        completed: "Atendimento concluído",
+        no_show: "Marcado como falta",
+        scheduled: "Status redefinido",
+      };
+
+      toast.success(labels[status] || "Status atualizado");
+
+      loadData();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Erro ao atualizar status");
     }
   }
 
@@ -830,20 +878,26 @@ export default function Appointments() {
 
                 const action =
                   window.prompt(
-                    "Digite:\n1 para editar\n2 para excluir"
+                    "Digite:\n" +
+                    "1 editar\n" +
+                    "2 excluir\n" +
+                    "3 marcar como concluído\n" +
+                    "4 marcar como falta\n" +
+                    "5 reabrir (agendado)"
                   );
+
+                const id = info.event.id;
 
                 if (action === "1") {
-
                   handleEdit(info);
-
-                } else if (
-                  action === "2"
-                ) {
-
-                  handleDelete(
-                    info.event.id
-                  );
+                } else if (action === "2") {
+                  handleDelete(id);
+                } else if (action === "3") {
+                  handleSetStatus(id, "completed");
+                } else if (action === "4") {
+                  handleSetStatus(id, "no_show");
+                } else if (action === "5") {
+                  handleSetStatus(id, "scheduled");
                 }
               }}
 

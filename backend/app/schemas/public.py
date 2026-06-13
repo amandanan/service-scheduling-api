@@ -64,6 +64,7 @@ class ManageAppointmentResponse(BaseModel):
     scheduled_at: datetime
     status: str
     can_review: bool
+    can_confirm: bool
     review: ReviewResponse | None = None
 
 

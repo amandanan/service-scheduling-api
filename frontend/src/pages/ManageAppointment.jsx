@@ -7,6 +7,7 @@ import {
   getManageAvailableSlots,
   cancelManagedAppointment,
   rescheduleManagedAppointment,
+  confirmManagedAppointment,
   submitReview,
 } from "../services/api";
 
@@ -97,6 +98,30 @@ export default function ManageAppointment() {
     setSelectedDate("");
     setSelectedSlot("");
     setAvailableSlots([]);
+  }
+
+
+  async function handleConfirm() {
+
+    setLoadingAction(true);
+
+    try {
+
+      const data = await confirmManagedAppointment(token);
+
+      setAppointment(data);
+
+      toast.success("Presença confirmada!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Não foi possível confirmar");
+
+    } finally {
+      setLoadingAction(false);
+    }
   }
 
 
@@ -229,6 +254,20 @@ export default function ManageAppointment() {
 
   const isCancelled = appointment.status === "cancelled";
 
+  const statusLabels = {
+    scheduled: "Agendado",
+    confirmed: "Confirmado",
+    completed: "Concluído",
+    no_show: "Não compareceu",
+    cancelled: "Cancelado",
+  };
+
+  const statusLabel = statusLabels[appointment.status] || "Agendado";
+
+  const canManage =
+    appointment.status === "scheduled" ||
+    appointment.status === "confirmed";
+
   return (
     <div className="public-booking-container">
       <div className="public-booking-card">
@@ -241,11 +280,23 @@ export default function ManageAppointment() {
           <p><strong>Profissional:</strong> {appointment.professional_name}</p>
           <p><strong>Data:</strong> {dateLabel} às {timeLabel}</p>
           <p>
-            <span className={`manage-appointment-status ${isCancelled ? "cancelled" : "scheduled"}`}>
-              {isCancelled ? "Cancelado" : "Agendado"}
+            <span className={`manage-appointment-status ${appointment.status}`}>
+              {statusLabel}
             </span>
           </p>
         </div>
+
+        {appointment.can_confirm && (
+          <button
+            type="button"
+            className="public-booking-btn"
+            onClick={handleConfirm}
+            disabled={loadingAction}
+            style={{ marginBottom: "8px" }}
+          >
+            {loadingAction ? "Confirmando..." : "Confirmar presença"}
+          </button>
+        )}
 
         {isCancelled && (
           <div className="public-booking-success">
@@ -253,7 +304,7 @@ export default function ManageAppointment() {
           </div>
         )}
 
-        {!isCancelled && !rescheduling && (
+        {canManage && !rescheduling && (
           <div className="public-booking-form">
             <button
               type="button"
@@ -274,7 +325,7 @@ export default function ManageAppointment() {
           </div>
         )}
 
-        {!isCancelled && rescheduling && (
+        {canManage && rescheduling && (
           <>
             <div className="public-booking-step">
               <label>Nova data</label>

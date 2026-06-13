@@ -124,3 +124,61 @@ def test_appointments_are_isolated_per_user(client, auth_headers, first_professi
 
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_new_appointment_defaults_to_scheduled(client, auth_headers, first_professional_id):
+    headers = auth_headers()
+    professional_id = first_professional_id(headers)
+    client_id, service_id = _create_client_and_service(client, headers)
+
+    response = client.post("/appointments/", json={
+        "client_id": client_id,
+        "service_id": service_id,
+        "professional_id": professional_id,
+        "scheduled_at": "2026-06-15T09:00:00",
+    }, headers=headers)
+
+    assert response.json()["status"] == "scheduled"
+
+
+def test_update_appointment_status(client, auth_headers, first_professional_id):
+    headers = auth_headers()
+    professional_id = first_professional_id(headers)
+    client_id, service_id = _create_client_and_service(client, headers)
+
+    appointment = client.post("/appointments/", json={
+        "client_id": client_id,
+        "service_id": service_id,
+        "professional_id": professional_id,
+        "scheduled_at": "2026-06-15T09:00:00",
+    }, headers=headers).json()
+
+    response = client.patch(
+        f"/appointments/{appointment['id']}/status",
+        json={"status": "completed"},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "completed"
+
+
+def test_update_appointment_status_rejects_invalid(client, auth_headers, first_professional_id):
+    headers = auth_headers()
+    professional_id = first_professional_id(headers)
+    client_id, service_id = _create_client_and_service(client, headers)
+
+    appointment = client.post("/appointments/", json={
+        "client_id": client_id,
+        "service_id": service_id,
+        "professional_id": professional_id,
+        "scheduled_at": "2026-06-15T09:00:00",
+    }, headers=headers).json()
+
+    response = client.patch(
+        f"/appointments/{appointment['id']}/status",
+        json={"status": "banana"},
+        headers=headers,
+    )
+
+    assert response.status_code == 422

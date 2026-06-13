@@ -126,3 +126,28 @@ def test_reschedule_to_unavailable_slot_is_rejected(client):
     })
 
     assert response.status_code == 409
+
+
+def test_client_can_confirm_appointment(client):
+    headers, slug, service_id, professional_id = _setup_business_with_service(client)
+    token = _book(client, slug, service_id, professional_id)["public_token"]
+
+    view = client.get(f"/manage/{token}").json()
+    assert view["can_confirm"] is True
+    assert view["status"] == "scheduled"
+
+    response = client.post(f"/manage/{token}/confirm")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "confirmed"
+    assert body["can_confirm"] is False
+
+
+def test_cannot_confirm_cancelled_appointment(client):
+    headers, slug, service_id, professional_id = _setup_business_with_service(client)
+    token = _book(client, slug, service_id, professional_id)["public_token"]
+
+    client.post(f"/manage/{token}/cancel")
+
+    response = client.post(f"/manage/{token}/confirm")
+    assert response.status_code == 409

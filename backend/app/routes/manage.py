@@ -62,10 +62,13 @@ def _to_response(appointment: Appointment, db: Session) -> dict:
         Review.appointment_id == appointment.id
     ).first()
 
-    can_review = (
-        appointment.status != "cancelled"
-        and appointment.scheduled_at <= datetime.now()
-        and review is None
+    # only a completed appointment can be reviewed
+    can_review = appointment.status == "completed" and review is None
+
+    # the client can confirm an upcoming appointment that is still pending
+    can_confirm = (
+        appointment.status == "scheduled"
+        and appointment.scheduled_at > datetime.now()
     )
 
     return {
@@ -76,6 +79,7 @@ def _to_response(appointment: Appointment, db: Session) -> dict:
         "scheduled_at": appointment.scheduled_at,
         "status": appointment.status,
         "can_review": can_review,
+        "can_confirm": can_confirm,
         "review": review,
     }
 
@@ -115,6 +119,31 @@ def manage_available_slots(
         service,
         date,
     )
+
+
+# CONFIRM
+@router.post("/{token}/confirm", response_model=ManageAppointmentResponse)
+@limiter.limit("10/minute")
+def confirm_appointment(
+    request: Request,
+    token: str,
+    db: Session = Depends(get_db)
+):
+
+    appointment = get_appointment_or_404(token, db)
+
+    if appointment.status != "scheduled":
+        raise HTTPException(
+            status_code=409,
+            detail="Este agendamento não pode ser confirmado"
+        )
+
+    appointment.status = "confirmed"
+
+    db.commit()
+    db.refresh(appointment)
+
+    return _to_response(appointment, db)
 
 
 # CANCEL
@@ -192,16 +221,10 @@ def submit_review(
 
     appointment = get_appointment_or_404(token, db)
 
-    if appointment.status == "cancelled":
+    if appointment.status != "completed":
         raise HTTPException(
             status_code=409,
-            detail="Agendamento cancelado não pode ser avaliado"
-        )
-
-    if appointment.scheduled_at > datetime.now():
-        raise HTTPException(
-            status_code=409,
-            detail="Agendamento ainda não foi concluído"
+            detail="Apenas atendimentos concluídos podem ser avaliados"
         )
 
     existing = db.query(Review).filter(

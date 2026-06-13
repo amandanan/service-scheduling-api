@@ -202,3 +202,30 @@ def test_period_summary_respects_date_range(client):
         headers=headers,
     ).json()
     assert outside["period"]["appointments"] == 0
+
+
+def test_no_show_excluded_from_revenue(client):
+    headers, slug, service_id, professional_id = _setup_business(client)
+
+    today = datetime.now().replace(hour=9, minute=0, second=0, microsecond=0)
+    booking = _book(
+        client, slug, service_id, professional_id,
+        "16899555468", "2026-06-15T09:00:00",
+    )
+    _set_scheduled_at(booking["public_token"], today)
+
+    # counts as revenue while scheduled
+    before = client.get("/dashboard/stats", headers=headers).json()
+    assert before["kpis"]["today_revenue"] == 50.0
+
+    # mark as no-show via the owner endpoint
+    from app.database.session import SessionLocal
+    from app.models.appointment import Appointment as Appt
+    db = SessionLocal()
+    appt = db.query(Appt).filter(Appt.public_token == booking["public_token"]).first()
+    appt.status = "no_show"
+    db.commit()
+    db.close()
+
+    after = client.get("/dashboard/stats", headers=headers).json()
+    assert after["kpis"]["today_revenue"] == 0.0

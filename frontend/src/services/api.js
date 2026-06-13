@@ -413,11 +413,34 @@ export async function rescheduleManagedAppointment(token, scheduledAt) {
 }
 
 
+export async function confirmManagedAppointment(token) {
+
+  const response = await api.post(
+    `/manage/${token}/confirm`
+  );
+
+  return response.data;
+}
+
+
 export async function submitReview(token, rating, comment) {
 
   const response = await api.post(
     `/manage/${token}/review`,
     { rating, comment }
+  );
+
+  return response.data;
+}
+
+
+// APPOINTMENT STATUS (owner)
+
+export async function updateAppointmentStatus(id, status) {
+
+  const response = await api.patch(
+    `/appointments/${id}/status`,
+    { status }
   );
 
   return response.data;

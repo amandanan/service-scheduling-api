@@ -44,8 +44,8 @@ def get_db():
 
 
 def _is_billable(appointment: Appointment) -> bool:
-    # Cancelled appointments do not generate revenue.
-    return appointment.status != "cancelled"
+    # Cancellations and no-shows do not generate revenue.
+    return appointment.status not in ("cancelled", "no_show")
 
 
 def _brief(appointment: Appointment, clients_by_id, services_by_id, professionals_by_id):

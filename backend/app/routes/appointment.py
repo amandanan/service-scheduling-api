@@ -18,7 +18,8 @@ from app.models.user import User
 
 from app.schemas.appointment import (
     AppointmentCreate,
-    AppointmentResponse
+    AppointmentResponse,
+    AppointmentStatusUpdate,
 )
 
 from app.core.dependencies import (
@@ -209,6 +210,45 @@ def get_appointment(
             status_code=404,
             detail="Appointment not found"
         )
+
+    return appointment
+
+
+# UPDATE STATUS (mark completed / no-show / confirmed)
+@router.patch(
+    "/{appointment_id}/status",
+    response_model=AppointmentResponse
+)
+def update_appointment_status(
+    appointment_id: int,
+    data: AppointmentStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    )
+):
+
+    appointment = db.query(Appointment).filter(
+        Appointment.id == appointment_id,
+        Appointment.owner_id == current_user.id
+    ).first()
+
+    if not appointment:
+        raise HTTPException(
+            status_code=404,
+            detail="Appointment not found"
+        )
+
+    if appointment.status == "cancelled":
+        raise HTTPException(
+            status_code=409,
+            detail="Agendamento cancelado não pode mudar de status"
+        )
+
+    appointment.status = data.status
+
+    db.commit()
+    db.refresh(appointment)
 
     return appointment
 
