@@ -65,6 +65,25 @@ def require_management(current_user: User = Depends(get_current_user)) -> User:
     return current_user
 
 
+def professional_for_user(db: Session, user: User) -> Professional | None:
+    """The Professional linked to a user, or None if they aren't one."""
+    return db.query(Professional).filter(
+        Professional.user_id == user.id
+    ).first()
+
+
+def require_service_writer(current_user: User = Depends(get_current_user)) -> User:
+    """Only the owner (any service) or a professional (their own) may write
+    services. Receptionists/staff manage clients and appointments, not the
+    service catalog."""
+    if current_user.role not in ("owner", "professional"):
+        raise HTTPException(
+            status_code=403,
+            detail="Sem permissão para gerenciar serviços"
+        )
+    return current_user
+
+
 def get_current_professional(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),

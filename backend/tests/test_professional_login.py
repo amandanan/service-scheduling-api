@@ -107,9 +107,6 @@ def test_professional_blocked_from_management(client):
     assert client.get("/clients/", headers=prof).status_code == 403
     assert client.get("/professionals/", headers=prof).status_code == 403
     assert client.get("/dashboard/stats", headers=prof).status_code == 403
-    assert client.post("/services/", json={
-        "name": "X", "price": 10.0, "duration_minutes": 30,
-    }, headers=prof).status_code == 403
 
 
 def test_management_routes_still_work_for_owner(client):

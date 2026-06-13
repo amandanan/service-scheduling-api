@@ -74,7 +74,8 @@ def list_public_services(
     business = get_business_or_404(slug, db)
 
     return db.query(Service).filter(
-        Service.owner_id == business.id
+        Service.owner_id == business.id,
+        Service.is_active.is_(True),
     ).all()
 
 
@@ -176,7 +177,8 @@ def create_public_booking(
 
     service = db.query(Service).filter(
         Service.id == booking.service_id,
-        Service.owner_id == business.id
+        Service.owner_id == business.id,
+        Service.is_active.is_(True),
     ).first()
 
     if not service:
