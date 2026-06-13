@@ -201,6 +201,22 @@ Examples:
 
 # 🚀 Getting Started
 
+## 🐳 Run the whole stack with Docker
+
+The fastest way to run the full app (PostgreSQL + API + frontend):
+
+```bash
+# set a real secret in your shell or a .env file at the repo root
+export SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+
+docker compose up --build
+```
+
+- Frontend: http://localhost:8080
+- API: http://localhost:8000 (health check at `/health`)
+
+The backend runs database migrations automatically on startup.
+
 ## 🔧 Backend Setup
 
 ```bash

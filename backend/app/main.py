@@ -71,6 +71,12 @@ app.add_middleware(
 )
 
 
+@app.get("/health", tags=["Health"])
+def health():
+    """Liveness probe for load balancers and container orchestrators."""
+    return {"status": "ok"}
+
+
 app.include_router(auth.router)
 app.include_router(client.router)
 app.include_router(service.router)
