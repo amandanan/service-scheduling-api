@@ -44,12 +44,8 @@ def get_db():
 
 
 def _is_billable(appointment: Appointment) -> bool:
-    # Cancelled appointments and sessions redeemed from a pre-paid package
-    # do not generate new revenue.
-    return (
-        appointment.status != "cancelled"
-        and appointment.client_package_id is None
-    )
+    # Cancelled appointments do not generate revenue.
+    return appointment.status != "cancelled"
 
 
 def _brief(appointment: Appointment, clients_by_id, services_by_id, professionals_by_id):
@@ -166,7 +162,7 @@ def get_dashboard_stats(
             if scheduled >= now:
                 forecast_revenue += price_of(appointment)
 
-        # appointment lists exclude cancelled but include package redemptions
+        # appointment lists exclude cancelled appointments
         if appointment.status != "cancelled":
             if scheduled.date() == today:
                 today_list.append(appointment)

@@ -13,7 +13,6 @@ import {
   FaClock,
   FaSignOutAlt,
   FaLayerGroup,
-  FaBoxOpen,
   FaStar,
   FaCog,
 } from "react-icons/fa";
@@ -97,18 +96,6 @@ export default function Navbar() {
         >
           <FaCalendarAlt />
           Agendamentos
-        </Link>
-
-        <Link
-          to="/packages"
-          className={
-            location.pathname === "/packages"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaBoxOpen />
-          Pacotes
         </Link>
 
         <Link

@@ -16,8 +16,7 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(
     AppointmentBase
 ):
-
-    client_package_id: int | None = None
+    pass
 
 
 class AppointmentResponse(
@@ -25,7 +24,5 @@ class AppointmentResponse(
 ):
 
     id: int
-
-    client_package_id: int | None = None
 
     model_config = ConfigDict(from_attributes=True)

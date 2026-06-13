@@ -14,7 +14,6 @@ from app.models.appointment import Appointment
 from app.models.client import Client
 from app.models.service import Service
 from app.models.professional import Professional
-from app.models.package import ClientPackage
 from app.models.user import User
 
 from app.schemas.appointment import (
@@ -99,34 +98,6 @@ def create_appointment(
             detail="Professional not found"
         )
 
-    client_package = None
-
-    if appointment.client_package_id is not None:
-
-        client_package = db.query(ClientPackage).filter(
-            ClientPackage.id == appointment.client_package_id,
-            ClientPackage.owner_id == current_user.id,
-            ClientPackage.client_id == appointment.client_id
-        ).first()
-
-        if not client_package:
-            raise HTTPException(
-                status_code=404,
-                detail="Package not found"
-            )
-
-        if client_package.remaining_sessions <= 0:
-            raise HTTPException(
-                status_code=400,
-                detail="Pacote sem sessões restantes"
-            )
-
-        if client_package.package.service_id != appointment.service_id:
-            raise HTTPException(
-                status_code=400,
-                detail="Pacote não é válido para o serviço selecionado"
-            )
-
     new_appointment = Appointment(
 
         client_id=appointment.client_id,
@@ -138,14 +109,9 @@ def create_appointment(
         scheduled_at=appointment.scheduled_at,
 
         owner_id=current_user.id,
-
-        client_package_id=client_package.id if client_package else None,
     )
 
     db.add(new_appointment)
-
-    if client_package:
-        client_package.remaining_sessions -= 1
 
     db.commit()
 
@@ -270,15 +236,6 @@ def delete_appointment(
             status_code=404,
             detail="Appointment not found"
         )
-
-    if appointment.client_package_id:
-
-        client_package = db.query(ClientPackage).filter(
-            ClientPackage.id == appointment.client_package_id
-        ).first()
-
-        if client_package:
-            client_package.remaining_sessions += 1
 
     db.delete(appointment)
 

@@ -39,12 +39,6 @@ class Appointment(Base):
         nullable=False
     )
 
-    client_package_id = Column(
-        Integer,
-        ForeignKey("client_packages.id"),
-        nullable=True
-    )
-
     owner_id = Column(
         Integer,
         ForeignKey("users.id"),
