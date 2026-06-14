@@ -6,6 +6,7 @@ from app.database.session import SessionLocal
 from app.models.professional import Professional
 from app.models.working_hours import WorkingHours
 from app.models.appointment import Appointment
+from app.models.time_block import TimeBlock
 from app.models.user import User
 
 from app.schemas.professional import (
@@ -19,6 +20,7 @@ from app.schemas.working_hours import (
     WorkingHoursResponse,
 )
 from app.schemas.appointment import AppointmentResponse
+from app.schemas.time_block import MyTimeBlockCreate, TimeBlockResponse
 
 from app.core.working_hours import get_or_create_working_hours
 from app.core.account import account_id, require_management, get_current_professional
@@ -54,6 +56,34 @@ def get_professional_or_404(db: Session, professional_id: int, owner_id: int) ->
         )
 
     return professional
+
+
+def _apply_working_hours(db: Session, professional_id: int, days) -> None:
+    """Upsert the weekly working hours for a professional."""
+    existing = {
+        wh.weekday: wh
+        for wh in db.query(WorkingHours).filter(
+            WorkingHours.professional_id == professional_id
+        ).all()
+    }
+
+    for day in days:
+        entry = existing.get(day.weekday)
+
+        if entry:
+            entry.start_time = day.start_time
+            entry.end_time = day.end_time
+            entry.is_closed = day.is_closed
+        else:
+            db.add(WorkingHours(
+                professional_id=professional_id,
+                weekday=day.weekday,
+                start_time=day.start_time,
+                end_time=day.end_time,
+                is_closed=day.is_closed,
+            ))
+
+    db.commit()
 
 
 # CREATE
@@ -109,6 +139,75 @@ def get_my_appointments(
         Appointment.professional_id == professional.id,
         Appointment.status != "cancelled",
     ).order_by(Appointment.scheduled_at).all()
+
+
+# MY WORKING HOURS
+@router.get("/me/working-hours", response_model=list[WorkingHoursResponse])
+def get_my_working_hours(
+    db: Session = Depends(get_db),
+    professional: Professional = Depends(get_current_professional)
+):
+    return get_or_create_working_hours(db, professional.id)
+
+
+@router.put("/me/working-hours", response_model=list[WorkingHoursResponse])
+def update_my_working_hours(
+    data: WorkingHoursUpdate,
+    db: Session = Depends(get_db),
+    professional: Professional = Depends(get_current_professional)
+):
+    _apply_working_hours(db, professional.id, data.days)
+    return get_or_create_working_hours(db, professional.id)
+
+
+# MY TIME BLOCKS (folga / almoço)
+@router.get("/me/blocks", response_model=list[TimeBlockResponse])
+def get_my_blocks(
+    db: Session = Depends(get_db),
+    professional: Professional = Depends(get_current_professional)
+):
+    return db.query(TimeBlock).filter(
+        TimeBlock.professional_id == professional.id
+    ).order_by(TimeBlock.start_at).all()
+
+
+@router.post("/me/blocks", response_model=TimeBlockResponse)
+def create_my_block(
+    data: MyTimeBlockCreate,
+    db: Session = Depends(get_db),
+    professional: Professional = Depends(get_current_professional)
+):
+    block = TimeBlock(
+        owner_id=professional.owner_id,
+        professional_id=professional.id,
+        start_at=data.start_at,
+        end_at=data.end_at,
+        reason=data.reason,
+    )
+    db.add(block)
+    db.commit()
+    db.refresh(block)
+    return block
+
+
+@router.delete("/me/blocks/{block_id}")
+def delete_my_block(
+    block_id: int,
+    db: Session = Depends(get_db),
+    professional: Professional = Depends(get_current_professional)
+):
+    block = db.query(TimeBlock).filter(
+        TimeBlock.id == block_id,
+        TimeBlock.professional_id == professional.id,
+    ).first()
+
+    if not block:
+        raise HTTPException(status_code=404, detail="Block not found")
+
+    db.delete(block)
+    db.commit()
+
+    return {"message": "Block deleted successfully"}
 
 
 # UPDATE
@@ -222,31 +321,6 @@ def update_working_hours(
 
     get_professional_or_404(db, professional_id, account_id(current_user))
 
-    existing = {
-        wh.weekday: wh
-        for wh in db.query(WorkingHours).filter(
-            WorkingHours.professional_id == professional_id
-        ).all()
-    }
-
-    for day in data.days:
-
-        entry = existing.get(day.weekday)
-
-        if entry:
-            entry.start_time = day.start_time
-            entry.end_time = day.end_time
-            entry.is_closed = day.is_closed
-
-        else:
-            db.add(WorkingHours(
-                professional_id=professional_id,
-                weekday=day.weekday,
-                start_time=day.start_time,
-                end_time=day.end_time,
-                is_closed=day.is_closed,
-            ))
-
-    db.commit()
+    _apply_working_hours(db, professional_id, data.days)
 
     return get_or_create_working_hours(db, professional_id)
