@@ -113,9 +113,14 @@ def test_cannot_review_twice(client):
 def test_cannot_review_cancelled_appointment(client):
     headers, slug, service_id, professional_id = _setup_business_with_service(client)
     token = _book(client, slug, service_id, professional_id)["public_token"]
-    _complete_appointment(token)
 
-    client.post(f"/manage/{token}/cancel")
+    db = SessionLocal()
+    appointment = db.query(Appointment).filter(
+        Appointment.public_token == token
+    ).first()
+    appointment.status = "cancelled"
+    db.commit()
+    db.close()
 
     response = client.post(f"/manage/{token}/review", json={
         "rating": 1,

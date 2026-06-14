@@ -126,7 +126,14 @@ def test_no_reminder_for_cancelled_appointment(client):
     token = _book(client, slug, service_id, professional_id)["public_token"]
     _set_scheduled_at(token, datetime.now() + timedelta(hours=2))
 
-    client.post(f"/manage/{token}/cancel")
+    # cancel directly (the client 24h rule blocks token-cancel near the time)
+    db = SessionLocal()
+    appointment = db.query(Appointment).filter(
+        Appointment.public_token == token
+    ).first()
+    appointment.status = "cancelled"
+    db.commit()
+    db.close()
 
     db = SessionLocal()
     try:

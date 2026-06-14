@@ -1,3 +1,27 @@
+from datetime import datetime, timedelta
+
+from app.database.session import SessionLocal
+from app.models.appointment import Appointment
+
+# a date comfortably more than 24h away (and never a Sunday, which is closed)
+# so the client 24h cancellation window doesn't interfere
+_future = datetime.now() + timedelta(days=14)
+while _future.weekday() == 6:
+    _future += timedelta(days=1)
+FUTURE_DATE = _future.strftime("%Y-%m-%d")
+FUTURE_WHEN = FUTURE_DATE + "T09:00:00"
+
+
+def _set_scheduled_at(token, when):
+    db = SessionLocal()
+    appointment = db.query(Appointment).filter(
+        Appointment.public_token == token
+    ).first()
+    appointment.scheduled_at = when
+    db.commit()
+    db.close()
+
+
 def _setup_business_with_service(client):
     client.post("/auth/register", json={
         "full_name": "Studio Bella",
@@ -27,7 +51,7 @@ def _setup_business_with_service(client):
     return headers, slug, service.json()["id"], professional_id
 
 
-def _book(client, slug, service_id, professional_id, when="2026-06-15T09:00:00"):
+def _book(client, slug, service_id, professional_id, when=FUTURE_WHEN):
     response = client.post(f"/public/{slug}/appointments", json={
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
@@ -77,7 +101,7 @@ def test_cancel_frees_the_slot(client):
     # slot taken
     slots = client.get(
         f"/public/{slug}/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
+        params={"date": FUTURE_DATE, "service_id": service_id, "professional_id": professional_id},
     ).json()
     assert "09:00" not in slots
 
@@ -88,7 +112,7 @@ def test_cancel_frees_the_slot(client):
     # slot is free again
     slots = client.get(
         f"/public/{slug}/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
+        params={"date": FUTURE_DATE, "service_id": service_id, "professional_id": professional_id},
     ).json()
     assert "09:00" in slots
 
@@ -102,14 +126,14 @@ def test_reschedule_moves_the_appointment(client):
     token = _book(client, slug, service_id, professional_id)["public_token"]
 
     response = client.post(f"/manage/{token}/reschedule", json={
-        "scheduled_at": "2026-06-15T10:00:00",
+        "scheduled_at": FUTURE_DATE + "T10:00:00",
     })
 
     assert response.status_code == 200
 
     slots = client.get(
         f"/public/{slug}/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
+        params={"date": FUTURE_DATE, "service_id": service_id, "professional_id": professional_id},
     ).json()
 
     # old slot free, new slot taken
@@ -151,3 +175,31 @@ def test_cannot_confirm_cancelled_appointment(client):
 
     response = client.post(f"/manage/{token}/confirm")
     assert response.status_code == 409
+
+
+def test_client_can_cancel_more_than_24h_before(client):
+    headers, slug, service_id, professional_id = _setup_business_with_service(client)
+    token = _book(client, slug, service_id, professional_id)["public_token"]
+
+    view = client.get(f"/manage/{token}").json()
+    assert view["can_cancel"] is True
+
+    response = client.post(f"/manage/{token}/cancel")
+    assert response.status_code == 200
+    assert response.json()["status"] == "cancelled"
+
+
+def test_client_cannot_cancel_within_24h(client):
+    headers, slug, service_id, professional_id = _setup_business_with_service(client)
+    token = _book(client, slug, service_id, professional_id)["public_token"]
+
+    # move the appointment to 2 hours from now — inside the 24h window
+    _set_scheduled_at(token, datetime.now() + timedelta(hours=2))
+
+    view = client.get(f"/manage/{token}").json()
+    assert view["can_cancel"] is False
+
+    response = client.post(f"/manage/{token}/cancel")
+    assert response.status_code == 409
+    # the appointment stays active
+    assert client.get(f"/manage/{token}").json()["status"] == "scheduled"

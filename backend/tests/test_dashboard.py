@@ -103,7 +103,14 @@ def test_cancelled_appointment_excluded_from_revenue(client):
     )
     _set_scheduled_at(booking["public_token"], today)
 
-    client.post(f"/manage/{booking['public_token']}/cancel")
+    # cancel directly (the client 24h rule blocks token-cancel near the time)
+    db = SessionLocal()
+    appt = db.query(Appointment).filter(
+        Appointment.public_token == booking["public_token"]
+    ).first()
+    appt.status = "cancelled"
+    db.commit()
+    db.close()
 
     response = client.get("/dashboard/stats", headers=headers)
     body = response.json()

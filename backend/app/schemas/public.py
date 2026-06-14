@@ -65,6 +65,7 @@ class ManageAppointmentResponse(BaseModel):
     status: str
     can_review: bool
     can_confirm: bool
+    can_cancel: bool
     review: ReviewResponse | None = None
 
 

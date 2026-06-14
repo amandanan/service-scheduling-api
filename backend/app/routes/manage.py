@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
@@ -24,6 +24,20 @@ router = APIRouter(
     prefix="/manage",
     tags=["Manage Booking"]
 )
+
+# A client may cancel only up to this many hours before the appointment.
+# Inside the window they must contact the establishment (staff can still
+# cancel anytime through the authenticated routes).
+CLIENT_CANCELLATION_WINDOW_HOURS = 24
+
+
+def _client_can_cancel(appointment: Appointment) -> bool:
+    if appointment.status not in ("scheduled", "confirmed"):
+        return False
+    return (
+        appointment.scheduled_at - datetime.now()
+        >= timedelta(hours=CLIENT_CANCELLATION_WINDOW_HOURS)
+    )
 
 
 # DB
@@ -80,6 +94,7 @@ def _to_response(appointment: Appointment, db: Session) -> dict:
         "status": appointment.status,
         "can_review": can_review,
         "can_confirm": can_confirm,
+        "can_cancel": _client_can_cancel(appointment),
         "review": review,
     }
 
@@ -156,6 +171,21 @@ def cancel_appointment(
 ):
 
     appointment = get_appointment_or_404(token, db)
+
+    if appointment.status not in ("scheduled", "confirmed"):
+        raise HTTPException(
+            status_code=409,
+            detail="Este agendamento não pode ser cancelado"
+        )
+
+    if not _client_can_cancel(appointment):
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "O cancelamento só é permitido até 24h antes do horário. "
+                "Entre em contato com o estabelecimento."
+            )
+        )
 
     appointment.status = "cancelled"
 
