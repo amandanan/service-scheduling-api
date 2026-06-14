@@ -24,7 +24,7 @@ from app.schemas.appointment import (
 
 from app.core.account import account_id, require_management
 
-from app.core.scheduling import compute_available_slots
+from app.core.scheduling import compute_available_slots, professional_offers_service
 from app.core.notifications import send_booking_confirmation
 
 router = APIRouter(
@@ -75,7 +75,8 @@ def create_appointment(
 
     service = db.query(Service).filter(
         Service.id == appointment.service_id,
-        Service.owner_id == account_id(current_user)
+        Service.owner_id == account_id(current_user),
+        Service.is_active.is_(True),
     ).first()
 
     if not service:
@@ -86,13 +87,20 @@ def create_appointment(
 
     professional = db.query(Professional).filter(
         Professional.id == appointment.professional_id,
-        Professional.owner_id == account_id(current_user)
+        Professional.owner_id == account_id(current_user),
+        Professional.is_active.is_(True),
     ).first()
 
     if not professional:
         raise HTTPException(
             status_code=404,
             detail="Professional not found"
+        )
+
+    if not professional_offers_service(service, professional.id):
+        raise HTTPException(
+            status_code=400,
+            detail="Este profissional não oferece o serviço selecionado"
         )
 
     new_appointment = Appointment(
@@ -172,6 +180,10 @@ def get_available_slots(
             status_code=404,
             detail="Professional not found"
         )
+
+    # the professional must actually offer this service
+    if not professional_offers_service(service, professional.id):
+        return []
 
     return compute_available_slots(db, account_id(current_user), professional_id, service, date)
 
@@ -336,6 +348,12 @@ def update_appointment(
         raise HTTPException(
             status_code=404,
             detail="Professional not found"
+        )
+
+    if not professional_offers_service(service, professional.id):
+        raise HTTPException(
+            status_code=400,
+            detail="Este profissional não oferece o serviço selecionado"
         )
 
     appointment.client_id = (

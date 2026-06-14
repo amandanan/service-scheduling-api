@@ -9,6 +9,18 @@ from app.models.time_block import TimeBlock
 from app.core.working_hours import get_or_create_working_hours
 
 
+def professional_offers_service(service: Service, professional_id: int) -> bool:
+    """Whether a professional may perform a service.
+
+    A professional-owned service (service.professional_id set) can only be
+    performed by that professional; an account-wide service (None) by anyone.
+    """
+    return (
+        service.professional_id is None
+        or service.professional_id == professional_id
+    )
+
+
 def compute_available_slots(db: Session, owner_id: int, professional_id: int, service: Service, date: str) -> list[str]:
     duration = service.duration_minutes or 60
 

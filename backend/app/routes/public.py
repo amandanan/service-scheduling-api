@@ -19,7 +19,7 @@ from app.schemas.public import (
 )
 from app.schemas.review import ReviewSummary
 
-from app.core.scheduling import compute_available_slots
+from app.core.scheduling import compute_available_slots, professional_offers_service
 from app.core.rate_limit import limiter
 from app.core.notifications import send_booking_confirmation
 
@@ -159,6 +159,9 @@ def get_public_available_slots(
             detail="Professional not found"
         )
 
+    if not professional_offers_service(service, professional.id):
+        return []
+
     return compute_available_slots(db, business.id, professional_id, service, date)
 
 
@@ -197,6 +200,12 @@ def create_public_booking(
         raise HTTPException(
             status_code=404,
             detail="Professional not found"
+        )
+
+    if not professional_offers_service(service, professional.id):
+        raise HTTPException(
+            status_code=400,
+            detail="Este profissional não oferece o serviço selecionado"
         )
 
     available_slots = compute_available_slots(
