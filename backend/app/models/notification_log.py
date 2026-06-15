@@ -28,8 +28,10 @@ class NotificationLog(Base):
     # "confirmation" | "reminder"
     notification_type = Column(String, nullable=False)
 
-    # "sent" | "skipped_no_consent"
+    # "sent" | "skipped_no_consent" | "skipped_not_configured" | "failed"
     status = Column(String, nullable=False)
+
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=True)
 
     created_at = Column(
         DateTime,

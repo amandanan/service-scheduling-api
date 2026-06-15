@@ -86,9 +86,10 @@ def test_sends_reminder_for_upcoming_appointment(client, sent_emails, sent_whats
         db.close()
 
     assert count == 1
-    assert len(sent_emails) == 1
-    assert "Lembrete" in sent_emails[0]["subject"]
+    # WhatsApp is the primary channel; email is only the fallback.
     assert len(sent_whatsapps) == 1
+    assert "lembrete" in sent_whatsapps[0]["message"].lower()
+    assert len(sent_emails) == 0
     assert _reminder_sent_at(token) is not None
 
 

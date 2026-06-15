@@ -6,23 +6,24 @@ from email.message import EmailMessage
 logger = logging.getLogger(__name__)
 
 
-def send_email(to: str, subject: str, body: str) -> None:
-    """Send a plain-text email.
+def send_email(to: str, subject: str, body: str) -> bool:
+    """Send a plain-text e-mail.
 
-    If SMTP is not configured (no SMTP_HOST), the email is logged
-    instead of sent so the app keeps working in dev/test environments.
-    Delivery failures are logged, not raised, so they never break the
-    request that triggered the notification.
+    Returns True  when the message is accepted by the SMTP server.
+    Returns False when SMTP is not configured or ``to`` is empty
+                  (logs the would-be message so dev/test runs stay observable).
+    Raises        on SMTP connection / authentication / send failure so the
+                  caller (NotificationChannel) can log the error and fall back.
     """
 
     host = os.getenv("SMTP_HOST")
 
-    if not host:
+    if not host or not to:
         logger.info(
             "Email not sent (SMTP not configured): to=%s subject=%r\n%s",
             to, subject, body,
         )
-        return
+        return False
 
     message = EmailMessage()
     message["From"] = os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or "no-reply@example.com"
@@ -35,15 +36,11 @@ def send_email(to: str, subject: str, body: str) -> None:
     password = os.getenv("SMTP_PASSWORD")
     use_tls = os.getenv("SMTP_USE_TLS", "true").lower() != "false"
 
-    try:
-        with smtplib.SMTP(host, port) as server:
-            if use_tls:
-                server.starttls()
+    with smtplib.SMTP(host, port) as server:
+        if use_tls:
+            server.starttls()
+        if username and password:
+            server.login(username, password)
+        server.send_message(message)
 
-            if username and password:
-                server.login(username, password)
-
-            server.send_message(message)
-
-    except Exception:
-        logger.exception("Failed to send email to %s", to)
+    return True

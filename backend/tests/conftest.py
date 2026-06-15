@@ -48,6 +48,7 @@ def sent_emails(monkeypatch):
 
     def _fake_send_email(to, subject, body):
         captured.append({"to": to, "subject": subject, "body": body})
+        return True
 
     monkeypatch.setattr("app.core.email.send_email", _fake_send_email)
 
@@ -60,6 +61,7 @@ def sent_whatsapps(monkeypatch):
 
     def _fake_send_whatsapp(to, message):
         captured.append({"to": to, "message": message})
+        return True
 
     monkeypatch.setattr("app.core.whatsapp.send_whatsapp", _fake_send_whatsapp)
 

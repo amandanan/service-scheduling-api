@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 import app.core.whatsapp as whatsapp
 
 
@@ -57,7 +59,12 @@ def test_evolution_request_shape(monkeypatch):
     assert captured["headers"].get("Apikey") == "evo-key"
 
 
-def test_send_failure_is_swallowed(monkeypatch):
+def test_send_failure_raises(monkeypatch):
+    """When the provider is configured but the HTTP call fails, send_whatsapp raises.
+
+    NotificationService.deliver() catches the exception and logs "failed" so the
+    booking is never broken, but send_whatsapp itself must not swallow errors.
+    """
     monkeypatch.setenv("WHATSAPP_PROVIDER", "generic")
     monkeypatch.setenv("WHATSAPP_API_URL", "https://example.com/send")
 
@@ -66,5 +73,5 @@ def test_send_failure_is_swallowed(monkeypatch):
 
     monkeypatch.setattr(whatsapp.urllib.request, "urlopen", _boom)
 
-    # must not raise — a failed notification can't break the booking
-    whatsapp.send_whatsapp("11977777777", "Oi")
+    with pytest.raises(OSError, match="network down"):
+        whatsapp.send_whatsapp("11977777777", "Oi")

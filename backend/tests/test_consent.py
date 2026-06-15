@@ -42,14 +42,15 @@ def test_booking_with_consent_sends_and_logs(client, sent_emails, sent_whatsapps
 
     _book(client, slug, service_id, professional_id, consent=True)
 
-    assert len(sent_emails) == 1
+    # WhatsApp is the primary channel and delivers; email is never attempted.
     assert len(sent_whatsapps) == 1
+    assert len(sent_emails) == 0
 
     logs = _logs()
-    channels = sorted(log.channel for log in logs)
-    assert channels == ["email", "whatsapp"]
-    assert all(log.status == "sent" for log in logs)
-    assert all(log.notification_type == "confirmation" for log in logs)
+    assert len(logs) == 1
+    assert logs[0].channel == "whatsapp"
+    assert logs[0].status == "sent"
+    assert logs[0].notification_type == "confirmation"
 
 
 def test_booking_without_consent_skips_and_logs(client, sent_emails, sent_whatsapps):
