@@ -555,6 +555,24 @@ export async function getDashboardStats(filters = {}) {
 }
 
 
+export async function getDashboardMetrics(filters = {}) {
+
+  const params = {};
+
+  if (filters.startDate) {
+    params.start_date = filters.startDate;
+  }
+
+  if (filters.endDate) {
+    params.end_date = filters.endDate;
+  }
+
+  const response = await api.get("/dashboard/metrics", { params });
+
+  return response.data;
+}
+
+
 // SETTINGS
 
 export async function getSettings() {

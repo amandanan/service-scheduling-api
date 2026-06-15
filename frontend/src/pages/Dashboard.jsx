@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import {
   getDashboardStats,
+  getDashboardMetrics,
   getSettings,
   getProfessionals,
 } from "../services/api";
@@ -17,6 +18,9 @@ import {
   FaStar,
   FaChartLine,
   FaReceipt,
+  FaUserSlash,
+  FaBan,
+  FaCheckDouble,
 } from "react-icons/fa";
 
 import {
@@ -35,6 +39,10 @@ import "../styles/dashboard.css";
 
 function brl(value) {
   return `R$ ${Number(value || 0).toFixed(2)}`;
+}
+
+function pct(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
 }
 
 function toISODate(date) {
@@ -76,6 +84,7 @@ function rangeForPeriod(key) {
 export default function Dashboard() {
 
   const [stats, setStats] = useState(null);
+  const [metrics, setMetrics] = useState(null);
   const [term, setTerm] = useState({ singular: "Cliente", plural: "Clientes" });
   const [professionals, setProfessionals] = useState([]);
 
@@ -106,11 +115,17 @@ export default function Dashboard() {
     setError(false);
 
     try {
-      const data = await getDashboardStats({
-        professionalId: professionalId || undefined,
-        ...rangeForPeriod(period),
-      });
+      const range = rangeForPeriod(period);
+      // metrics are account-wide (no professional filter on the endpoint)
+      const [data, metricsData] = await Promise.all([
+        getDashboardStats({
+          professionalId: professionalId || undefined,
+          ...range,
+        }),
+        getDashboardMetrics(range),
+      ]);
       setStats(data);
+      setMetrics(metricsData);
     } catch (err) {
       console.error("Erro ao carregar dashboard:", err);
       setError(true);
@@ -245,6 +260,130 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* INDICADORES DE DESEMPENHO */}
+        {metrics && (
+          <div className="metrics-section">
+            <div className="period-summary-head">
+              <h3>Indicadores de desempenho</h3>
+              <span className="period-summary-range">{periodLabel()}</span>
+            </div>
+
+            {metrics.total_appointments === 0 ? (
+              <div className="dashboard-chart-card">
+                <div className="empty-state">
+                  Nenhum atendimento no período selecionado
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="metrics-grid">
+                  <div className="metric-card good">
+                    <div className="metric-card-top">
+                      <span className="metric-card-icon"><FaCheckDouble /></span>
+                      <span className="metric-card-label">Taxa de comparecimento</span>
+                    </div>
+                    <h2 className="metric-card-value">{pct(metrics.realization_rate)}</h2>
+                    <p className="metric-card-foot">
+                      {metrics.completed} de {metrics.expected} previstos
+                    </p>
+                  </div>
+
+                  <div className="metric-card warn">
+                    <div className="metric-card-top">
+                      <span className="metric-card-icon"><FaUserSlash /></span>
+                      <span className="metric-card-label">Taxa de falta</span>
+                    </div>
+                    <h2 className="metric-card-value">{pct(metrics.no_show_rate)}</h2>
+                    <p className="metric-card-foot">
+                      {metrics.no_show} {metrics.no_show === 1 ? "falta" : "faltas"}
+                    </p>
+                  </div>
+
+                  <div className="metric-card warn">
+                    <div className="metric-card-top">
+                      <span className="metric-card-icon"><FaBan /></span>
+                      <span className="metric-card-label">Taxa de cancelamento</span>
+                    </div>
+                    <h2 className="metric-card-value">{pct(metrics.cancellation_rate)}</h2>
+                    <p className="metric-card-foot">
+                      {metrics.cancelled} cancelados · {metrics.cancelled_by_client} cliente
+                      {" / "}{metrics.cancelled_by_reception} recepção
+                    </p>
+                  </div>
+
+                  <div className="metric-card">
+                    <div className="metric-card-top">
+                      <span className="metric-card-icon"><FaMoneyBillWave /></span>
+                      <span className="metric-card-label">Receita realizada</span>
+                    </div>
+                    <h2 className="metric-card-value">{brl(metrics.realized_revenue)}</h2>
+                    <p className="metric-card-foot">
+                      de {brl(metrics.expected_revenue)} previstos
+                    </p>
+                  </div>
+                </div>
+
+                <div className="dashboard-charts-grid two-col">
+                  <div className="dashboard-chart-card">
+                    <h3 className="dashboard-chart-title">Realizado vs. previsto</h3>
+                    <p className="dashboard-chart-subtitle">faturamento no período</p>
+
+                    <div className="rvp-row">
+                      <span className="rvp-label">Realizado</span>
+                      <div className="rvp-bar">
+                        <div
+                          className="rvp-fill realized"
+                          style={{
+                            width: `${metrics.expected_revenue
+                              ? (metrics.realized_revenue / metrics.expected_revenue) * 100
+                              : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="rvp-value">{brl(metrics.realized_revenue)}</span>
+                    </div>
+
+                    <div className="rvp-row">
+                      <span className="rvp-label">Previsto</span>
+                      <div className="rvp-bar">
+                        <div className="rvp-fill expected" style={{ width: "100%" }} />
+                      </div>
+                      <span className="rvp-value">{brl(metrics.expected_revenue)}</span>
+                    </div>
+                  </div>
+
+                  <div className="dashboard-chart-card">
+                    <h3 className="dashboard-chart-title">Receita por serviço</h3>
+                    <p className="dashboard-chart-subtitle">atendimentos concluídos</p>
+                    {metrics.revenue_by_service.length === 0 ? (
+                      <div className="empty-state">Nenhuma receita realizada no período</div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart
+                          layout="vertical"
+                          data={metrics.revenue_by_service}
+                          margin={{ left: 8, right: 16 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                          <XAxis type="number" tickFormatter={(v) => `R$ ${v}`} />
+                          <YAxis
+                            type="category"
+                            dataKey="service_name"
+                            width={120}
+                            tick={{ fontSize: 13 }}
+                          />
+                          <Tooltip formatter={(value) => brl(value)} />
+                          <Bar dataKey="revenue" fill="#6d28d9" radius={[0, 8, 8, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* KPIs DO MÊS / TEMPO REAL */}
         <div className="dashboard-grid">
