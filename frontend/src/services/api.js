@@ -573,6 +573,40 @@ export async function getDashboardMetrics(filters = {}) {
 }
 
 
+function _downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadReport(filters = {}) {
+  const params = {};
+  if (filters.startDate) params.start_date = filters.startDate;
+  if (filters.endDate) params.end_date = filters.endDate;
+
+  const response = await api.get("/dashboard/report.pdf", {
+    params,
+    responseType: "blob",
+  });
+  _downloadBlob(response.data, "relatorio.pdf");
+}
+
+export async function downloadCsv(filters = {}) {
+  const params = {};
+  if (filters.startDate) params.start_date = filters.startDate;
+  if (filters.endDate) params.end_date = filters.endDate;
+
+  const response = await api.get("/dashboard/export.csv", {
+    params,
+    responseType: "blob",
+  });
+  _downloadBlob(response.data, "dados.csv");
+}
+
+
 // SETTINGS
 
 export async function getSettings() {

@@ -5,6 +5,8 @@ import {
   getDashboardMetrics,
   getSettings,
   getProfessionals,
+  downloadReport,
+  downloadCsv,
 } from "../services/api";
 
 import Navbar from "../components/Navbar";
@@ -21,6 +23,7 @@ import {
   FaUserSlash,
   FaBan,
   FaCheckDouble,
+  FaDownload,
 } from "react-icons/fa";
 
 import {
@@ -93,6 +96,7 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [exporting, setExporting] = useState(null); // "pdf" | "csv" | null
 
   async function loadStaticData() {
     try {
@@ -143,6 +147,28 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, professionalId]);
 
+  async function handleExportPdf() {
+    setExporting("pdf");
+    try {
+      await downloadReport(rangeForPeriod(period));
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+    } finally {
+      setExporting(null);
+    }
+  }
+
+  async function handleExportCsv() {
+    setExporting("csv");
+    try {
+      await downloadCsv(rangeForPeriod(period));
+    } catch (err) {
+      console.error("Erro ao exportar CSV:", err);
+    } finally {
+      setExporting(null);
+    }
+  }
+
   function periodLabel() {
     if (!stats) return "";
     const { start, end } = stats.period;
@@ -174,6 +200,26 @@ export default function Dashboard() {
             {p.label}
           </button>
         ))}
+      </div>
+
+      <div className="dashboard-exports">
+        <button
+          type="button"
+          className="export-btn export-pdf"
+          onClick={handleExportPdf}
+          disabled={exporting !== null}
+        >
+          <FaDownload />
+          {exporting === "pdf" ? "Gerando relatório..." : "Relatório PDF"}
+        </button>
+        <button
+          type="button"
+          className="export-btn export-csv"
+          onClick={handleExportCsv}
+          disabled={exporting !== null}
+        >
+          {exporting === "csv" ? "..." : "CSV"}
+        </button>
       </div>
     </div>
   );
