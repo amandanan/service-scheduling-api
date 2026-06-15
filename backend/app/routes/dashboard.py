@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database.session import SessionLocal
@@ -12,7 +13,7 @@ from app.models.professional import Professional
 from app.models.appointment import Appointment
 from app.models.review import Review
 
-from app.schemas.dashboard import DashboardStats
+from app.schemas.dashboard import DashboardStats, DashboardMetrics
 
 from app.core.account import get_account_owner, require_management
 
@@ -426,4 +427,110 @@ def get_dashboard_stats(
         "weekly_appointments": weekly_appointments,
         "monthly_revenue_chart": monthly_revenue_chart,
         "alerts": alerts,
+    }
+
+
+@router.get("/metrics", response_model=DashboardMetrics)
+def get_dashboard_metrics(
+    start_date: date | None = None,
+    end_date: date | None = None,
+    db: Session = Depends(get_db),
+    account_owner: User = Depends(get_account_owner),
+    _: User = Depends(require_management),
+):
+    """Aggregated metrics for a period: no-show/cancellation rates, realized vs
+    expected, and revenue by service using the frozen price_charged. All
+    aggregation happens in SQL."""
+
+    today = datetime.now().date()
+    start = start_date or date(today.year, today.month, 1)
+    end = end_date or today
+
+    start_dt = datetime.combine(start, datetime.min.time())
+    end_dt = datetime.combine(end, datetime.max.time())
+
+    def in_period(query):
+        return query.filter(
+            Appointment.owner_id == account_owner.id,
+            Appointment.scheduled_at >= start_dt,
+            Appointment.scheduled_at <= end_dt,
+        )
+
+    # ---- counts by status ----
+    status_rows = in_period(
+        db.query(Appointment.status, func.count(Appointment.id))
+    ).group_by(Appointment.status).all()
+    counts = {status: n for status, n in status_rows}
+
+    total = sum(counts.values())
+    completed = counts.get("completed", 0)
+    no_show = counts.get("no_show", 0)
+    cancelled = counts.get("cancelled", 0)
+    expected = total - cancelled
+    attended = completed + no_show
+
+    no_show_rate = round(no_show / attended * 100, 1) if attended else 0.0
+    cancellation_rate = round(cancelled / total * 100, 1) if total else 0.0
+    realization_rate = round(completed / expected * 100, 1) if expected else 0.0
+
+    # ---- cancellation attribution ----
+    cb_rows = in_period(
+        db.query(Appointment.cancelled_by, func.count(Appointment.id))
+        .filter(Appointment.status == "cancelled")
+    ).group_by(Appointment.cancelled_by).all()
+    cb = {who: n for who, n in cb_rows}
+
+    # ---- revenue (frozen price) ----
+    realized_revenue = in_period(
+        db.query(func.coalesce(func.sum(Appointment.price_charged), 0.0))
+        .filter(Appointment.status == "completed")
+    ).scalar() or 0.0
+    expected_revenue = in_period(
+        db.query(func.coalesce(func.sum(Appointment.price_charged), 0.0))
+        .filter(Appointment.status != "cancelled")
+    ).scalar() or 0.0
+
+    # ---- revenue by service (completed only) ----
+    rev_rows = in_period(
+        db.query(
+            Appointment.service_id,
+            func.coalesce(func.sum(Appointment.price_charged), 0.0),
+            func.count(Appointment.id),
+        ).filter(Appointment.status == "completed")
+    ).group_by(Appointment.service_id).all()
+
+    service_names = {
+        s.id: s.name
+        for s in db.query(Service).filter(Service.owner_id == account_owner.id).all()
+    }
+    revenue_by_service = sorted(
+        (
+            {
+                "service_id": sid,
+                "service_name": service_names.get(sid, "Serviço"),
+                "revenue": float(rev),
+                "count": cnt,
+            }
+            for sid, rev, cnt in rev_rows
+        ),
+        key=lambda r: r["revenue"],
+        reverse=True,
+    )
+
+    return {
+        "start": start,
+        "end": end,
+        "total_appointments": total,
+        "completed": completed,
+        "no_show": no_show,
+        "cancelled": cancelled,
+        "expected": expected,
+        "no_show_rate": no_show_rate,
+        "cancellation_rate": cancellation_rate,
+        "realization_rate": realization_rate,
+        "cancelled_by_client": cb.get("client", 0),
+        "cancelled_by_reception": cb.get("reception", 0),
+        "realized_revenue": float(realized_revenue),
+        "expected_revenue": float(expected_revenue),
+        "revenue_by_service": revenue_by_service,
     }

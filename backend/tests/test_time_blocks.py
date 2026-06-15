@@ -1,3 +1,4 @@
+from tests._dates import WEEKDAY_STR, at
 def _service(client, headers):
     return client.post("/services/", json={
         "name": "Corte",
@@ -6,7 +7,7 @@ def _service(client, headers):
     }, headers=headers).json()["id"]
 
 
-def _slots(client, headers, service_id, professional_id, date="2026-06-15"):
+def _slots(client, headers, service_id, professional_id, date=WEEKDAY_STR):
     return client.get(
         "/appointments/available-slots",
         params={"date": date, "service_id": service_id, "professional_id": professional_id},
@@ -20,8 +21,8 @@ def test_create_and_list_block(client, auth_headers, first_professional_id):
 
     response = client.post("/blocks/", json={
         "professional_id": professional_id,
-        "start_at": "2026-06-15T12:00:00",
-        "end_at": "2026-06-15T13:00:00",
+        "start_at": at(12),
+        "end_at": at(13),
         "reason": "Almoço",
     }, headers=headers)
 
@@ -44,8 +45,8 @@ def test_block_removes_overlapping_slots(client, auth_headers, first_professiona
 
     client.post("/blocks/", json={
         "professional_id": professional_id,
-        "start_at": "2026-06-15T14:00:00",
-        "end_at": "2026-06-15T15:00:00",
+        "start_at": at(14),
+        "end_at": at(15),
     }, headers=headers)
 
     after = _slots(client, headers, service_id, professional_id)
@@ -61,8 +62,8 @@ def test_full_day_block_returns_no_slots(client, auth_headers, first_professiona
 
     client.post("/blocks/", json={
         "professional_id": professional_id,
-        "start_at": "2026-06-15T00:00:00",
-        "end_at": "2026-06-15T23:59:59",
+        "start_at": at(0),
+        "end_at": at(23, 59),
         "reason": "Folga",
     }, headers=headers)
 
@@ -76,8 +77,8 @@ def test_delete_block_restores_slots(client, auth_headers, first_professional_id
 
     block = client.post("/blocks/", json={
         "professional_id": professional_id,
-        "start_at": "2026-06-15T14:00:00",
-        "end_at": "2026-06-15T15:00:00",
+        "start_at": at(14),
+        "end_at": at(15),
     }, headers=headers).json()
 
     assert "14:00" not in _slots(client, headers, service_id, professional_id)
@@ -93,8 +94,8 @@ def test_block_rejects_invalid_range(client, auth_headers, first_professional_id
 
     response = client.post("/blocks/", json={
         "professional_id": professional_id,
-        "start_at": "2026-06-15T15:00:00",
-        "end_at": "2026-06-15T14:00:00",
+        "start_at": at(15),
+        "end_at": at(14),
     }, headers=headers)
 
     assert response.status_code == 422
@@ -108,8 +109,8 @@ def test_block_requires_own_professional(client, auth_headers):
 
     response = client.post("/blocks/", json={
         "professional_id": other_prof,
-        "start_at": "2026-06-15T14:00:00",
-        "end_at": "2026-06-15T15:00:00",
+        "start_at": at(14),
+        "end_at": at(15),
     }, headers=owner)
 
     assert response.status_code == 404

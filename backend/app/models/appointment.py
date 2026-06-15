@@ -4,6 +4,7 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
+    Float,
     ForeignKey,
     DateTime,
 )
@@ -65,6 +66,13 @@ class Appointment(Base):
 
     # set when an automated reminder has been sent, so it is sent only once
     reminder_sent_at = Column(DateTime, nullable=True)
+
+    # snapshot of the service price at booking time, so historical revenue is
+    # not distorted by later price changes
+    price_charged = Column(Float, nullable=False, default=0.0)
+
+    # who cancelled, when cancelled: "client" | "reception"
+    cancelled_by = Column(String, nullable=True)
 
 
     client = relationship(

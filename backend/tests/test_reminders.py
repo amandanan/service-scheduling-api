@@ -1,3 +1,4 @@
+from tests._dates import at
 from datetime import datetime, timedelta
 
 from app.database.session import SessionLocal
@@ -34,7 +35,7 @@ def _setup_business_with_service(client):
     return headers, slug, service.json()["id"], professional_id
 
 
-def _book(client, slug, service_id, professional_id, when="2026-06-15T09:00:00"):
+def _book(client, slug, service_id, professional_id, when=at(9)):
     return client.post(f"/public/{slug}/appointments", json={
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",

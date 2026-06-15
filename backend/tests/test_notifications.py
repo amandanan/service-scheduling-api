@@ -1,3 +1,4 @@
+from tests._dates import at
 import logging
 
 from app.core.email import send_email
@@ -45,7 +46,7 @@ def test_public_booking_sends_confirmation_email(client, sent_emails):
         "email": "cliente@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     })
 
     assert response.status_code == 200
@@ -71,7 +72,7 @@ def test_public_booking_sends_whatsapp_confirmation(client, sent_whatsapps):
         "email": "cliente@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     })
 
     assert response.status_code == 200
@@ -108,7 +109,7 @@ def test_booking_without_phone_skips_whatsapp(client, sent_whatsapps, auth_heade
         "client_id": client_response.json()["id"],
         "service_id": service_response.json()["id"],
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers)
 
     assert sent_whatsapps == []
@@ -152,7 +153,7 @@ def test_authenticated_booking_sends_confirmation_email(client, auth_headers, fi
         "client_id": client_response.json()["id"],
         "service_id": service_response.json()["id"],
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers)
 
     assert response.status_code == 200
@@ -181,7 +182,7 @@ def test_send_appointment_reminder(client, sent_emails):
         "email": "cliente@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }).json()
 
     sent_emails.clear()

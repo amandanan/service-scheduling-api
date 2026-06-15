@@ -91,6 +91,38 @@ class PeriodSummary(BaseModel):
     ticket: float
 
 
+class RevenueByService(BaseModel):
+
+    service_id: int
+    service_name: str
+    revenue: float
+    count: int
+
+
+class DashboardMetrics(BaseModel):
+
+    start: date
+    end: date
+
+    total_appointments: int
+    completed: int
+    no_show: int
+    cancelled: int
+    expected: int
+
+    no_show_rate: float        # % of due appointments that were no-shows
+    cancellation_rate: float   # % of booked appointments that were cancelled
+    realization_rate: float    # % of expected appointments that completed
+
+    cancelled_by_client: int
+    cancelled_by_reception: int
+
+    realized_revenue: float    # frozen price of completed appointments
+    expected_revenue: float    # frozen price of non-cancelled appointments
+
+    revenue_by_service: list[RevenueByService]
+
+
 class DashboardStats(BaseModel):
 
     kpis: DashboardKPIs

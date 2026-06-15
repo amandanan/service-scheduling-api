@@ -1,3 +1,4 @@
+from tests._dates import at
 from datetime import datetime, timedelta
 
 from app.database.session import SessionLocal
@@ -33,7 +34,7 @@ def _setup_business_with_service(client):
     return headers, slug, service.json()["id"], professional_id
 
 
-def _book(client, slug, service_id, professional_id, when="2026-06-15T09:00:00"):
+def _book(client, slug, service_id, professional_id, when=at(9)):
     response = client.post(f"/public/{slug}/appointments", json={
         "full_name": "Cliente Publico",
         "birth_date": "1995-05-05",
@@ -146,8 +147,8 @@ def test_review_rating_must_be_in_range(client):
 def test_public_reviews_aggregate(client):
     headers, slug, service_id, professional_id = _setup_business_with_service(client)
 
-    token_a = _book(client, slug, service_id, professional_id, when="2026-06-15T09:00:00")["public_token"]
-    token_b = _book(client, slug, service_id, professional_id, when="2026-06-15T10:00:00")["public_token"]
+    token_a = _book(client, slug, service_id, professional_id, when=at(9))["public_token"]
+    token_b = _book(client, slug, service_id, professional_id, when=at(10))["public_token"]
 
     _complete_appointment(token_a)
     _complete_appointment(token_b)

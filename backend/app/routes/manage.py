@@ -188,6 +188,7 @@ def cancel_appointment(
         )
 
     appointment.status = "cancelled"
+    appointment.cancelled_by = "client"
 
     db.commit()
     db.refresh(appointment)

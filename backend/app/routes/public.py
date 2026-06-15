@@ -257,6 +257,7 @@ def create_public_booking(
         professional_id=professional.id,
         scheduled_at=booking.scheduled_at,
         owner_id=business.id,
+        price_charged=service.price or 0.0,
     )
 
     db.add(new_appointment)

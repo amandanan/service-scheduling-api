@@ -1,3 +1,4 @@
+from tests._dates import at
 from datetime import datetime
 
 from app.database.session import SessionLocal
@@ -81,7 +82,7 @@ def test_stats_counts_today_revenue(client):
     today = datetime.now().replace(hour=9, minute=0, second=0, microsecond=0)
     booking = _book(
         client, slug, service_id, professional_id,
-        "16899555468", "2026-06-15T09:00:00",
+        "16899555468", at(9),
     )
     _set_scheduled_at(booking["public_token"], today)
 
@@ -99,7 +100,7 @@ def test_cancelled_appointment_excluded_from_revenue(client):
     today = datetime.now().replace(hour=9, minute=0, second=0, microsecond=0)
     booking = _book(
         client, slug, service_id, professional_id,
-        "16899555468", "2026-06-15T09:00:00",
+        "16899555468", at(9),
     )
     _set_scheduled_at(booking["public_token"], today)
 
@@ -124,7 +125,7 @@ def test_new_clients_month_counts_recent_clients(client):
 
     _book(
         client, slug, service_id, professional_id,
-        "16899555468", "2026-06-15T09:00:00",
+        "16899555468", at(9),
     )
 
     response = client.get("/dashboard/stats", headers=headers)
@@ -153,7 +154,7 @@ def test_filter_by_professional(client):
     today = datetime.now().replace(hour=9, minute=0, second=0, microsecond=0)
     booking = _book(
         client, slug, service_id, professional_id,
-        "16899555468", "2026-06-15T09:00:00",
+        "16899555468", at(9),
     )
     _set_scheduled_at(booking["public_token"], today)
 
@@ -190,7 +191,7 @@ def test_period_summary_respects_date_range(client):
 
     booking = _book(
         client, slug, service_id, professional_id,
-        "16899555468", "2026-06-15T09:00:00",
+        "16899555468", at(9),
     )
     _set_scheduled_at(booking["public_token"], datetime(2026, 3, 10, 9, 0, 0))
 
@@ -217,7 +218,7 @@ def test_no_show_excluded_from_revenue(client):
     today = datetime.now().replace(hour=9, minute=0, second=0, microsecond=0)
     booking = _book(
         client, slug, service_id, professional_id,
-        "16899555468", "2026-06-15T09:00:00",
+        "16899555468", at(9),
     )
     _set_scheduled_at(booking["public_token"], today)
 

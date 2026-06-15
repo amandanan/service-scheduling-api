@@ -115,6 +115,8 @@ def create_appointment(
         scheduled_at=appointment.scheduled_at,
 
         owner_id=account_id(current_user),
+
+        price_charged=service.price or 0.0,
     )
 
     db.add(new_appointment)
@@ -270,7 +272,8 @@ def update_appointment_status(
     return appointment
 
 
-# DELETE
+# CANCEL (reception) — soft cancel so the cancellation is recorded and the
+# slot is freed, while history (and metrics) keep the appointment
 @router.delete("/{appointment_id}")
 def delete_appointment(
     appointment_id: int,
@@ -292,13 +295,14 @@ def delete_appointment(
             detail="Appointment not found"
         )
 
-    db.delete(appointment)
+    appointment.status = "cancelled"
+    appointment.cancelled_by = "reception"
 
     db.commit()
 
     return {
         "message":
-        "Appointment deleted successfully"
+        "Appointment cancelled successfully"
     }
 
 
@@ -388,6 +392,9 @@ def update_appointment(
     appointment.scheduled_at = (
         appointment_data.scheduled_at
     )
+
+    # the charged price follows the (possibly new) service's current price
+    appointment.price_charged = service.price or 0.0
 
     db.commit()
 

@@ -1,3 +1,4 @@
+from tests._dates import WEEKDAY_STR, at
 def _create_client_and_service(api, headers):
     client_response = api.post("/clients/", json={
         "full_name": "Cliente A",
@@ -25,7 +26,7 @@ def test_create_appointment(client, auth_headers, first_professional_id):
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers)
 
     assert response.status_code == 200
@@ -40,12 +41,12 @@ def test_overlapping_appointment_is_not_offered_as_available_slot(client, auth_h
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers)
 
     response = client.get(
         "/appointments/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
+        params={"date": WEEKDAY_STR, "service_id": service_id, "professional_id": professional_id},
         headers=headers,
     )
 
@@ -68,7 +69,7 @@ def test_cannot_create_appointment_with_other_users_client(client, auth_headers,
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_b,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers_b)
 
     assert response.status_code == 404
@@ -100,7 +101,7 @@ def test_cannot_create_appointment_with_other_users_professional(client, auth_he
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_b,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers_a)
 
     assert response.status_code == 404
@@ -117,7 +118,7 @@ def test_appointments_are_isolated_per_user(client, auth_headers, first_professi
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_a,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers_a)
 
     response = client.get("/appointments/", headers=headers_b)
@@ -135,7 +136,7 @@ def test_new_appointment_defaults_to_scheduled(client, auth_headers, first_profe
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers)
 
     assert response.json()["status"] == "scheduled"
@@ -150,7 +151,7 @@ def test_update_appointment_status(client, auth_headers, first_professional_id):
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers).json()
 
     response = client.patch(
@@ -172,7 +173,7 @@ def test_update_appointment_status_rejects_invalid(client, auth_headers, first_p
         "client_id": client_id,
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }, headers=headers).json()
 
     response = client.patch(

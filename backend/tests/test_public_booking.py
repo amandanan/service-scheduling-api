@@ -1,3 +1,4 @@
+from tests._dates import WEEKDAY_STR, at
 def _register_business(client):
     response = client.post("/auth/register", json={
         "full_name": "Salao Da Amanda",
@@ -108,7 +109,7 @@ def test_public_services_and_available_slots(client):
 
     response = client.get(
         f"/public/{slug}/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
+        params={"date": WEEKDAY_STR, "service_id": service_id, "professional_id": professional_id},
     )
 
     assert response.status_code == 200
@@ -137,7 +138,7 @@ def test_create_public_booking(client):
         "email": "clientepublico@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }
 
     response = client.post(f"/public/{slug}/appointments", json=booking_payload)
@@ -178,7 +179,7 @@ def test_public_booking_rejects_unavailable_slot(client):
         "email": "clientepublico@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }
 
     first = client.post(f"/public/{slug}/appointments", json=booking_payload)
@@ -238,7 +239,7 @@ def test_public_booking_rejects_invalid_cpf(client):
         "email": "clientepublico@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     })
 
     assert response.status_code == 422
@@ -331,14 +332,14 @@ def test_public_booking_reuses_existing_client_by_cpf(client):
         "email": "clientepublico@test.com",
         "service_id": service_id,
         "professional_id": professional_id,
-        "scheduled_at": "2026-06-15T09:00:00",
+        "scheduled_at": at(9),
     }
 
     client.post(f"/public/{slug}/appointments", json=booking_payload)
 
     second = client.post(f"/public/{slug}/appointments", json={
         **booking_payload,
-        "scheduled_at": "2026-06-15T10:00:00",
+        "scheduled_at": at(10),
     })
 
     assert second.status_code == 200

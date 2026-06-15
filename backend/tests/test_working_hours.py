@@ -1,3 +1,4 @@
+from tests._dates import WEEKDAY_STR, SUNDAY_STR
 def test_get_default_working_hours(client, auth_headers, first_professional_id):
     headers = auth_headers()
     professional_id = first_professional_id(headers)
@@ -71,10 +72,10 @@ def test_available_slots_respect_working_hours(client, auth_headers, first_profe
 
     service_id = service_response.json()["id"]
 
-    # 2026-06-15 is a Monday
+    # a weekday -> establishment is open
     response = client.get(
         "/appointments/available-slots",
-        params={"date": "2026-06-15", "service_id": service_id, "professional_id": professional_id},
+        params={"date": WEEKDAY_STR, "service_id": service_id, "professional_id": professional_id},
         headers=headers,
     )
 
@@ -84,10 +85,10 @@ def test_available_slots_respect_working_hours(client, auth_headers, first_profe
     assert "09:00" in slots
     assert "11:00" in slots
 
-    # 2026-06-21 is a Sunday -> closed
+    # a Sunday -> closed
     response = client.get(
         "/appointments/available-slots",
-        params={"date": "2026-06-21", "service_id": service_id, "professional_id": professional_id},
+        params={"date": SUNDAY_STR, "service_id": service_id, "professional_id": professional_id},
         headers=headers,
     )
 
