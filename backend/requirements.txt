@@ -9,6 +9,8 @@ python-multipart
 alembic
 slowapi
 psycopg2-binary
+weasyprint
+jinja2
 
 # dev / tests
 pytest

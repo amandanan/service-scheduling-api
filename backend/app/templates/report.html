@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+/* ── Page setup ─────────────────────────────────────────────────── */
+@page {
+  size: A4;
+  margin: 18mm 16mm 16mm 16mm;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  color: #1f2937;
+  line-height: 1.45;
+}
+
+/* ── Utilities ──────────────────────────────────────────────────── */
+.page-break { page-break-before: always; }
+
+.section-title {
+  font-size: 15pt;
+  font-weight: 700;
+  color: #6d28d9;
+  border-bottom: 2px solid #6d28d9;
+  padding-bottom: 4pt;
+  margin-bottom: 12pt;
+}
+
+.subsection {
+  font-size: 11pt;
+  font-weight: 700;
+  color: #374151;
+  margin: 14pt 0 6pt;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+  font-size: 9pt;
+}
+
+/* ── Report header ──────────────────────────────────────────────── */
+.report-header {
+  background: #6d28d9;
+  color: #ffffff;
+  padding: 14pt 16pt;
+  border-radius: 6pt;
+  margin-bottom: 16pt;
+}
+
+.report-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.report-title {
+  font-size: 18pt;
+  font-weight: 700;
+  letter-spacing: -0.3pt;
+}
+
+.report-meta {
+  text-align: right;
+  font-size: 9pt;
+  opacity: 0.85;
+  line-height: 1.6;
+}
+
+.report-owner {
+  font-size: 11pt;
+  margin-top: 4pt;
+  opacity: 0.9;
+}
+
+/* ── KPI grid ───────────────────────────────────────────────────── */
+.kpi-grid {
+  display: flex;
+  gap: 8pt;
+  margin-bottom: 14pt;
+}
+
+.kpi-box {
+  flex: 1;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6pt;
+  padding: 10pt 10pt 8pt;
+}
+
+.kpi-label {
+  font-size: 8pt;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  margin-bottom: 4pt;
+}
+
+.kpi-value {
+  font-size: 17pt;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.1;
+}
+
+.kpi-value.purple { color: #6d28d9; }
+.kpi-value.green  { color: #059669; }
+.kpi-value.red    { color: #dc2626; }
+.kpi-value.orange { color: #d97706; }
+
+.kpi-sub {
+  font-size: 8.5pt;
+  color: #6b7280;
+  margin-top: 2pt;
+}
+
+/* ── Growth badge ───────────────────────────────────────────────── */
+.growth-row {
+  display: flex;
+  align-items: center;
+  gap: 8pt;
+  margin-bottom: 14pt;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3pt 8pt;
+  border-radius: 20pt;
+  font-size: 9.5pt;
+  font-weight: 700;
+}
+.badge.green  { background: #d1fae5; color: #065f46; }
+.badge.red    { background: #fee2e2; color: #991b1b; }
+.badge.gray   { background: #f3f4f6; color: #6b7280; }
+.badge.orange { background: #fef3c7; color: #92400e; }
+
+/* ── Insights block ─────────────────────────────────────────────── */
+.insights-block {
+  border-left: 3pt solid #6d28d9;
+  padding: 8pt 12pt;
+  background: #faf5ff;
+  border-radius: 0 6pt 6pt 0;
+}
+
+.insights-title {
+  font-size: 9pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+  color: #6d28d9;
+  margin-bottom: 6pt;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6pt;
+  font-size: 9.5pt;
+  padding: 2pt 0;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.insight-dot {
+  width: 6pt;
+  height: 6pt;
+  border-radius: 50%;
+  margin-top: 3pt;
+  flex-shrink: 0;
+}
+.insight-dot.success { background: #059669; }
+.insight-dot.warning { background: #d97706; }
+.insight-dot.danger  { background: #dc2626; }
+.insight-dot.info    { background: #2563eb; }
+
+/* ── Metric row (3-up) ──────────────────────────────────────────── */
+.metric-row {
+  display: flex;
+  gap: 8pt;
+  margin-bottom: 14pt;
+}
+
+.metric-box {
+  flex: 1;
+  padding: 10pt;
+  border-radius: 6pt;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.metric-box .kpi-value { font-size: 15pt; }
+
+/* ── Goal progress bar ──────────────────────────────────────────── */
+.goal-row {
+  margin-bottom: 14pt;
+}
+
+.goal-bar-bg {
+  height: 10pt;
+  background: #e5e7eb;
+  border-radius: 5pt;
+  margin: 4pt 0 3pt;
+  overflow: hidden;
+}
+
+.goal-bar-fill {
+  height: 100%;
+  background: #6d28d9;
+  border-radius: 5pt;
+}
+
+.goal-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  color: #6b7280;
+}
+
+/* ── Chart container ────────────────────────────────────────────── */
+.chart-wrap {
+  margin-bottom: 14pt;
+}
+
+/* ── Ranking table ──────────────────────────────────────────────── */
+.rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 14pt;
+}
+
+.rank-table th {
+  background: #f3f4f6;
+  text-align: left;
+  padding: 5pt 8pt;
+  font-size: 8.5pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3pt;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rank-table td {
+  padding: 5pt 8pt;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+}
+
+.rank-table td.num {
+  text-align: right;
+  font-weight: 700;
+  color: #6d28d9;
+}
+
+.rank-table tr:last-child td { border-bottom: none; }
+
+/* ── Two-column layout for page 4 ──────────────────────────────── */
+.two-col {
+  display: flex;
+  gap: 18pt;
+}
+
+.two-col > div { flex: 1; }
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+@page { @bottom-center {
+  content: "Gerado em {{ generated_at }} · Página " counter(page) " de " counter(pages);
+  font-size: 7.5pt;
+  color: #9ca3af;
+}}
+</style>
+</head>
+<body>
+
+{# ════════════════════════════════════════════════════════════════
+   PÁGINA 1 — RESUMO EXECUTIVO
+   ════════════════════════════════════════════════════════════════ #}
+<div class="report-header">
+  <div class="report-header-top">
+    <div class="report-title">Relatório de Desempenho</div>
+    <div class="report-meta">
+      Período: {{ period_label }}<br>
+      Gerado em {{ generated_at }}
+    </div>
+  </div>
+  <div class="report-owner">{{ owner.full_name }}</div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-box">
+    <div class="kpi-label">Faturamento do período</div>
+    <div class="kpi-value purple">R$ {{ "%.0f"|format(period.revenue) | replace(",", ".") }}</div>
+    <div class="kpi-sub">Ticket médio: R$ {{ "%.0f"|format(period.ticket) | replace(",", ".") }}</div>
+  </div>
+  <div class="kpi-box">
+    <div class="kpi-label">Taxa de realização</div>
+    <div class="kpi-value {% if metrics.realization_rate >= 80 %}green{% elif metrics.realization_rate >= 60 %}orange{% else %}red{% endif %}">
+      {{ "%.1f"|format(metrics.realization_rate) }}%
+    </div>
+    <div class="kpi-sub">{{ metrics.completed }} de {{ metrics.expected }} realizados</div>
+  </div>
+  <div class="kpi-box">
+    <div class="kpi-label">Taxa de no-show</div>
+    <div class="kpi-value {% if metrics.no_show_rate <= 5 %}green{% elif metrics.no_show_rate <= 15 %}orange{% else %}red{% endif %}">
+      {{ "%.1f"|format(metrics.no_show_rate) }}%
+    </div>
+    <div class="kpi-sub">{{ metrics.no_show }} faltas em {{ metrics.expected }} esperados</div>
+  </div>
+  <div class="kpi-box">
+    <div class="kpi-label">Ocupação (período)</div>
+    <div class="kpi-value {% if period_occupancy >= 70 %}green{% elif period_occupancy >= 40 %}orange{% else %}red{% endif %}">
+      {{ period_occupancy }}%
+    </div>
+    <div class="kpi-sub">{{ period.appointments }} agendamentos</div>
+  </div>
+</div>
+
+<div class="growth-row">
+  {% if kpis.monthly_growth >= 2 %}
+    <span class="badge green">▲ {{ "%.1f"|format(kpis.monthly_growth) }}% vs. mês anterior</span>
+  {% elif kpis.monthly_growth <= -2 %}
+    <span class="badge red">▼ {{ "%.1f"|format(kpis.monthly_growth | abs) }}% vs. mês anterior</span>
+  {% else %}
+    <span class="badge gray">≈ estável vs. mês anterior</span>
+  {% endif %}
+  {% if kpis.average_rating %}
+    <span class="badge orange">★ {{ kpis.average_rating }} avaliação média ({{ kpis.total_reviews }} avaliações)</span>
+  {% endif %}
+</div>
+
+{% if insights %}
+<div class="insights-block">
+  <div class="insights-title">Destaques do período</div>
+  {% for insight in insights %}
+  <div class="insight-item">
+    <div class="insight-dot {{ insight.type }}"></div>
+    <span>{{ insight.text }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+
+{# ════════════════════════════════════════════════════════════════
+   PÁGINA 2 — FINANCEIRO
+   ════════════════════════════════════════════════════════════════ #}
+<div class="page-break">
+  <div class="section-title">Financeiro</div>
+
+  <div class="metric-row">
+    <div class="metric-box">
+      <div class="kpi-label">Faturamento realizado</div>
+      <div class="kpi-value purple">R$ {{ "%.0f"|format(metrics.realized_revenue) | replace(",", ".") }}</div>
+      <div class="kpi-sub">Receita confirmada (concluídos)</div>
+    </div>
+    <div class="metric-box">
+      <div class="kpi-label">Receita prevista</div>
+      <div class="kpi-value">R$ {{ "%.0f"|format(metrics.expected_revenue) | replace(",", ".") }}</div>
+      <div class="kpi-sub">Não-cancelados</div>
+    </div>
+    <div class="metric-box">
+      <div class="kpi-label">Ticket médio</div>
+      <div class="kpi-value">R$ {{ "%.0f"|format(period.ticket) | replace(",", ".") }}</div>
+      <div class="kpi-sub">{{ period.appointments }} atendimentos no período</div>
+    </div>
+  </div>
+
+  {% if kpis.monthly_goal %}
+  <div class="goal-row">
+    <div class="subsection">Meta mensal</div>
+    <div class="goal-bar-bg">
+      <div class="goal-bar-fill" style="width: {{ [kpis.goal_progress, 100] | min }}%;"></div>
+    </div>
+    <div class="goal-labels">
+      <span>R$ {{ "%.0f"|format(kpis.month_revenue) | replace(",", ".") }} realizado</span>
+      <span>{{ "%.0f"|format(kpis.goal_progress) }}% da meta de R$ {{ "%.0f"|format(kpis.monthly_goal) | replace(",", ".") }}</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="subsection">Receita por serviço</div>
+  <div class="chart-wrap">{{ charts.revenue_by_service | safe }}</div>
+
+  <div class="subsection">Faturamento — últimos 6 meses</div>
+  <div class="chart-wrap">{{ charts.monthly_revenue | safe }}</div>
+</div>
+
+
+{# ════════════════════════════════════════════════════════════════
+   PÁGINA 3 — AGENDA & OPERAÇÃO
+   ════════════════════════════════════════════════════════════════ #}
+<div class="page-break">
+  <div class="section-title">Agenda &amp; Operação</div>
+
+  <div class="metric-row">
+    <div class="metric-box">
+      <div class="kpi-label">Ocupação (período)</div>
+      <div class="kpi-value {% if period_occupancy >= 70 %}green{% elif period_occupancy >= 40 %}orange{% else %}red{% endif %}">
+        {{ period_occupancy }}%
+      </div>
+    </div>
+    <div class="metric-box">
+      <div class="kpi-label">Taxa de cancelamento</div>
+      <div class="kpi-value {% if metrics.cancellation_rate <= 10 %}green{% elif metrics.cancellation_rate <= 20 %}orange{% else %}red{% endif %}">
+        {{ "%.1f"|format(metrics.cancellation_rate) }}%
+      </div>
+      {% set total_cancelled = metrics.cancelled_by_client + metrics.cancelled_by_reception %}
+      {% if total_cancelled > 0 %}
+      <div class="kpi-sub">
+        {{ metrics.cancelled_by_client }} cliente · {{ metrics.cancelled_by_reception }} recepção
+      </div>
+      {% endif %}
+    </div>
+    <div class="metric-box">
+      <div class="kpi-label">No-show</div>
+      <div class="kpi-value {% if metrics.no_show_rate <= 5 %}green{% elif metrics.no_show_rate <= 15 %}orange{% else %}red{% endif %}">
+        {{ "%.1f"|format(metrics.no_show_rate) }}%
+      </div>
+      <div class="kpi-sub">{{ metrics.no_show }} faltas</div>
+    </div>
+  </div>
+
+  <div class="subsection">Agendamentos por dia da semana</div>
+  <div class="chart-wrap">{{ charts.weekly_appointments | safe }}</div>
+
+  <div class="subsection">Distribuição por horário</div>
+  <div class="chart-wrap">{{ charts.hourly_appointments | safe }}</div>
+</div>
+
+
+{# ════════════════════════════════════════════════════════════════
+   PÁGINA 4 — CLIENTES
+   ════════════════════════════════════════════════════════════════ #}
+<div class="page-break">
+  <div class="section-title">Clientes</div>
+
+  <div class="metric-row">
+    <div class="metric-box">
+      <div class="kpi-label">Total de clientes</div>
+      <div class="kpi-value purple">{{ kpis.total_clients }}</div>
+    </div>
+    <div class="metric-box">
+      <div class="kpi-label">Novos este mês</div>
+      <div class="kpi-value green">{{ kpis.new_clients_month }}</div>
+    </div>
+    {% if kpis.average_rating %}
+    <div class="metric-box">
+      <div class="kpi-label">Avaliação média</div>
+      <div class="kpi-value orange">★ {{ kpis.average_rating }}</div>
+      <div class="kpi-sub">{{ kpis.total_reviews }} avaliações</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="subsection">Serviços mais solicitados</div>
+      {% if top_services %}
+      <table class="rank-table">
+        <thead><tr><th>#</th><th>Serviço</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody>
+          {% for s in top_services %}
+          <tr>
+            <td style="color:#9ca3af; width:20pt">{{ loop.index }}</td>
+            <td>{{ s.name }}</td>
+            <td class="num">{{ s.total }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color:#9ca3af; font-size:9pt">Sem dados no período.</p>
+      {% endif %}
+
+      <div class="subsection">Top clientes</div>
+      {% if top_clients %}
+      <table class="rank-table">
+        <thead><tr><th>#</th><th>Cliente</th><th style="text-align:right">Visitas</th></tr></thead>
+        <tbody>
+          {% for c in top_clients %}
+          <tr>
+            <td style="color:#9ca3af; width:20pt">{{ loop.index }}</td>
+            <td>{{ c.name }}</td>
+            <td class="num">{{ c.total }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="color:#9ca3af; font-size:9pt">Sem dados no período.</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <div class="subsection">
+        Clientes sem retorno &gt;90 dias
+        {% if inactive_total > 5 %} (mostrando 5 de {{ inactive_total }}){% endif %}
+      </div>
+      {% if inactive_clients %}
+      <table class="rank-table">
+        <thead><tr><th>Cliente</th><th style="text-align:right">Dias</th></tr></thead>
+        <tbody>
+          {% for c in inactive_clients %}
+          <tr>
+            <td>{{ c.name }}</td>
+            <td class="num">{{ c.days }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if inactive_total > 0 %}
+      <p style="font-size:8.5pt; color:#d97706; margin-top:4pt">
+        ⚠ {{ inactive_total }} cliente{{ "s" if inactive_total > 1 else "" }} no total — oportunidade de reativação.
+      </p>
+      {% endif %}
+      {% else %}
+      <p style="color:#059669; font-size:9pt">Nenhum cliente inativo. Excelente!</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

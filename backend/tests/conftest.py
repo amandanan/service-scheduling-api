@@ -1,9 +1,15 @@
 import os
+import sys
 
 # default to a local SQLite file for a fast inner loop, but honour a
 # pre-set DATABASE_URL (CI points this at a real Postgres)
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
+
+# WeasyPrint needs pango/cairo via brew on macOS; set the library search path
+# so cffi's dlopen() finds them when tests call the PDF endpoint.
+if sys.platform == "darwin":
+    os.environ.setdefault("DYLD_FALLBACK_LIBRARY_PATH", "/opt/homebrew/lib")
 
 import pytest
 from fastapi.testclient import TestClient
