@@ -22,7 +22,8 @@ from app.schemas.appointment import (
     AppointmentStatusUpdate,
 )
 
-from app.core.account import account_id, require_management
+from app.core.dependencies import get_current_user
+from app.core.account import account_id, require_management, professional_for_user
 
 from app.core.scheduling import compute_available_slots, professional_offers_service
 from app.core.notifications import send_booking_confirmation
@@ -225,7 +226,7 @@ def update_appointment_status(
     appointment_id: int,
     data: AppointmentStatusUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_management)
+    current_user: User = Depends(get_current_user)
 ):
 
     appointment = db.query(Appointment).filter(
@@ -238,6 +239,22 @@ def update_appointment_status(
             status_code=404,
             detail="Appointment not found"
         )
+
+    # management changes any appointment to any status; a professional may
+    # only mark their own appointments as completed or no-show.
+    if current_user.role in ("owner", "staff"):
+        pass
+    elif current_user.role == "professional":
+        professional = professional_for_user(db, current_user)
+        if professional is None or appointment.professional_id != professional.id:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        if data.status not in ("completed", "no_show"):
+            raise HTTPException(
+                status_code=403,
+                detail="Profissional só pode marcar como concluído ou falta"
+            )
+    else:
+        raise HTTPException(status_code=403, detail="Sem permissão")
 
     if appointment.status == "cancelled":
         raise HTTPException(
