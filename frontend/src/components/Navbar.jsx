@@ -20,11 +20,25 @@ import {
 
 import "../styles/navbar.css";
 
+function NavItem({ to, icon, label }) {
+  const location = useLocation();
+  return (
+    <Link
+      to={to}
+      className={location.pathname === to ? "navbar-link active" : "navbar-link"}
+    >
+      {icon}
+      {label}
+    </Link>
+  );
+}
+
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const isOwner = (localStorage.getItem("role") || "owner") === "owner";
+  const role = localStorage.getItem("role") || "owner";
+  const isProfessional = role === "professional";
+  const isOwner = role === "owner";
 
   function logout() {
     localStorage.removeItem("token");
@@ -43,122 +57,31 @@ export default function Navbar() {
 
       <div className="navbar-links">
 
-        <Link
-          to="/dashboard"
-          className={
-            location.pathname === "/dashboard"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaChartPie />
-          Dashboard
-        </Link>
-
-        <Link
-          to="/clients"
-          className={
-            location.pathname === "/clients"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaUsers />
-          Clientes
-        </Link>
-
-        <Link
-          to="/services"
-          className={
-            location.pathname === "/services"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaTools />
-          Serviços
-        </Link>
-
-        <Link
-          to="/professionals"
-          className={
-            location.pathname === "/professionals"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaUserTie />
-          Profissionais
-        </Link>
-
-        <Link
-          to="/appointments"
-          className={
-            location.pathname === "/appointments"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaCalendarAlt />
-          Agendamentos
-        </Link>
-
-        <Link
-          to="/reviews"
-          className={
-            location.pathname === "/reviews"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaStar />
-          Avaliações
-        </Link>
-
-        <Link
-          to="/working-hours"
-          className={
-            location.pathname === "/working-hours"
-              ? "navbar-link active"
-              : "navbar-link"
-          }
-        >
-          <FaClock />
-          Horários
-        </Link>
-
-        {isOwner && (
-          <Link
-            to="/staff"
-            className={
-              location.pathname === "/staff"
-                ? "navbar-link active"
-                : "navbar-link"
-            }
-          >
-            <FaUserShield />
-            Equipe
-          </Link>
+        {isProfessional ? (
+          <>
+            <NavItem to="/minha-agenda" icon={<FaCalendarAlt />} label="Minha Agenda" />
+            <NavItem to="/meus-servicos" icon={<FaTools />} label="Meus Serviços" />
+            <NavItem to="/meus-horarios" icon={<FaClock />} label="Meus Horários" />
+          </>
+        ) : (
+          <>
+            <NavItem to="/dashboard" icon={<FaChartPie />} label="Dashboard" />
+            <NavItem to="/clients" icon={<FaUsers />} label="Clientes" />
+            <NavItem to="/services" icon={<FaTools />} label="Serviços" />
+            <NavItem to="/professionals" icon={<FaUserTie />} label="Profissionais" />
+            <NavItem to="/appointments" icon={<FaCalendarAlt />} label="Agendamentos" />
+            <NavItem to="/reviews" icon={<FaStar />} label="Avaliações" />
+            <NavItem to="/working-hours" icon={<FaClock />} label="Horários" />
+            {isOwner && (
+              <NavItem to="/staff" icon={<FaUserShield />} label="Equipe" />
+            )}
+            {isOwner && (
+              <NavItem to="/settings" icon={<FaCog />} label="Configurações" />
+            )}
+          </>
         )}
 
-        {isOwner && (
-          <Link
-            to="/settings"
-            className={
-              location.pathname === "/settings"
-                ? "navbar-link active"
-                : "navbar-link"
-            }
-          >
-            <FaCog />
-            Configurações
-          </Link>
-        )}
-
-        <button
-          className="logout-btn"
-          onClick={logout}
-        >
+        <button className="logout-btn" onClick={logout}>
           <FaSignOutAlt />
           Sair
         </button>

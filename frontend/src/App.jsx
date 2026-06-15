@@ -14,6 +14,9 @@ import Appointments from "./pages/Appointments";
 import WorkingHours from "./pages/WorkingHours";
 import Settings from "./pages/Settings";
 import Staff from "./pages/Staff";
+import MyAgenda from "./pages/MyAgenda";
+import MyServices from "./pages/MyServices";
+import MyAvailability from "./pages/MyAvailability";
 import PublicBooking from "./pages/PublicBooking";
 import ManageAppointment from "./pages/ManageAppointment";
 
@@ -123,6 +126,33 @@ function App() {
           element={
             <ProtectedRoute>
               <Staff />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/minha-agenda"
+          element={
+            <ProtectedRoute>
+              <MyAgenda />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/meus-servicos"
+          element={
+            <ProtectedRoute>
+              <MyServices />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/meus-horarios"
+          element={
+            <ProtectedRoute>
+              <MyAvailability />
             </ProtectedRoute>
           }
         />

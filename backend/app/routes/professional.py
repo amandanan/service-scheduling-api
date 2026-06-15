@@ -7,6 +7,8 @@ from app.models.professional import Professional
 from app.models.working_hours import WorkingHours
 from app.models.appointment import Appointment
 from app.models.time_block import TimeBlock
+from app.models.client import Client
+from app.models.service import Service
 from app.models.user import User
 
 from app.schemas.professional import (
@@ -19,7 +21,7 @@ from app.schemas.working_hours import (
     WorkingHoursUpdate,
     WorkingHoursResponse,
 )
-from app.schemas.appointment import AppointmentResponse
+from app.schemas.appointment import ProfessionalAgendaItem
 from app.schemas.time_block import MyTimeBlockCreate, TimeBlockResponse
 
 from app.core.working_hours import get_or_create_working_hours
@@ -130,15 +132,35 @@ def get_my_professional(
 
 
 # MY AGENDA (read-only)
-@router.get("/me/appointments", response_model=list[AppointmentResponse])
+@router.get("/me/appointments", response_model=list[ProfessionalAgendaItem])
 def get_my_appointments(
     db: Session = Depends(get_db),
     professional: Professional = Depends(get_current_professional)
 ):
-    return db.query(Appointment).filter(
+    appointments = db.query(Appointment).filter(
         Appointment.professional_id == professional.id,
         Appointment.status != "cancelled",
     ).order_by(Appointment.scheduled_at).all()
+
+    clients = {
+        c.id: c.full_name
+        for c in db.query(Client).filter(Client.owner_id == professional.owner_id).all()
+    }
+    services = {
+        s.id: s.name
+        for s in db.query(Service).filter(Service.owner_id == professional.owner_id).all()
+    }
+
+    return [
+        {
+            "id": a.id,
+            "client_name": clients.get(a.client_id, "Cliente"),
+            "service_name": services.get(a.service_id, "Serviço"),
+            "scheduled_at": a.scheduled_at,
+            "status": a.status,
+        }
+        for a in appointments
+    ]
 
 
 # MY WORKING HOURS

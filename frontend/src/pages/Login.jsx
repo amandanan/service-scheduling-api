@@ -34,16 +34,18 @@ function Login() {
        data.refresh_token
       );
 
+      let role = "owner";
       try {
         const me = await getMe();
-        localStorage.setItem("role", me.role);
+        role = me.role;
       } catch {
-        localStorage.setItem("role", "owner");
+        role = "owner";
       }
+      localStorage.setItem("role", role);
 
       toast.success("Login realizado com sucesso");
 
-      navigate("/dashboard");
+      navigate(role === "professional" ? "/minha-agenda" : "/dashboard");
 
      } 
      

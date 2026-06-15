@@ -478,6 +478,47 @@ export async function updateAppointmentStatus(id, status) {
 }
 
 
+// PROFESSIONAL SELF-SERVICE (role="professional")
+
+export async function getMyAppointments() {
+  const response = await api.get("/professionals/me/appointments");
+  return response.data;
+}
+
+export async function getMyWorkingHours() {
+  const response = await api.get("/professionals/me/working-hours");
+  return response.data;
+}
+
+export async function updateMyWorkingHours(days) {
+  const response = await api.put("/professionals/me/working-hours", { days });
+  return response.data;
+}
+
+export async function getMyBlocks() {
+  const response = await api.get("/professionals/me/blocks");
+  return response.data;
+}
+
+export async function createMyBlock(data) {
+  const response = await api.post("/professionals/me/blocks", data);
+  return response.data;
+}
+
+export async function deleteMyBlock(id) {
+  await api.delete(`/professionals/me/blocks/${id}`);
+}
+
+export async function updateService(id, data) {
+  const response = await api.put(`/services/${id}`, data);
+  return response.data;
+}
+
+export async function deleteService(id) {
+  await api.delete(`/services/${id}`);
+}
+
+
 // REVIEWS
 
 export async function getReviews() {

@@ -30,6 +30,16 @@ class AppointmentResponse(
     model_config = ConfigDict(from_attributes=True)
 
 
+class ProfessionalAgendaItem(BaseModel):
+    """An appointment in a professional's own agenda, with resolved names."""
+
+    id: int
+    client_name: str
+    service_name: str
+    scheduled_at: datetime
+    status: str
+
+
 # statuses an owner can set after an appointment exists
 APPOINTMENT_STATUSES = {"scheduled", "confirmed", "completed", "no_show"}
 

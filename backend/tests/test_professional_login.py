@@ -72,7 +72,8 @@ def test_professional_sees_own_profile_and_agenda(client):
 
     agenda = client.get("/professionals/me/appointments", headers=prof_headers).json()
     assert len(agenda) == 1
-    assert agenda[0]["professional_id"] == prof["id"]
+    assert agenda[0]["client_name"] == "Paciente"
+    assert agenda[0]["service_name"] == "Consulta"
 
 
 def test_professional_agenda_is_scoped(client):
