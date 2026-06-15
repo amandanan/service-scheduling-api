@@ -357,6 +357,36 @@
   color: rgba(255,255,255,0.75);
 }
 
+.cancel-window-note {
+  background: rgba(248, 196, 113, 0.12);
+  border: 1px solid rgba(248, 196, 113, 0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #fcd9a5;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.consent-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  color: rgba(255, 255, 255, 0.8);
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  margin-top: 4px;
+}
+
+.consent-check input {
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: auto;
+}
+
 @media (max-width: 768px) {
 
   .public-booking-card {

@@ -314,14 +314,21 @@ export default function ManageAppointment() {
               Remarcar
             </button>
 
-            <button
-              type="button"
-              className="public-booking-btn danger"
-              onClick={handleCancel}
-              disabled={loadingAction}
-            >
-              {loadingAction ? "Cancelando..." : "Cancelar agendamento"}
-            </button>
+            {appointment.can_cancel ? (
+              <button
+                type="button"
+                className="public-booking-btn danger"
+                onClick={handleCancel}
+                disabled={loadingAction}
+              >
+                {loadingAction ? "Cancelando..." : "Cancelar agendamento"}
+              </button>
+            ) : (
+              <p className="cancel-window-note">
+                O cancelamento só é permitido até 24h antes do horário.
+                Para cancelar agora, entre em contato com o estabelecimento.
+              </p>
+            )}
           </div>
         )}
 

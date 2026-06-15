@@ -30,6 +30,7 @@ export default function Clients() {
   const [cpf, setCpf] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [notificationConsent, setNotificationConsent] = useState(true);
 
   const [editingId, setEditingId] = useState(null);
 
@@ -66,6 +67,7 @@ export default function Clients() {
       cpf,
       phone,
       email,
+      notification_consent: notificationConsent,
     };
 
     try {
@@ -121,6 +123,7 @@ export default function Clients() {
     setCpf(client.cpf);
     setPhone(client.phone);
     setEmail(client.email);
+    setNotificationConsent(client.notification_consent);
   }
 
 
@@ -156,6 +159,7 @@ export default function Clients() {
     setCpf("");
     setPhone("");
     setEmail("");
+    setNotificationConsent(true);
     setEditingId(null);
   }
 
@@ -230,6 +234,17 @@ export default function Clients() {
               }
               required
             />
+
+            <label
+              style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "#4b5563" }}
+            >
+              <input
+                type="checkbox"
+                checked={notificationConsent}
+                onChange={(e) => setNotificationConsent(e.target.checked)}
+              />
+              Aceita receber notificações (e-mail/WhatsApp)
+            </label>
 
 
             <button

@@ -39,6 +39,7 @@ export default function PublicBooking() {
   const [cpf, setCpf] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [notificationConsent, setNotificationConsent] = useState(true);
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -158,6 +159,7 @@ export default function PublicBooking() {
         service_id: selectedService.id,
         professional_id: selectedProfessional.id,
         scheduled_at: `${selectedDate}T${selectedSlot}:00`,
+        notification_consent: notificationConsent,
       });
 
       setManageToken(booking.public_token);
@@ -414,6 +416,18 @@ export default function PublicBooking() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
+
+                <label className="consent-check">
+                  <input
+                    type="checkbox"
+                    checked={notificationConsent}
+                    onChange={(e) => setNotificationConsent(e.target.checked)}
+                  />
+                  <span>
+                    Aceito receber a confirmação e lembretes deste agendamento
+                    por e-mail e WhatsApp.
+                  </span>
+                </label>
 
               </div>
             </div>
