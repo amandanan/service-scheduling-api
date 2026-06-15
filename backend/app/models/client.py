@@ -6,6 +6,7 @@ from sqlalchemy import (
     String,
     Date,
     DateTime,
+    Boolean,
     ForeignKey,
     UniqueConstraint,
 )
@@ -35,6 +36,10 @@ class Client(Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
     )
+
+    # LGPD: consent to receive notifications (e-mail/WhatsApp)
+    notification_consent = Column(Boolean, nullable=False, default=True)
+    consent_at = Column(DateTime, nullable=True)
 
     owner_id = Column(
         Integer,

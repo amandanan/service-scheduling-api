@@ -60,7 +60,7 @@ def send_due_reminders(
         if not (business and service and professional and client):
             continue
 
-        send_appointment_reminder(appointment, business, service, professional, client)
+        send_appointment_reminder(db, appointment, business, service, professional, client)
 
         appointment.reminder_sent_at = now
         sent += 1

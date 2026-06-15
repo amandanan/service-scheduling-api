@@ -37,6 +37,7 @@ class PublicBookingCreate(BaseModel):
     service_id: int
     professional_id: int
     scheduled_at: datetime
+    notification_consent: bool = True
 
     @field_validator("cpf")
     @classmethod

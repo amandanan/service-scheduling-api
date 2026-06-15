@@ -10,6 +10,7 @@ class ClientCreate(BaseModel):
     cpf: str | None = None
     phone: str
     email: EmailStr
+    notification_consent: bool = True
 
     @field_validator("cpf")
     @classmethod
@@ -26,6 +27,7 @@ class ClientResponse(BaseModel):
     cpf: str | None
     phone: str
     email: EmailStr
+    notification_consent: bool
 
     model_config = ConfigDict(from_attributes=True)
         

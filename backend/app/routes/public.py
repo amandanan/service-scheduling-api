@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -242,6 +244,8 @@ def create_public_booking(
             cpf=booking.cpf,
             phone=booking.phone,
             email=booking.email,
+            notification_consent=booking.notification_consent,
+            consent_at=datetime.now() if booking.notification_consent else None,
         )
 
         db.add(client)
@@ -259,6 +263,6 @@ def create_public_booking(
     db.commit()
     db.refresh(new_appointment)
 
-    send_booking_confirmation(new_appointment, business, service, professional, client)
+    send_booking_confirmation(db, new_appointment, business, service, professional, client)
 
     return new_appointment

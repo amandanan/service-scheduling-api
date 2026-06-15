@@ -123,7 +123,7 @@ def create_appointment(
 
     db.refresh(new_appointment)
 
-    send_booking_confirmation(new_appointment, current_user, service, professional, client)
+    send_booking_confirmation(db, new_appointment, current_user, service, professional, client)
 
     return new_appointment
 

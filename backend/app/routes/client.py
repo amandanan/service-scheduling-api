@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -60,7 +62,9 @@ def create_client(
         cpf=client.cpf,
         phone=client.phone,
         email=client.email,
-        owner_id=account_id(current_user)
+        owner_id=account_id(current_user),
+        notification_consent=client.notification_consent,
+        consent_at=datetime.now() if client.notification_consent else None,
     )
 
     db.add(new_client)
@@ -177,6 +181,11 @@ def update_client(
     client.cpf = client_data.cpf
     client.phone = client_data.phone
     client.email = client_data.email
+
+    # record the moment consent is (re)granted
+    if client_data.notification_consent and not client.notification_consent:
+        client.consent_at = datetime.now()
+    client.notification_consent = client_data.notification_consent
 
     db.commit()
 

@@ -202,7 +202,7 @@ def test_send_appointment_reminder(client, sent_emails):
         professional = db.query(Professional).filter(Professional.id == appointment.professional_id).first()
         appointment_client = db.query(Client).filter(Client.id == appointment.client_id).first()
 
-        send_appointment_reminder(appointment, business, service, professional, appointment_client)
+        send_appointment_reminder(db, appointment, business, service, professional, appointment_client)
 
     finally:
         db.close()
