@@ -25,10 +25,11 @@ function NavItem({ to, icon, label }) {
   return (
     <Link
       to={to}
+      title={label}
       className={location.pathname === to ? "navbar-link active" : "navbar-link"}
     >
       {icon}
-      {label}
+      <span className="nav-label">{label}</span>
     </Link>
   );
 }
@@ -81,9 +82,9 @@ export default function Navbar() {
           </>
         )}
 
-        <button className="logout-btn" onClick={logout}>
+        <button className="logout-btn" onClick={logout} title="Sair">
           <FaSignOutAlt />
-          Sair
+          <span className="nav-label">Sair</span>
         </button>
 
       </div>

@@ -222,15 +222,27 @@
 
 /* GRID DOS CARDS */
 
+/* 9 cards → 3 colunas fixas = 3+3+3, zero órfão em qualquer largura de desktop */
 .dashboard-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(260px, 1fr));
-
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-
+  align-items: stretch;
   margin-bottom: 30px;
+}
+
+/* tablet (769–1024px): 2 colunas → 4+4+1 órfão → centraliza o último card */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* 9º card fica sozinho na 5ª linha: expande ao grid inteiro e centraliza */
+  .dashboard-grid > :last-child:nth-child(odd) {
+    grid-column: 1 / span 2;
+    justify-self: center;
+    width: calc(50% - 12px); /* mesma largura dos outros cards (gap=24px → 12px/lado) */
+  }
 }
 
 /* CARD */

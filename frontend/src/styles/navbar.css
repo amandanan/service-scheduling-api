@@ -1,20 +1,14 @@
 .navbar {
   width: 100%;
-
   background: white;
-
-  padding: 18px 28px;
-
+  padding: 16px 28px;
   border-radius: 20px;
-
   margin-bottom: 30px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.08);
+  gap: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 /* LOGO */
@@ -23,11 +17,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
-
   font-size: 22px;
   font-weight: 700;
-
   color: #4c1d95;
+  flex-shrink: 0;
 }
 
 .navbar-logo svg {
@@ -39,40 +32,33 @@
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 14px;
-
-  flex-wrap: wrap;
+  gap: 4px;
+  flex-wrap: nowrap;     /* nunca quebra linha no desktop */
+  overflow: hidden;      /* proteção contra overflow acidental */
 }
 
 .navbar-link {
-  padding: 10px 16px;
-
+  padding: 8px 12px;
   border-radius: 12px;
-
   text-decoration: none;
-
   color: #4b5563;
-
   font-weight: 600;
-
+  font-size: 13.5px;
+  white-space: nowrap;
   transition: 0.2s ease;
-
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  flex-shrink: 0;
 }
 
 .navbar-link:hover {
   background: #ede9fe;
-
   color: #6d28d9;
 }
 
-/* LINK ATIVO */
-
 .navbar-link.active {
   background: #6d28d9;
-
   color: white;
 }
 
@@ -80,23 +66,18 @@
 
 .logout-btn {
   background: #dc2626;
-
   color: white;
-
   border: none;
-
-  padding: 10px 16px;
-
+  padding: 8px 12px;
   border-radius: 12px;
-
   cursor: pointer;
-
   font-weight: 600;
-
+  font-size: 13.5px;
+  white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 8px;
-
+  gap: 7px;
+  flex-shrink: 0;
   transition: 0.2s ease;
 }
 
@@ -104,32 +85,51 @@
   background: #b91c1c;
 }
 
-/* RESPONSIVO */
+/* DESKTOP MÉDIO (769–1279px): só ícone, sem label
+   Libera ~600px de espaço para 10 itens caberem sem quebra.      */
+
+@media (max-width: 1279px) and (min-width: 769px) {
+  .nav-label {
+    display: none;
+  }
+
+  .navbar-link {
+    padding: 10px 11px;  /* quadrado — ícone centralizado */
+  }
+
+  .logout-btn {
+    padding: 10px 11px;
+  }
+}
+
+/* MOBILE (≤768px): empilhamento vertical limpo */
 
 @media (max-width: 768px) {
-
   .navbar {
     flex-direction: column;
-
     align-items: flex-start;
-
-    gap: 18px;
-
-    padding: 22px;
+    gap: 16px;
+    padding: 20px;
   }
 
   .navbar-links {
     width: 100%;
-
     flex-direction: column;
-
     align-items: stretch;
+    overflow: visible;
+    gap: 6px;
+  }
+
+  /* no mobile o label volta a aparecer (sobra altura, não largura) */
+  .nav-label {
+    display: inline;
   }
 
   .navbar-link,
   .logout-btn {
     width: 100%;
-
     justify-content: center;
+    padding: 11px 16px;
+    font-size: 14px;
   }
 }
