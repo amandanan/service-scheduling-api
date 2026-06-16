@@ -9,6 +9,8 @@ so they don't block the event loop.
 
 import csv
 import io
+import os
+import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -115,9 +117,28 @@ def generate_pdf(
         charts=charts,
     )
 
+    _ensure_macos_native_libs()
     from weasyprint import HTML  # lazy: avoids loading native libs at import time
 
     return HTML(string=html_string).write_pdf()
+
+
+def _ensure_macos_native_libs() -> None:
+    """Make WeasyPrint's native deps (glib/pango/cairo) loadable on macOS.
+
+    WeasyPrint loads libgobject/pango/cairo via dlopen by bare name, which
+    fails unless the Homebrew lib dir is on DYLD_FALLBACK_LIBRARY_PATH. The
+    server may be launched without that env var, so we add any existing
+    Homebrew lib dirs here, before the lazy import triggers the dlopen.
+    No-op on non-macOS platforms and when the var is already set.
+    """
+    if sys.platform != "darwin" or os.environ.get("DYLD_FALLBACK_LIBRARY_PATH"):
+        return
+
+    # Apple Silicon: /opt/homebrew ; Intel: /usr/local
+    candidates = [p for p in ("/opt/homebrew/lib", "/usr/local/lib") if os.path.isdir(p)]
+    if candidates:
+        os.environ["DYLD_FALLBACK_LIBRARY_PATH"] = ":".join(candidates)
 
 
 def generate_csv(
