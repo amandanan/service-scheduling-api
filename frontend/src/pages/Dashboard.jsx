@@ -24,6 +24,10 @@ import {
   FaBan,
   FaCheckDouble,
   FaDownload,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import {
@@ -39,6 +43,16 @@ import {
 } from "recharts";
 
 import "../styles/dashboard.css";
+
+// Compact alert chips show at most this many before collapsing into "+ N mais".
+const MAX_VISIBLE_ALERTS = 3;
+
+const ALERT_ICONS = {
+  success: FaCheckCircle,
+  warning: FaExclamationTriangle,
+  danger: FaExclamationCircle,
+  info: FaInfoCircle,
+};
 
 function brl(value) {
   return `R$ ${Number(value || 0).toFixed(2)}`;
@@ -93,6 +107,7 @@ export default function Dashboard() {
 
   const [period, setPeriod] = useState("month");
   const [professionalId, setProfessionalId] = useState("");
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -306,6 +321,34 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* ALERTAS INTELIGENTES — faixa compacta de chips */}
+        {stats.alerts.length > 0 && (
+          <div className="alerts-strip">
+            {(showAllAlerts
+              ? stats.alerts
+              : stats.alerts.slice(0, MAX_VISIBLE_ALERTS)
+            ).map((alert, index) => {
+              const Icon = ALERT_ICONS[alert.type] || FaInfoCircle;
+              return (
+                <span key={index} className={`alert-chip ${alert.type}`}>
+                  <Icon />
+                  {alert.text}
+                </span>
+              );
+            })}
+
+            {!showAllAlerts && stats.alerts.length > MAX_VISIBLE_ALERTS && (
+              <button
+                type="button"
+                className="alerts-more"
+                onClick={() => setShowAllAlerts(true)}
+              >
+                + {stats.alerts.length - MAX_VISIBLE_ALERTS} mais
+              </button>
+            )}
+          </div>
+        )}
 
         {/* INDICADORES DE DESEMPENHO */}
         {metrics && (
@@ -694,21 +737,6 @@ export default function Dashboard() {
             )}
           </div>
 
-        </div>
-
-        <div className="dashboard-charts-grid">
-          <div className="dashboard-chart-card">
-            <h3 className="dashboard-chart-title">Alertas Inteligentes</h3>
-            {stats.alerts.length === 0 ? (
-              <div className="empty-state">Nenhum alerta</div>
-            ) : (
-              stats.alerts.map((alert, index) => (
-                <div key={index} className={`alert-item ${alert.type}`}>
-                  {alert.text}
-                </div>
-              ))
-            )}
-          </div>
         </div>
 
       </div>
