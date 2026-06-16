@@ -1,6 +1,6 @@
 .clients-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--app-bg);
   padding: 30px;
 }
 
@@ -9,14 +9,14 @@
 }
 
 .clients-card {
-  background: white;
+  background: var(--surface);
 
   padding: 30px;
 
   border-radius: 20px;
 
   box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.08);
+    0 4px 15px var(--shadow-card);
 }
 
 .clients-title {
@@ -28,7 +28,7 @@
 
   font-size: 32px;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 /* FORM */
@@ -49,7 +49,7 @@
 
   border-radius: 10px;
 
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-soft);
 
   min-width: 220px;
 
@@ -57,9 +57,9 @@
 
   transition: 0.2s;
 
-  background: white;
+  background: var(--surface);
 
-  color: #111827;
+  color: var(--text-strong);
 }
 
 .clients-form input:focus,
@@ -85,15 +85,15 @@
 
   border-radius: 10px;
 
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-soft);
 
   outline: none;
 
   transition: 0.2s;
 
-  background: white;
+  background: var(--surface);
 
-  color: #111827;
+  color: var(--text-strong);
 }
 
 .clients-form > span input:focus {
@@ -134,7 +134,7 @@
 }
 
 .secondary-btn {
-  background: #e5e7eb;
+  background: var(--border-soft);
 
   border: none;
 
@@ -156,7 +156,7 @@
 }
 
 .clients-table thead tr {
-  background: #ede9fe;
+  background: var(--tint-purple);
 }
 
 .clients-table th {
@@ -164,13 +164,13 @@
 
   text-align: left;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 .clients-table td {
   padding: 15px;
 
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 /* INFO */
@@ -181,7 +181,7 @@
 
   gap: 8px;
 
-  color: #4b5563;
+  color: var(--text-soft);
 
   font-weight: 500;
 }
@@ -290,7 +290,7 @@
 
   border-radius: 10px;
 
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-soft);
 
   min-width: 220px;
 
@@ -298,9 +298,9 @@
 
   transition: 0.2s;
 
-  background: white;
+  background: var(--surface);
 
-  color: #111827;
+  color: var(--text-strong);
 }
 
 .masked-input:focus {

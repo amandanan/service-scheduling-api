@@ -1,6 +1,6 @@
 .services-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--app-bg);
   padding: 30px;
 }
 
@@ -9,12 +9,12 @@
 }
 
 .services-card {
-  background: white;
+  background: var(--surface);
   padding: 30px;
   border-radius: 20px;
 
   box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.08);
+    0 4px 15px var(--shadow-card);
 }
 
 .services-title {
@@ -25,7 +25,7 @@
   margin-bottom: 25px;
 
   font-size: 32px;
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 /* FORM */
@@ -44,7 +44,7 @@
   padding: 12px;
 
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-soft);
 
   min-width: 220px;
 
@@ -89,7 +89,7 @@
 }
 
 .secondary-btn {
-  background: #e5e7eb;
+  background: var(--border-soft);
 
   border: none;
 
@@ -110,7 +110,7 @@
 }
 
 .services-table thead tr {
-  background: #ede9fe;
+  background: var(--tint-purple);
 }
 
 .services-table th {
@@ -118,13 +118,13 @@
 
   text-align: left;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 .services-table td {
   padding: 15px;
 
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 /* PREÇO */
@@ -207,17 +207,17 @@
 
   padding-bottom: 22px;
 
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .settings-section-title {
   font-size: 18px;
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 .settings-hint {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-top: -6px;
 }
 
@@ -239,13 +239,13 @@
 .settings-field label {
   font-size: 14px;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--text-soft);
 }
 
 .settings-field input {
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-soft);
   outline: none;
   transition: 0.2s;
 }
@@ -256,8 +256,8 @@
 }
 
 .settings-field input:disabled {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-2);
+  color: var(--text-muted);
 }
 
 /* STATUS BADGES (agenda / serviços) */
@@ -271,7 +271,7 @@
 }
 
 .agenda-status.scheduled {
-  background: #ede9fe;
+  background: var(--tint-purple);
   color: #5b21b6;
 }
 
@@ -286,8 +286,8 @@
 }
 
 .agenda-status.no_show {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-2);
+  color: var(--text-muted);
 }
 
 /* RESPONSIVO */

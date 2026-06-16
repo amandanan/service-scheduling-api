@@ -18,6 +18,8 @@ import {
   FaUserShield,
 } from "react-icons/fa";
 
+import ThemeToggle from "./ThemeToggle";
+
 import "../styles/navbar.css";
 
 function NavItem({ to, icon, label }) {
@@ -49,6 +51,11 @@ export default function Navbar() {
   }
 
   return (
+    <>
+    <div className="app-topbar">
+      <ThemeToggle />
+    </div>
+
     <nav className="navbar">
 
       <div className="navbar-logo">
@@ -89,5 +96,6 @@ export default function Navbar() {
 
       </div>
     </nav>
+    </>
   );
 }

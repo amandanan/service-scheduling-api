@@ -1,6 +1,6 @@
 .appointments-page {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--app-bg);
   padding: 30px;
 }
 
@@ -9,11 +9,11 @@
 }
 
 .appointments-card {
-  background: white;
+  background: var(--surface);
   padding: 30px;
   border-radius: 20px;
   box-shadow:
-    0 4px 15px rgba(0,0,0,0.08);
+    0 4px 15px var(--shadow-card);
 }
 
 .appointments-title {
@@ -25,7 +25,7 @@
 
   font-size: 32px;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 .appointments-form {
@@ -41,7 +41,7 @@
 
   border-radius: 12px;
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-soft);
 
   min-width: 220px;
 
@@ -49,7 +49,7 @@
 
   transition: 0.2s;
 
-  background: white;
+  background: var(--surface);
 }
 
 .appointments-form input:focus,
@@ -91,14 +91,14 @@
 }
 
 .fc {
-  background: white;
+  background: var(--surface);
   border-radius: 18px;
   padding: 20px;
 }
 
 .fc-toolbar-title {
   font-size: 26px !important;
-  color: #4c1d95;
+  color: var(--brand-text);
   font-weight: bold;
 }
 
@@ -138,7 +138,7 @@
 
   border-radius: 12px !important;
 
-  border: 1px solid #d1d5db !important;
+  border: 1px solid var(--border-soft) !important;
 
   box-shadow: none !important;
 }
@@ -148,8 +148,8 @@
 }
 
 .react-select__option--is-focused {
-  background: #ede9fe !important;
-  color: #4c1d95 !important;
+  background: var(--tint-purple) !important;
+  color: var(--brand-text) !important;
 }
 
 .react-select__option--is-selected {
@@ -160,7 +160,7 @@
 
   margin-top: 20px;
 
-  background: #f5f3ff;
+  background: var(--tint-purple);
 
   border: 1px solid #ddd6fe;
 
@@ -168,7 +168,7 @@
 
   border-radius: 16px;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 .patient-card h3 {
@@ -252,9 +252,9 @@
 
   margin-top: 16px;
 
-  background: #ffffff;
+  background: var(--surface);
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-soft);
 
   border-radius: 18px;
 
@@ -286,11 +286,11 @@
 
 .slot-btn {
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-soft);
 
-  background: #f9fafb;
+  background: var(--surface-3);
 
-  color: #374151;
+  color: var(--text-soft);
 
   padding: 12px;
 
@@ -305,7 +305,7 @@
 
 .slot-btn:hover {
 
-  background: #ede9fe;
+  background: var(--tint-purple);
 
   border-color: #c4b5fd;
 
@@ -351,7 +351,7 @@
 
   font-weight: 600;
 
-  color: #4b5563;
+  color: var(--text-soft);
 }
 
 .manual-time-wrapper input {
@@ -367,7 +367,7 @@
 
   width: 100%;
 
-  background: #f5f3ff;
+  background: var(--tint-purple);
 
   border: 1px solid #ddd6fe;
 
@@ -375,7 +375,7 @@
 
   border-radius: 14px;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 
   font-weight: 500;
 }

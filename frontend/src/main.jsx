@@ -10,6 +10,12 @@ import "./styles/variables.css";
 
 import App from "./App.jsx";
 
+// Apply the persisted theme before first paint so there's no flash.
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme) {
+  document.documentElement.setAttribute("data-theme", savedTheme);
+}
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
 

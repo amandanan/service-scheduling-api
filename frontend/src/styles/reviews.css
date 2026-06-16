@@ -28,7 +28,7 @@
 }
 
 .star-rating.light .star {
-  color: #d1d5db;
+  color: var(--border-soft);
 }
 
 .star-rating.light .star.filled {
@@ -149,9 +149,9 @@
 
   border-radius: 14px;
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-soft);
 
-  background: #f9fafb;
+  background: var(--surface-3);
 
   margin-bottom: 14px;
 }
@@ -168,13 +168,13 @@
 }
 
 .owner-review-meta {
-  color: #6b7280;
+  color: var(--text-muted);
 
   font-size: 13px;
 }
 
 .owner-review-comment {
-  color: #374151;
+  color: var(--text-soft);
 
   font-size: 14px;
 }
@@ -188,13 +188,13 @@
 
   border-radius: 16px;
 
-  background: #f5f3ff;
+  background: var(--tint-purple);
 
   border: 1px solid #ddd6fe;
 
   margin-bottom: 25px;
 
-  color: #4c1d95;
+  color: var(--brand-text);
 }
 
 .reviews-summary-score {

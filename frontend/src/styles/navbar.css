@@ -1,6 +1,6 @@
 .navbar {
   width: 100%;
-  background: white;
+  background: var(--surface);
   padding: 16px 28px;
   border-radius: 20px;
   margin-bottom: 30px;
@@ -8,7 +8,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 24px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px var(--shadow-card);
 }
 
 /* LOGO */
@@ -19,7 +19,7 @@
   gap: 12px;
   font-size: 22px;
   font-weight: 700;
-  color: #4c1d95;
+  color: var(--brand-text);
   flex-shrink: 0;
 }
 
@@ -41,7 +41,7 @@
   padding: 8px 12px;
   border-radius: 12px;
   text-decoration: none;
-  color: #4b5563;
+  color: var(--text-soft);
   font-weight: 600;
   font-size: 13.5px;
   white-space: nowrap;
@@ -53,7 +53,7 @@
 }
 
 .navbar-link:hover {
-  background: #ede9fe;
+  background: var(--tint-purple);
   color: #6d28d9;
 }
 
@@ -131,5 +131,45 @@
     justify-content: center;
     padding: 11px 16px;
     font-size: 14px;
+  }
+}
+
+/* TOPBAR (acima da navbar) + TOGGLE DE TEMA */
+
+.app-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  color: var(--text-soft);
+  border: 1px solid var(--border-soft);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 4px 15px var(--shadow-card);
+  transition: 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--brand-text);
+  border-color: #c4b5fd;
+}
+
+.theme-toggle svg {
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .theme-toggle {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 16px;
   }
 }
