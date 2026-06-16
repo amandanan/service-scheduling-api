@@ -66,3 +66,15 @@
 [data-theme="dark"] .dashboard-page .recharts-cartesian-grid line {
   stroke: var(--border-soft);
 }
+
+/* FullCalendar legibility in dark mode (Agenda / Minha Agenda).
+   FullCalendar paints the sticky header band with --fc-page-bg-color (#fff
+   by default), so the light header text washed out against it. Remap its
+   own theme variables to the dark surface/borders. */
+[data-theme="dark"] .appointments-page .fc,
+[data-theme="dark"] .services-page .fc {
+  --fc-page-bg-color: var(--surface);
+  --fc-neutral-bg-color: var(--surface-2);
+  --fc-border-color: var(--border-soft);
+  --fc-today-bg-color: rgba(124, 58, 237, 0.12);
+}
