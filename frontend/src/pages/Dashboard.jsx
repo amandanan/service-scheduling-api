@@ -662,23 +662,6 @@ export default function Dashboard() {
           </div>
 
           <div className="dashboard-chart-card">
-            <h3 className="dashboard-chart-title">Top {term.plural}</h3>
-            <p className="dashboard-chart-subtitle">no período selecionado</p>
-            {stats.top_clients.length === 0 ? (
-              <div className="empty-state">Nenhum {term.singular.toLowerCase()} no período</div>
-            ) : (
-              stats.top_clients.map((patient, index) => (
-                <div key={patient.id} className="appointment-item">
-                  <div className="appointment-info">
-                    <strong>#{index + 1} {patient.name}</strong>
-                    <span>{patient.total} atendimentos</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="dashboard-chart-card">
             <h3 className="dashboard-chart-title">{term.plural} Sem Retorno</h3>
             <p className="dashboard-chart-subtitle">há mais de 90 dias</p>
             {stats.inactive_clients.length === 0 ? (
